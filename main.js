@@ -1,7 +1,9 @@
 "use strict";
 
 const ANIM_SHRINK_GROW_DURATION = 500,
-      URL_PAGE_SPECIFIER_START = "?=";
+      ANIM_FADE_IN_OUT_DURATION = 500,
+      URL_PAGE_SPECIFIER_START = "?=",
+      BACKGROUND_CHANGE_EVENT  = "EVENT_BACKGROUND_CHANGE";
 
 /**
  *  A very messy file to handle scripts specific to
@@ -212,7 +214,7 @@ function LogoWorld()
     };
 }
 
-function BackgroundAnimationWorld(worldManager)
+function BackgroundAnimationWorld(worldManager, initialBackground)
 {
     const me = this;
     WorldBox.apply(me);
@@ -220,6 +222,115 @@ function BackgroundAnimationWorld(worldManager)
     let logoWorld = new LogoWorld();
     let worldCube = new BackgroundCube();
     
+    let backgroundRenderScripts =
+    {
+        "logoAndWalls": (currentObject, renderer, time) =>
+        {
+            if (currentObject != worldCube)
+            {
+                return true; // Let the base world class render it.
+            }
+            
+            // Otherwise, render things with the cube.
+            
+            renderer.setShine(500);
+            
+            // The ground.
+            worldCube.transformMat.save();
+            
+                let groundWidth = 9000;
+                let groundLength = 9000;
+                
+                worldCube.transformMat.scale(groundWidth, 10, groundLength);
+                
+                // Center it.
+                worldCube.transformMat.translate([-groundWidth * 25, groundDepth, -25 * groundLength / 2]);
+                
+                renderer.setTint(new Vector3(0.0, 0.0, 0.0));
+                worldCube.render(renderer);
+            
+            worldCube.transformMat.restore();
+            
+            // The blocks.
+            for (let i = -Math.PI / 2; i < Math.PI / 2; i += 0.3)
+            {
+                worldCube.transformMat.save();
+                
+                worldCube.transformMat.translate([Math.sin(i) * 50, groundDepth - 50 - Math.abs(Math.tan(i * 3) * groundDepth), 700 + Math.sin(i) * 300]);
+                worldCube.transformMat.rotateY(i * 3 + i * time / 10);
+                worldCube.transformMat.translate([0, 0, -10]);
+                worldCube.transformMat.scale(2.0, 2.0 + Math.sin(time / 10) / 5, 2.0);
+                
+                renderer.setTint(new Vector3
+                (
+                    Math.abs(Math.sin(i)) / 4, Math.abs(Math.cos(i / 2)) / 4, Math.abs(Math.cos(i * 2)) / 4
+                ));
+                
+                worldCube.render(renderer);
+                
+                worldCube.transformMat.restore();
+            }
+            
+            // The mountains.
+            for (let x = -groundWidth / 2; x < groundWidth / 2; x += groundWidth / 26)
+            {
+                worldCube.transformMat.save();
+                
+                worldCube.transformMat.rotateX(Math.abs(Math.sin(x * x * x)) * 2);
+                worldCube.transformMat.rotateY(Math.sin(x * x * x));
+                worldCube.transformMat.rotateZ(Math.PI);
+                worldCube.transformMat.scale(Math.abs(Math.cos(x)) * 10 + 5, Math.abs(Math.tan(x) * 16) + 5, Math.abs(Math.sin(x*x)) * 80 + 5);//groundWidth / 100, groundLength, groundLength / 100);
+                
+                worldCube.transformMat.translate([x, groundDepth - 100, -5000]);//groundDepth - 100, groundLength + 130 + Math.cos(x) * 50]);
+                
+                
+                
+                renderer.setTint(new Vector3
+                (
+                    0, 0, 0
+                ));
+                
+                worldCube.render(renderer);
+                
+                worldCube.transformMat.restore();
+            }
+        },
+        
+        "logo": (currentObject, renderer, time) =>
+        {
+            if (currentObject != worldCube)
+            {
+                return true; // Let the base world class render it.
+            }
+            
+            // Do things with the blocks.
+            for (let i = -Math.PI; i < Math.PI; i += 0.3)
+            {
+                worldCube.transformMat.save();
+                
+                worldCube.transformMat.translate([Math.sin(i) * 50, groundDepth - 50 - Math.abs(Math.tan(i * 3) * groundDepth), 700 + Math.sin(i) * 300]);
+                worldCube.transformMat.rotateY(i * 3 + i * time / 10);
+                worldCube.transformMat.translate([0, 0, -10]);
+                worldCube.transformMat.scale(2.0, 2.0 + Math.sin(time / 10) / 5, 2.0);
+                
+                renderer.setTint(new Vector3
+                (
+                    Math.abs(Math.sin(i)) / 4, Math.abs(Math.cos(i / 2)) / 4, Math.abs(Math.cos(i * 2)) / 4
+                ));
+                
+                worldCube.render(renderer);
+                
+                worldCube.transformMat.restore();
+            }
+        },
+        
+        "empty": (currentObject, renderer, time) =>
+        {
+            return false;
+        }
+    };
+    
+    this.currentBackground = initialBackground;
     this.registerObject(worldCube);
     
     this.registerObject(logoWorld);
@@ -231,7 +342,7 @@ function BackgroundAnimationWorld(worldManager)
     
     this.preRender = function(renderer)
     {
-        renderer.setFogColor({ x: 0.5, y: 1.0, z: 1.0, w: 0.01});
+        renderer.setFogColor({ x: 0.4, y: 0.5, z: 0.6, w: 0.01});
         
         renderer.setZMax(90000);
         renderer.setFogDecay(10000);
@@ -239,84 +350,21 @@ function BackgroundAnimationWorld(worldManager)
         renderer.setTint(new Vector3(0.5, 0.5, 0.5));
         
         renderer.setLightPosition(new Vector3(0.0, 0.0, 0.0));
-        
-        renderer.setClearColor([0.5, 1.0, 1.0, 0.01]);
     };
     
     // Do additional renderings for the 
     //cube.
     this.onRender = function(currentObject, renderer)
     {
-        if (currentObject != worldCube)
-        {
-            return true; // Let the base world class render it.
-        }
-        
-        // Otherwise, render things with the cube.
-        
         let time = (new Date()).getTime() / 1000000;
         
-        renderer.setShine(500);
-        
-        // The ground.
-        worldCube.transformMat.save();
-        
-            let groundWidth = 9000;
-            let groundLength = 9000;
-            
-            worldCube.transformMat.scale(groundWidth, 10, groundLength);
-            
-            // Center it.
-            worldCube.transformMat.translate([-groundWidth * 25, groundDepth, -25 * groundLength / 2]);
-            
-            renderer.setTint(new Vector3(0.0, 0.0, 0.0));
-            worldCube.render(renderer);
-        
-        worldCube.transformMat.restore();
-        
-        // The blocks.
-        for (let i = -Math.PI / 2; i < Math.PI / 2; i += 0.3)
+        if (this.currentBackground in backgroundRenderScripts)
         {
-            worldCube.transformMat.save();
-            
-            worldCube.transformMat.translate([Math.sin(i) * 50, groundDepth - 50 - Math.abs(Math.tan(i * 3) * groundDepth), 700 + Math.sin(i) * 300]);
-            worldCube.transformMat.rotateY(i * 3 + i * time / 10);
-            worldCube.transformMat.translate([0, 0, -10]);
-            worldCube.transformMat.scale(2.0, 2.0 + Math.sin(time / 10) / 5, 2.0);
-            
-            renderer.setTint(new Vector3
-            (
-                Math.abs(Math.sin(i)) / 4, Math.abs(Math.cos(i / 2)) / 4, Math.abs(Math.cos(i * 2)) / 4
-            ));
-            
-            worldCube.render(renderer);
-            
-            worldCube.transformMat.restore();
+            return backgroundRenderScripts[this.currentBackground](currentObject, renderer, time);
         }
         
-        // The mountains.
-        for (let x = -groundWidth / 2; x < groundWidth / 2; x += groundWidth / 26)
-        {
-            worldCube.transformMat.save();
-            
-            worldCube.transformMat.rotateX(Math.abs(Math.sin(x * x * x)) * 2);
-            worldCube.transformMat.rotateY(Math.sin(x * x * x));
-            worldCube.transformMat.rotateZ(Math.PI);
-            worldCube.transformMat.scale(Math.abs(Math.cos(x)) * 10 + 5, Math.abs(Math.tan(x) * 16) + 5, Math.abs(Math.sin(x*x)) * 80 + 5);//groundWidth / 100, groundLength, groundLength / 100);
-            
-            worldCube.transformMat.translate([x, groundDepth - 100, -5000]);//groundDepth - 100, groundLength + 130 + Math.cos(x) * 50]);
-            
-            
-            
-            renderer.setTint(new Vector3
-            (
-                0, 0, 0
-            ));
-            
-            worldCube.render(renderer);
-            
-            worldCube.transformMat.restore();
-        }
+        // Default rendering if the script does not exist.
+        return true;
     };
     
     this.animate = (renderer, deltaT) =>
@@ -336,6 +384,11 @@ function BackgroundAnimationWorld(worldManager)
         me.transformMat.translate([0, -scrollTop, 40]);
         
         groundDepth = scrollHeight + 10;
+    };
+    
+    this.selectBackground = function(backgroundName)
+    {
+        this.currentBackground = backgroundName;
     };
     
     this.cleanup = (renderer) =>
@@ -500,11 +553,11 @@ function initializeMainMenu()
     menuBlade.addEventListener  ("click", showHideBlade);
 }
 
-function startBackgroundAnimation(worldManager, scrolledElement)
+function startBackgroundAnimation(worldManager, scrolledElement, initialBackground)
 {
     let backgroundAnimationCanvas = document.querySelector("#backgroundAnimation");
     
-    let scene = new BackgroundAnimationWorld(worldManager);
+    let scene = new BackgroundAnimationWorld(worldManager, initialBackground);
     
     scene.setDestinationCanvas(backgroundAnimationCanvas);
     scene.outputResolution = 1 / 10.0;
@@ -541,6 +594,20 @@ function startBackgroundAnimation(worldManager, scrolledElement)
     
     worldManager.updateWorld(scene);
     
+    // Flash the background!
+    let flashBackground = () =>
+    {
+        backgroundAnimationCanvas.classList.add("fadeInOut");
+            
+        setTimeout(() =>
+        {
+            backgroundAnimationCanvas.classList.remove("fadeInOut");
+        }, ANIM_FADE_IN_OUT_DURATION);
+    };
+    
+    // Do so once as we transition in.
+    flashBackground();
+    
     // Every half-second or so, update the scene
     // -- it is an animation, but it is a slow animation.
     let sceneUpdateLoop;
@@ -562,7 +629,22 @@ function startBackgroundAnimation(worldManager, scrolledElement)
         lastTimeout = setTimeout(sceneUpdateLoop, updateWorldRate);
     };
     
+    // Wait for a notification requesting that the background change.
+    let sceneChangeLoop = async function()
+    {
+        while (true) // It's an async function. We can do this!
+        {
+            let newBackgroundName = await JSHelper.Notifier.waitFor(BACKGROUND_CHANGE_EVENT);
+            
+            // Transition!
+            flashBackground();
+            
+            scene.selectBackground(newBackgroundName);
+        }
+    };
+    
     sceneUpdateLoop();
+    sceneChangeLoop();
     
     window.addEventListener("resize", () =>
     {
@@ -590,6 +672,9 @@ async function displayPage(name)
     
     // Set content.
     contentZone.innerHTML = PageDataHelper.pages[name];
+    
+    // Did the page request a background?
+    JSHelper.Notifier.notify(BACKGROUND_CHANGE_EVENT, PageDataHelper.pageBackgrounds[name]);
     
     // Cleanup animation
     setTimeout(() =>
@@ -650,6 +735,14 @@ function main()
 {
     const worldManager = new FullWorld();
     
+    // Initial background await.
+    let initialBackground = undefined;
+    
+    JSHelper.Notifier.waitFor(BACKGROUND_CHANGE_EVENT).then((backgroundName) =>
+    {
+        initialBackground = backgroundName;
+    });
+    
     // Create and enable buttons.
     initializePages();
     
@@ -661,7 +754,7 @@ function main()
     loadLogos(worldManager).then(() =>
     {
         // Load the background animation.
-        startBackgroundAnimation(worldManager, document.documentElement);
+        startBackgroundAnimation(worldManager, document.documentElement, initialBackground);
     });
     
     // Run!

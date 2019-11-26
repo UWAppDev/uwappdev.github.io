@@ -2,12 +2,19 @@
  *  Styles specific to the page.
  */
  
- @keyframes shrinkGrow
- {
-    0% { transform: scale(1, 1); }
-    50% { transform: scale(0, 0); }
-    100% { transform: scale(1, 1); }
- }
+@keyframes shrinkGrow
+{
+   0% { transform: scale(1, 1); }
+   50% { transform: scale(0, 0); }
+   100% { transform: scale(1, 1); }
+}
+ 
+@keyframes fadeInOut
+{
+   0% { opacity: 100%; }
+   50% { opacity: 0%; }
+   100% { opacity: 100%; }
+}
  
 .navabar
 {
@@ -106,6 +113,12 @@ html, body
     padding-bottom: 50px;
 }
 
+body
+{
+    background-image: radial-gradient(rgba(0, 0, 0, 0.8), rgba(100, 0, 100, 0.6));
+    background-size: 5px 5px;
+}
+
 .logo
 {
     box-shadow: 1px 2px 4px rgba(100, 100, 100, 0.6);
@@ -201,7 +214,7 @@ html, body
     width: 100vw;
     height: 100vh;
     
-    filter: saturate(10%) blur(16px) opacity(30%);
+    filter: opacity(30%);
 }
 
 #mainData
@@ -214,6 +227,11 @@ html, body
 .shrinkGrow
 {
     animation: 0.5s ease shrinkGrow !important;
+}
+
+.fadeInOut
+{
+    animation: 0.5s ease fadeInOut !important;
 }
 
 .lowerLinks
@@ -267,6 +285,8 @@ html, body
         border: none;
         width: auto;
         box-shadow: none;
+        
+        background-color: white;
     }
     
     .navabar

@@ -326,3 +326,72 @@ JSHelper.Events.registerPointerEvent = function(eventName, target, onEvent, allo
         target.style.touchAction = "none";
     }
 };
+
+// An implementation of the observer pattern.
+JSHelper.Notifier = new
+(function()
+{
+    let listeners = {};
+    let listenerIdCounter = 0; // The id for the next listener.
+    
+    // Wait for eventName to be distributed by notify.
+    //A message is included with the distributed event.
+    this.waitFor = (eventName) =>
+    {
+        if (listeners[eventName] === undefined)
+        {
+            listeners[eventName] = {};
+        }
+        
+        let registered = false, registeredContent;
+        let listenerId = "l" + (listenerIdCounter++); // Each listener has an ID. This is ours.
+        
+        // Put a default method in place, in case a notification comes before the next browser
+        //frame.
+        listeners[eventName][listenerId] = (content) =>
+        {
+            registered = true;
+            registeredContent = content;
+                
+            // Remove our listener.
+            delete listeners[eventName][listenerId];
+        };
+        
+        let result = new Promise((resolve, reject) =>
+        {
+            // Have we already put the listener?
+            if (!registered)
+            {
+                listeners[eventName][listenerId] = (content) =>
+                {
+                    resolve.call(this, content);
+                
+                    // Remove our listener.
+                    delete listeners[eventName][listenerId];
+                };
+            }
+            else // We already received the event!
+            {    // Notify now.
+                resolve(registeredContent);
+            }
+        });
+        
+        return result;
+    };
+    
+    // Notify all listeners on eventName.
+    this.notify = (eventName, content) =>
+    {
+        if (listeners[eventName]) // Are there listeners for eventName?
+        {
+            for (let listenerId in listeners[eventName])
+            {
+                // Notify all that are not undefined.
+                if (listeners[eventName][listenerId])
+                {
+                    listeners[eventName][listenerId](content);
+                }
+            }
+        }
+    };
+})();

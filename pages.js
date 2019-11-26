@@ -17,6 +17,7 @@ const PageDataHelper =
         resolve(PageDataHelper.pages);
     }),
     
+    pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
     pages:
     {
         "About":
