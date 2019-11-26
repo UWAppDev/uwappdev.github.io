@@ -176,9 +176,10 @@ html, body
     padding-right: 30px;
     padding-top: 30px;
     
-    border-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.96);
     
     margin-left: auto;
     margin-right: auto;
@@ -199,6 +200,8 @@ html, body
     left: 0;
     width: 100vw;
     height: 100vh;
+    
+    filter: saturate(10%) blur(16px) opacity(30%);
 }
 
 #mainData
