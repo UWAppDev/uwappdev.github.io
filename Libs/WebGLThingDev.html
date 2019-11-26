@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<!-- The scrap-heap version! -->
+<!-- All files in this project, unless otherwise specified
+     are under the GPL, v3.0. A copy of this license
+     should have been distributed with this project. If not,
+     see https://www.gnu.org/licenses/gpl-3.0.html and look for the 
+     GPLv3.0 license. -->
+<html>
+<head>
+    <title>Test</title> <!-- Programs named "test" seem to 
+                            do more/better than those with
+                            other names, so lets call this
+                            "test" for now (confirmation
+                            bias in action)! -->
+    <meta charset = "UTF-8"/> <!-- Included to hide a warning in Firefox. -->
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1.0"/> <!-- Causes
+                                                                                        browsers
+                                                                                        on mobile
+                                                                                        devices to
+                                                                                        display the
+                                                                                        page with an
+                                                                                        initially smaller
+                                                                                        window width/height,
+                                                                                        making the page far more
+                                                                                        usable.                  -->
+    
+    <!-- Styles specific to helper functions. -->
+    <link rel = "stylesheet" type = "text/css" href = "subWindowStyles.css"/>
+    <link rel = "stylesheet" type = "text/css" href = "widgetStyles.css"/>
+    
+    
+    <!-- 
+    Styles specific to this page.
+    These styles are placed in separate blocks
+    to ease the planned transition from a single-
+    file to a multi-file page.
+     -->
+    <style>
+        body
+        {
+            background-image: radial-gradient(#222222, #000000);
+            background-size: 5px 5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Define project-specific constants. -->
+<script>
+"use strict";
+
+const ABOUT_PROGRAM =
+`
+    This program was created in 2019 by a just-graduated highschool student. It, unfortunately was written quickly, so please excuse its often lacking comments. This program is licensed to you under the GPL-2.0 license, a copy of which should have been distributed with this program. If not, please check for this license online.
+`;
+
+const DISCLAIMER = // TODO: What is the <i>actual</i> defenition of disclaimer? From context,
+                   //it seems applicable here, but it might not be...
+`
+    ~~~THIS PROGRAM HAS SLOPPY CODE~~~
+        While viewing this page's GPL-
+    licensed JavaScript, please note
+    that much of it is poorly written
+    and overly-complex. DO NOT USE
+    IT AS AN EXAMPLE OF HOW TO WRITE
+    CODE! Regardless, welcome to the
+    console, and may your interest in
+    the source of this webpage lead
+    to advancement in your ability to
+    program (or just help fix a bug
+    in this page).
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`;
+
+</script>
+
+<!-- 
+Include libraries!
+    Fun fact: This was once a 6,283-line,
+    single-file project.
+ -->
+<script src = "Transition.js"></script>
+<script src = "DraggableElement.js"></script>
+<script src = "SubWindowManager.js"></script>
+<script src = "Mat.js"></script>
+<script src = "AreaHelper.js"></script>
+<script src = "ArrayHelper.js"></script>
+<script src = "HTMLHelper.js"></script>
+<script src = "JSHelper.js"></script>
+<script src = "ProgressEstimator.js"></script>
+<script src = "SerializationHelper.js"></script>
+<script src = "ThreadHelper.js"></script>
+<script src = "Point.js"></script>
+<script src = "Vector3.js"></script>
+<script src = "Modeler2D.js"></script>
+<script src = "ModelHelper.js"></script>
+<script src = "Modeler3D.js"></script>
+
+<script>
+"use strict"; // Stricter syntax helps code optimization! See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode.
+
+(function()
+{
+    // Log a startup message to the console.
+    console.log(DISCLAIMER);
+    
+    new Modeler3D();
+})();
+</script>
+</body>
+</html>

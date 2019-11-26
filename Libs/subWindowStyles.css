@@ -1,0 +1,149 @@
+@keyframes fadeIn
+{
+    0% { filter: opacity(0%); }
+    100% { filter: opaicty(100%); }
+}
+
+@keyframes fadeOut
+{
+    0% { filter: opacity(100%); display: block; }
+    100% { filter: opacity(0%); display: none; }
+}
+
+.windowContainer
+{
+    box-shadow: 2px 1px 24px rgba(255, 0, 0, 0.6);
+    position: fixed;
+    background-color: rgba(200, 200, 200, 0.8);
+    
+    border-top-left-radius: 7px;
+}
+
+.windowContainerContent
+{
+    overflow-y: auto;
+}
+
+.windowContainerTitleBar
+{
+    background-image: radial-gradient(rgba(0, 0, 0, 0.8), rgba(100, 50, 100, 0.9));
+    background-size: 6px 5px;
+    
+    font: 12pt Sans;
+    text-shadow: 0px 0px 3px rgba(255, 255, 255, 1);
+    color: white;
+    
+    padding: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 7px;
+    
+    user-select: none;
+    
+    cursor: pointer;
+    
+    box-shadow: 0px 2px 2px rgba(0, 255, 255, 0.4);
+}
+
+.windowContainerTabZone
+{
+    background-color: #aaaaaa;
+    font: 12pt Sans;
+    
+    box-shadow: 0px 2px 1px rgba(0, 0, 0, 0.4);
+}
+
+.baseTab
+{
+    cursor: pointer;
+    border-bottom: 2px groove gray;
+}
+
+.baseTabLabel
+{
+    padding-right: 5px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.baseMenu
+{
+    background-color: #aaaaaa;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.4);
+    
+    animation: fadeIn 0.2s ease;
+}
+
+.windowContainerCloseButton
+{
+    transition: 0.3s ease all;
+    
+    text-shadow: 0px 0px 3px rgba(255, 0, 0, 0.95);
+    color: #bbbbbb;
+    
+    filter: blur(1px);
+    
+    animation: fadeIn 0.5s ease;
+}
+
+.windowContainerCloseButton:hover
+{
+    transform: matrix(1, 0, 0.1, 0.9, 0, 0);
+    filter: blur(0px);
+}
+
+.windowContainerMinimizeButton, .windowContainerMaximizeButton
+{
+    padding-left: 7px;
+    margin-right: 6px;
+    margin-left: 4px;
+    
+    border-color: #dddddd;
+    border-style: ridge;
+    
+    filter: blur(1px);
+    
+    transform: rotate(0deg);
+    
+    transition: 1s ease all;
+}
+
+.windowContainerMinimizeButton:hover, .windowContainerMaximizeButton:hover
+{
+    transform: rotate(1deg);
+}
+
+.windowContainerMinimizeButton
+{
+    border-bottom-width: 3px;
+    border-top-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+}
+
+.windowContainerMaximizeButton
+{
+    border-top-width: 2px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+}
+
+.windowDragElement
+{
+    top: 0;
+    left: 0;
+}
+
+.windowContainerResizeZone
+{
+    animation: fadeIn 0.5s ease;
+    
+    position: fixed;
+    border: 1px solid gray;
+    
+    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.4);
+    
+    padding: 7px;
+    
+    border-radius: 100%;
+}

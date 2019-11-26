@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html style = "padding: 0px;">
+<head>
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,min-scale=1.0,max-scale=1.0"/>
+    <title>Code Edit</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+
+    <style>
+            #mainCanvas
+            {
+
+            }
+
+            #editControl
+            {
+                width: 95vw;
+                height: 50vh;
+            }
+
+            body
+            {
+                background-color: black;
+                color: white;
+                padding-left: 0px;
+                touch-action: none !important;
+            }
+            
+            textarea
+            {
+                background-color: #007777;
+                color: white;
+                
+                border-radius: 3px;
+            }
+        </style>
+</head>
+    <body>
+    <!-- Include Libraries -->
+    <script src = "JSHelper.js"></script>
+    <script src = "Keyboard.js" encoding = "utf-8"></script>
+    <script src = "Point.js" encoding = "utf-8"></script>
+    <script src = "MathHelper.js" encoding = "utf-8"></script>
+    <script src = "HighlightSchemes.js" encoding = "utf-8"></script>
+    <script src = "SyntaxHelper.js" encoding = "utf-8"></script>
+    <script src = "Line.js" encoding = "utf-8"></script>
+    <script src = "Editor.js" encoding = "utf-8"></script>
+    
+    <!-- Main Content -->
+        <script>
+"use strict";
+
+function noteError(e)
+{
+    var result = "ERROR:\n";
+
+    for (var key in e)
+    {
+        result += "\nKEY: `" + key + "`: VALUE: `" + e[key] + "`";
+    }
+
+    result += "\ntoString(): " + e.toString();
+
+    document.body.innerText = result;
+
+    var errorHandleDiv = document.createElement("div");
+    errorHandleDiv.style.border = "1px solid white";
+    errorHandleDiv.style.borderRadius = "4px";
+    errorHandleDiv.style.padding = "6px";
+
+    var errorHandleInput = document.createElement("textarea");
+    var submitButton = document.createElement("button");
+
+    submitButton.innerHTML = "RUN";
+    submitButton.style.width = "90vw";
+    submitButton.style.textAlign = "center";
+
+    submitButton.onclick = function(event)
+    {
+        errorHandleDiv.innerText += "\n" + (eval("(function(console, error) { return (() => " + errorHandleInput.value + ")(); })").call(window,
+        {
+            log: (message) =>
+            {
+                errorHandleDiv.innerText += "\n" + message;
+            }
+        }, e));
+        errorHandleInput.value = "";
+
+        errorHandleDiv.scrollTop = errorHandleDiv.scrollHeight;
+    };
+
+    errorHandleInput.style.width = "90vw";
+    errorHandleInput.style.color = "#aaffaa";
+    errorHandleInput.style.backgroundColor = "black";
+    errorHandleInput.style.height = "50px";
+
+    document.body.appendChild(errorHandleDiv);
+    document.body.appendChild(errorHandleInput);
+    document.body.appendChild(submitButton);
+}
+
+
+var editor;
+
+function openFile(pathName)
+{
+    try
+    {
+        var content = app.getFileContent(pathName);
+
+        editor.clear();
+        editor.displayContent(content);
+    }
+    catch(e)
+    {
+        noteError(e);
+    }
+}
+
+function getEditorSaveState()
+{
+    return editor.getPreUnloadSaveString();
+}
+
+function main()
+{
+    editor = new Editor(document.body);
+
+    if (window.app && window.app.getRestoreString() && app.getRestoreString().length > 0)
+    {
+        let restore = app.getRestoreString();
+
+        editor.loadFromSaveString(restore);
+    }
+}
+
+try
+{
+    main();
+}
+catch(e)
+{
+    noteError(e);
+}
+            </script></body></html>

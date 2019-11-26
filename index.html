@@ -1,16 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang = "en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=https://localhackday.mlh.io/build/locations/2874">
-    <script type="text/javascript">
-        window.location.href = "https://localhackday.mlh.io/build/locations/2874"
-    </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Local Hack Day: Build (2019) at University of Washington</title>
+    <meta charset = "utf-8"/>
+    <meta name = "viewport" content = "width=device-width,height=device-height,initial-scale=1.0"/>
+    
+    <title>Mobile Dev Club</title>
+    </style>
+    
+    
+    <!-- Links for styles specific to helper functions -->
+    <link rel = "stylesheet" type = "text/css" href = "Libs/subWindowStyles.css"/>
+    <link rel = "stylesheet" type = "text/css" href = "Libs/widgetStyles.css"/>
+    
+    <!-- 
+    Include libraries!
+        Interesting fact: This project is a combination
+        of a text-editing and a 3D-modeling project.
+    -->
+    <script src = "Libs/Transition.js"></script>
+    <script src = "Libs/DraggableElement.js"></script>
+    <script src = "Libs/SubWindowManager.js"></script>
+    <script src = "Libs/Mat.js"></script>
+    <script src = "Libs/AreaHelper.js"></script>
+    <script src = "Libs/ArrayHelper.js"></script>
+    <script src = "Libs/HTMLHelper.js"></script>
+    <script src = "Libs/JSHelper.js"></script>
+    <script src = "Libs/ProgressEstimator.js"></script>
+    <script src = "Libs/SerializationHelper.js"></script>
+    <script src = "Libs/ThreadHelper.js"></script>
+    <script src = "Libs/Point.js"></script>
+    <script src = "Libs/Vector3.js"></script>
+    <script src = "Libs/Modeler2D.js"></script>
+    <script src = "Libs/Drawer2D.js"></script>
+    <script src = "Libs/ModelHelper.js"></script>
+    <script src = "Libs/Modeler3D.js"></script>
+
+    <script src = "Libs/Keyboard.js" encoding = "utf-8"></script> <!-- The utf-8 is
+                                                                  necessary -- 
+                                                                  the keyboard
+                                                                  uses unicode
+                                                                  picture-like
+                                                                  characters for
+                                                                  many of its
+                                                                  commands.
+                                                                  -->
+    <script src = "Libs/MathHelper.js"></script>
+    <script src = "Libs/HighlightSchemes.js" encoding = "utf-8"></script>
+    <script src = "Libs/SyntaxHelper.js" encoding = "utf-8"></script>
+    <script src = "Libs/Line.js" encoding = "utf-8"></script>
+    <script src = "Libs/Editor.js" encoding = "utf-8"></script>
+
+    <script src = "Libs/Renderer.js"></script>
+    <script src = "Libs/IntroScreen.js"></script>
+    <script src = "Libs/Worlds.js"></script>
+    
+    <!-- Include page-specific files. -->
+    <script src = "pages.js"></script>
+    <script src = "main.js"></script>
+    
+    <link rel = "stylesheet" type = "text/css" href = "main.css"/>
 </head>
 <body>
-    Please register at <a href="https://localhackday.mlh.io/build/locations/2874">https://localhackday.mlh.io/build/locations/2874</a>
+    <div class = "navabar navigationButtons">
+        <canvas class="logo"></canvas>
+        <div id = "title">Mobile Development Club</div>
+        <div class = "spacer"></div>
+        
+        <!-- Additional content filled with JS. -->
+    </div>
+    
+    <!-- A side pane called a (I think) blade. -->
+    <div id = "mainBlade" class = "blade bladeClosed navigationButtons">
+        <!-- Filled by JS. -->
+    </div>
+    
+    <!-- The page's main content. -->
+    <div class = "content">
+        <div id = "mainData"> <!-- This is where loaded content will go. -->
+            <div id = "loader" alt = "Loading content! If you're having trouble, please contact us through our RSO page!">Loading...</div>
+            
+            <noscript>
+                Please enable JavaScript! This page requires it to function properly!
+            </noscript>
+        </div>
+        <div class = "lowerLinks">
+            <a href = "https://huskylink.washington.edu/organization/appdev">Visit our Registered Student Organization Page</a>
+        </div>
+    </div>
+    
+    <canvas id = "backgroundAnimation"></canvas>
 </body>
 </html>
