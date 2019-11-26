@@ -238,7 +238,7 @@ function BackgroundAnimationWorld(worldManager)
         
         renderer.setTint(new Vector3(0.5, 0.5, 0.5));
         
-        renderer.setLightPosition(new Vector3(0.0, -800.0, 700.0));
+        renderer.setLightPosition(new Vector3(0.0, 0.0, 0.0));
         
         renderer.setClearColor([0.5, 1.0, 1.0, 0.01]);
     };
@@ -255,6 +255,8 @@ function BackgroundAnimationWorld(worldManager)
         // Otherwise, render things with the cube.
         
         let time = (new Date()).getTime() / 1000000;
+        
+        renderer.setShine(500);
         
         // The ground.
         worldCube.transformMat.save();
@@ -273,7 +275,7 @@ function BackgroundAnimationWorld(worldManager)
         worldCube.transformMat.restore();
         
         // The blocks.
-        for (let i = -Math.PI; i < Math.PI; i += 0.1)
+        for (let i = -Math.PI / 2; i < Math.PI / 2; i += 0.3)
         {
             worldCube.transformMat.save();
             
@@ -293,20 +295,17 @@ function BackgroundAnimationWorld(worldManager)
         }
         
         // The mountains.
-        for (let x = -groundWidth / 4; x < groundWidth / 4; x += groundWidth / 20)
+        for (let x = -groundWidth / 2; x < groundWidth / 2; x += groundWidth / 26)
         {
             worldCube.transformMat.save();
-            worldCube.transformMat.scale(groundWidth / 100, groundLength, groundLength / 100);
             
-            worldCube.transformMat.translate([x, 100, groundLength - 130 - Math.cos(x) * 50]);
+            worldCube.transformMat.rotateX(Math.abs(Math.sin(x * x * x)) * 2);
+            worldCube.transformMat.rotateY(Math.sin(x * x * x));
+            worldCube.transformMat.rotateZ(Math.PI);
+            worldCube.transformMat.scale(Math.abs(Math.cos(x)) * 10 + 5, Math.abs(Math.tan(x) * 16) + 5, Math.abs(Math.sin(x*x)) * 80 + 5);//groundWidth / 100, groundLength, groundLength / 100);
             
-            worldCube.transformMat.transpose();
-            worldCube.transformMat.rotateZ(Math.sin(x) * 3 / 50 + Math.PI);
-            worldCube.transformMat.rotateY(Math.cos(x) * 3);
-            worldCube.transformMat.rotateX(Math.sin(Math.tan(x) * 3));
-            worldCube.transformMat.transpose();
+            worldCube.transformMat.translate([x, groundDepth - 100, -5000]);//groundDepth - 100, groundLength + 130 + Math.cos(x) * 50]);
             
-            worldCube.transformMat.translate([0, groundDepth + 50, 0]);
             
             
             renderer.setTint(new Vector3
@@ -337,9 +336,6 @@ function BackgroundAnimationWorld(worldManager)
         me.transformMat.translate([0, -scrollTop, 40]);
         
         groundDepth = scrollHeight + 10;
-        
-        
-        worldManager.updateWorld(me);
     };
     
     this.cleanup = (renderer) =>
@@ -511,21 +507,62 @@ function startBackgroundAnimation(worldManager, scrolledElement)
     let scene = new BackgroundAnimationWorld(worldManager);
     
     scene.setDestinationCanvas(backgroundAnimationCanvas);
-    scene.outputResolution = 1 / 4.0;
+    scene.outputResolution = 1 / 10.0;
+    
+    let idleWorldUpdateRate = 500;
+    let updateWorldRate = idleWorldUpdateRate;
+    let lastTimeout, resetUpdateRateTimeout;
     
     window.addEventListener("scroll", () =>
     {
-        scene.noteScroll(scrolledElement.scrollTop, scrolledElement.scrollHeight);
+        // Update more frequently.
+        updateWorldRate = 10;
+        
+        // If we can, render sooner.
+        if (lastTimeout !== undefined)
+        {
+            clearTimeout(lastTimeout);
+            
+            sceneUpdateLoop();
+        }
+        
+        // Cancel the update rate reset.
+        if (resetUpdateRateTimeout !== undefined)
+        {
+            clearTimeout(resetUpdateRateTimeout);
+        }
+        
+        // Reset the update rate in 3 seconds.
+        resetUpdateRateTimeout = setTimeout(() =>
+        {
+            updateWorldRate = idleWorldUpdateRate;
+        }, 3000);
     }, true);
     
     worldManager.updateWorld(scene);
     
-    // Every half-second, update the scene -- it is an animation, but it is a slow animation.
-    setInterval(() =>
+    // Every half-second or so, update the scene
+    // -- it is an animation, but it is a slow animation.
+    let sceneUpdateLoop;
+    sceneUpdateLoop = () =>
     {
+        // Update everything else.
         worldManager.loopOnce();
+        
+        // Note the current scroll amount.
+        scene.noteScroll(scrolledElement.scrollTop, scrolledElement.scrollHeight);
+        
+        // Update the scene.
         worldManager.updateWorld(scene);
-    }, 500);
+        
+        // Bring the rate closer to the idle update rate.
+        updateWorldRate = updateWorldRate * 8 + idleWorldUpdateRate / 8;
+        
+        // Update the view.
+        lastTimeout = setTimeout(sceneUpdateLoop, updateWorldRate);
+    };
+    
+    sceneUpdateLoop();
     
     window.addEventListener("resize", () =>
     {
