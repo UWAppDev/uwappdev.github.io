@@ -509,7 +509,7 @@ function startBackgroundAnimation(worldManager, scrolledElement)
     scene.setDestinationCanvas(backgroundAnimationCanvas);
     scene.outputResolution = 1 / 10.0;
     
-    let idleWorldUpdateRate = 500;
+    let idleWorldUpdateRate = 250;
     let updateWorldRate = idleWorldUpdateRate;
     let lastTimeout, resetUpdateRateTimeout;
     
@@ -556,7 +556,7 @@ function startBackgroundAnimation(worldManager, scrolledElement)
         worldManager.updateWorld(scene);
         
         // Bring the rate closer to the idle update rate.
-        updateWorldRate = updateWorldRate * 8 + idleWorldUpdateRate / 8;
+        updateWorldRate = updateWorldRate * 7 / 8 + idleWorldUpdateRate / 8;
         
         // Update the view.
         lastTimeout = setTimeout(sceneUpdateLoop, updateWorldRate);

@@ -442,7 +442,7 @@ function Renderer()
 
         handleUniform("u_cameraPosition", vector3SetFunction, cameraPosition, vector3TransformInput);
         handleUniform("u_lightPosition", vector3SetFunction, lightPosition, vector3TransformInput);
-        handleUniform("u_mousePosition", vector2SetFunction, undefined, vector2TransformInput);
+        handleUniform("u_mousePosition", vector2SetFunction, new Vector3(-100, -100), vector2TransformInput); // Initially offscreen.
         handleUniform("u_objectId", (location, value) => gl.uniform1f(location, value));
         handleUniform("u_fogDecay", (location, value) => gl.uniform1f(location, value), 10000.0); // Set the default fog amount.
         
