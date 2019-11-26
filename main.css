@@ -289,6 +289,13 @@ body
         background-color: white;
     }
     
+    body
+    {
+        color: black;
+        background: white !important;
+        background-image: none;
+    }
+    
     .navabar
     {
         position: relative;
