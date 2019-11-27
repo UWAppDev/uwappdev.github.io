@@ -24,7 +24,7 @@ const PageDataHelper =
         `
             <h1>About</h1>
             <h2>Our Mission</h2>
-            <center><i>To provide an inclusive environment where beginner and the experienced alike can learn and participate in the design, development, marketing / launching and operating processes of real-world, market suitable mobile apps.</i></center>
+            <center><i>To provide an inclusive environment where the beginner and the experienced alike can learn and participate in the design, development, marketing, launching, and operating processes of real-world, market-suitable mobile apps.</i></center>
         `,
         
         "Events":
@@ -38,8 +38,8 @@ const PageDataHelper =
             
             <h2>Planned Schedule</h2>
             <ul style = "font: 11pt mono, monospace, courier, sans;">
-                <li><b>8:00  AM</b> Check-in and registration!</li>
-                <li><b>8:45  AM</b> Opening Ceremony</li>
+                <li><b>8:00 &nbsp;AM</b> Check-in and registration!</li>
+                <li><b>8:45 &nbsp;AM</b> Opening Ceremony</li>
                 <li><b>10:00 AM</b> <i>Optional Workshop:</i> iOS Development with Swift and SwiftUI</li>
                 <li><b>10:00 AM</b> <i>Optional Workshop:</i> CSE 142 Study Group</li>
                 <li><b>11:00 AM</b> <i>Optional Workshop:</i> Android Development with Java</li>

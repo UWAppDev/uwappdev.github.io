@@ -153,6 +153,7 @@ function JavaHighlightScheme(originalHighlighter)
         "true": "#abab00",
         "null": "#00ff66",
         "this": "#00ffff",
+        "super": "#00ffff",
         "const": "#ffee00",
         "return": "#ff6677",
         "switch": "#00ccff",
