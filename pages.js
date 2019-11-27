@@ -34,13 +34,14 @@ const PageDataHelper =
             <h2>Overview</h2>
             <p>On December 7<sup>th</sup> from 8:00 AM to 9:00 PM, the University of Washington's
                Mobile Development Club will be hosting a hackathon!</p>
-            <p>Register <a href = "https://localhackday.mlh.io/build/locations/2874/">here.</a></p>
+            <p>Register <button class = "hugeButton" onclick = "window.open('https://localhackday.mlh.io/build/locations/2874/');">here.</button></p>
             
             <h2>Planned Schedule</h2>
             <ul style = "font: 11pt mono, monospace, courier, sans;">
-                <li><b>8:00 AM</b> Check-in and registration!</li>
-                <li><b>9:30 AM</b> Opening Ceremony</li>
+                <li><b>8:00  AM</b> Check-in and registration!</li>
+                <li><b>8:45  AM</b> Opening Ceremony</li>
                 <li><b>10:00 AM</b> <i>Optional Workshop:</i> iOS Development with Swift and SwiftUI</li>
+                <li><b>10:00 AM</b> <i>Optional Workshop:</i> CSE 142 Study Group</li>
                 <li><b>11:00 AM</b> <i>Optional Workshop:</i> Android Development with Java</li>
                 <li><b>11:00 AM</b> <i>Optional Workshop:</i> How to Collaborate with GitHub</li>
                 <li><b>1:00 &nbsp;PM</b> Lunch Break</li>

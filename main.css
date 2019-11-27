@@ -241,6 +241,12 @@ body
     font: 12pt Serif;
 }
 
+.hugeButton
+{
+    color: white;
+    font: 24pt Sans;
+}
+
 .lowerLinks a
 {
     color: gray !important;
