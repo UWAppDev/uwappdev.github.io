@@ -34,7 +34,7 @@ const PageDataHelper =
             <h2>Overview</h2>
             <p>On December 7<sup>th</sup> from 8:00 AM to 9:00 PM, the University of Washington's
                Mobile Development Club will be hosting a hackathon!</p>
-            <p>Register <button class = "hugeButton" onclick = "window.open('https://localhackday.mlh.io/build/locations/2874/');">here.</button></p>
+            <button class = "hugeButton" onclick = "window.open('https://localhackday.mlh.io/build/locations/2874/');">Register</button>
             
             <h2>Planned Schedule</h2>
             <ul style = "font: 11pt mono, monospace, courier, sans;">
