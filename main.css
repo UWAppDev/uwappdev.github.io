@@ -245,6 +245,8 @@ body
 {
     color: white;
     font: 24pt Sans;
+    
+    cursor: pointer;
 }
 
 .lowerLinks a
