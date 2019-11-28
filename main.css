@@ -15,6 +15,19 @@
    50% { opacity: 0%; }
    100% { opacity: 100%; }
 }
+
+@keyframes infrequentWobble
+{
+    0% { transform: rotate(0deg); }
+    1% { transform: rotate(6deg); }
+    2% { transform: rotate(-6deg); }
+    3% { transform: rotate(3deg); }
+    4% { transform: rotate(-3deg); }
+    3% { transform: rotate(2deg); }
+    4% { transform: rotate(-1deg); }
+    5% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+}
  
 .navabar
 {
@@ -271,6 +284,11 @@ a:hover
 {
     transform: scale(1.1, 1.1);
     display: inline-block; /* Normally, transform doesn't work for links -- they're inline! Fix this. */
+}
+
+.emphasizedLink
+{
+    animation: infrequentWobble 60s ease infinite;
 }
 
 @media print
