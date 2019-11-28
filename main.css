@@ -256,7 +256,7 @@ body
 
 .lowerLinks a
 {
-    color: gray !important;
+    color: rgba(100, 100, 100, 0.9) !important;
     
     display: block; /* Each one on a separate line. */
 }
@@ -289,6 +289,13 @@ a:hover
 .emphasizedLink
 {
     animation: infrequentWobble 60s ease infinite;
+    transition: 0.4s ease all;
+}
+
+.emphasizedLink:hover
+{
+    color: rgba(0, 0, 0, 0.9) !important;
+    font-size: 18pt;
 }
 
 @media print
