@@ -241,6 +241,13 @@ body
     font: 12pt Serif;
 }
 
+.lowerLinks a
+{
+    color: gray !important;
+    
+    display: block; /* Each one on a separate line. */
+}
+
 .hugeButton
 {
     color: white;
@@ -249,14 +256,21 @@ body
     cursor: pointer;
 }
 
-.lowerLinks a
-{
-    color: gray !important;
-}
-
 .rotatedSelector
 {
     transform: rotate(-90deg) !important;
+}
+
+a
+{
+    transform: scale(1, 1);
+    transition: 0.4s ease all;
+}
+
+a:hover
+{
+    transform: scale(1.1, 1.1);
+    display: inline-block; /* Normally, transform doesn't work for links -- they're inline! Fix this. */
 }
 
 @media print
