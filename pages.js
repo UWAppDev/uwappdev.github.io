@@ -45,10 +45,10 @@ const PageDataHelper =
                 <li><b>11:00 AM</b> <i>Optional Workshop:</i> Android Development with Java</li>
                 <li><b>11:00 AM</b> <i>Optional Workshop:</i> How to Collaborate with GitHub</li>
                 <li><b>1:00 &nbsp;PM</b> Lunch Break</li>
+                <li><b>1:00 &nbsp;PM</b> <i>Optional Workshop:</i> Build and Deploy Node.js Apps with Microsoft Azure.</li>
                 <li><b>2:00 &nbsp;PM</b> <i>Optional Workshop:</i> CSE 143 Study Group</li>
                 <li><b>2:00 &nbsp;PM</b> <i>Optional Workshop:</i> Python: Basic Training <span class = "dash"></span> Intro to Python Skills for AI</li>
                 <li><b>3:00 &nbsp;PM</b> <i>Optional Workshop:</i> Add an FAQ Bot to Your Webpage with Microsoft Azure</li>
-                <li><b>4:00 &nbsp;PM</b> <i>Optional Workshop:</i> Build and Deploy Node.js Apps with Microsoft Azure (<b>This workshop might change times</b>).</li>
                 <li><b>6:00 &nbsp;PM</b> Dinner Break</li>
                 <li><b>8:00 &nbsp;PM</b> End of Hacking, Start of Demos</li>
                 <li><b>8:30 &nbsp;PM</b> Awards!</li>
