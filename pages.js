@@ -67,10 +67,10 @@ const PageDataHelper =
                             I have a math final on that day!
                         </summary>
 
-                        Many students have a math midterm on December 7<sup>th</sup>! <br> <br>
-                    Think of the hackathon as a way to de-stress before or after your midterm.
-                    Even several of the organizers will be leaving for midterms! If you need
-                    to leave early or arrive late, this is expected. Come.
+                        Many students have a math midterm on December 7<sup>th</sup>,
+                        even several of the organizers will be leaving for midterms! <br> <br>
+                        Think of the hackathon as a way to de-stress before or after your midterm.
+                        If you need to leave early or arrive late, this is expected. Come.
                     </details>
                 </li>
                 <li>
@@ -78,7 +78,8 @@ const PageDataHelper =
                         <summary>
                             Who can attend?
                         </summary>
-                            You must be a current student or staff at the University of Washington.
+                        
+                        You must be a current student or staff at the University of Washington.
                     </details>
                 </li>
                 <li>
@@ -86,7 +87,8 @@ const PageDataHelper =
                         <summary>
                             Do I have to attend all the workshops/study groups?
                         </summary>
-                            No! You can work on whatever you want, but bringing a pair of headphones with you is a good idea.
+                            
+                        No! You can work on whatever you want, but bringing a pair of headphones with you is a good idea.
                     </details>
                 </li>
                 <li>
@@ -95,8 +97,8 @@ const PageDataHelper =
                             How do I win the awards?
                         </summary>
                         
-                        We'll announce the award categories later, but it's as 
-                        easy as showing us the project you worked on <em>during</em> this hackathon!
+                        We'll announce the award categories later, but it's as easy as
+                        showing us the project you worked on <em>during</em> this hackathon!
                     </details>
                 </li>
                 <li>
