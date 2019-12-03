@@ -35,7 +35,7 @@ const PageDataHelper =
            build something awesome, and win prizes like the <strong>Amazon Echo Dot</strong>, and more!</p>
         <button class = "hugeButton" onclick = "window.open('http://organize.mlh.io/participants/events/2874-local-hack-day-uw/register');">Register for FREE</button>
 
-        <div>
+        <div id="schedule">
         <h2>Schedule</h2>
             <ul class="lhdSchedule">
                 <li><b>8:00 &nbsp;AM</b> Check-in and registration!</li>
@@ -59,7 +59,7 @@ const PageDataHelper =
         </div>
         
         <div>
-            <h2>Frequently Asked Questions</h2>
+            <h2 id="faq">Frequently Asked Questions</h2>
             <ul class="qaSection">
                 <li>
                     <details open>
