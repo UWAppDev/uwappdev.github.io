@@ -419,6 +419,10 @@ summary {
     padding: .5em;
 }
 
+summary:hover {
+    cursor: pointer;
+}
+
 details[open] {
     padding: .5em;
 }
