@@ -131,7 +131,8 @@ function LogoWorld()
     
     // We don't want all logos to look exactly the same.
     //Give each a time offset.
-    let timeOffset = - Math.floor((new Date()).getTime() * Math.random());
+    let timeOffset = - Math.floor((new Date()).getTime() - 10000); // Start every visitor
+                                                                   //at the same time.
     this.forcedTime = 0; // No forced time by default.
     
     this.registerObject(firstBulb);
