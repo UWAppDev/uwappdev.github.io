@@ -258,8 +258,6 @@ body
 .lowerLinks a
 {
     color: rgba(100, 100, 100, 0.9) !important;
-    
-    display: block; /* Each one on a separate line. */
 }
 
 .hugeButton
@@ -356,3 +354,77 @@ a:hover
         display: none;
     }
 }
+
+.lhdStudyGroup::before {
+    content: "Study Group";
+    background-color: greenyellow;
+    border-radius: 10px;
+    padding: 0 5px;
+    margin-right: 10px;
+}
+
+.lhdWorkshop::before {
+    content: "Workshop";
+    background-color: skyblue;
+    border-radius: 10px;
+    padding: 0 5px;
+    margin-right: 10px;
+}
+
+.lhdSchedule {
+    font: 11pt mono, monospace, courier, sans;
+    list-style: none;
+    padding-left: 0;
+}
+
+.lhdSchedule > li {
+    margin: 5px 0;
+}
+
+.qaSection {
+    list-style: none;
+    column-count: 2;
+    padding: 0 10px;
+    margin: 0 0 16px 0;
+}
+
+@media screen and (max-width: 750px) {
+    .qaSection {
+        column-count: 1;
+    }
+}
+
+details {
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+
+    width: 95%;
+    display: inline-block;
+    margin: 10px 0;
+    border-radius: 10px;
+    padding: 10px 10px 0px 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    transition: all 400ms ease-in-out;
+}
+
+details:hover {
+    box-shadow: 0 0 6px palevioletred;
+}
+
+summary {
+    font-size: large;
+    font-weight: bold;
+    margin: -.5em -.5em 0;
+    padding: .5em;
+}
+
+details[open] {
+    padding: .5em;
+}
+
+details[open] summary {
+    border-bottom: 1px solid #aaa;
+    margin-bottom: .5em;
+}
+
