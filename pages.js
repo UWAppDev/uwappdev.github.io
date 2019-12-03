@@ -31,8 +31,8 @@ const PageDataHelper =
         `
         <h1>Local Hack Day: Build @ UW</h1>
         <p>On December 7<sup>th</sup> from 8:00 AM to 9:00 PM, 
-           Mobile Development Club will be hosting a hackathon! Come to get <strong>swag and laptop stickers</strong>, study for finals together, or learn something new through our workshops, 
-           build something awesome, and win prizes like the <strong>Amazon Echo Dot</strong>, and more!</p>
+           Mobile Development Club will be hosting a hackathon! Come to get <strong>swag and laptop stickers</strong>, study for finals together, or learn something new through our workshops.
+           Come build something awesome! Win prizes like the <strong>Amazon Echo Dot</strong>!</p>
         <button class = "hugeButton" onclick = "window.open('http://organize.mlh.io/participants/events/2874-local-hack-day-uw/register');">Register for FREE</button>
 
         <div id="schedule">
