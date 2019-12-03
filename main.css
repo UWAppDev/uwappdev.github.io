@@ -282,7 +282,17 @@ a
 a:hover
 {
     transform: scale(1.1, 1.1);
-    display: inline-block; /* Normally, transform doesn't work for links -- they're inline! Fix this. */
+    display: inline-block; /* Normally, transform doesn't work for links -- they're inline! */
+}
+
+.dash
+{
+    border-bottom: 1.5px solid black;
+ 
+    width: 1em;
+    margin-bottom: 0.28em;
+ 
+    display: inline-bock;
 }
 
 .emphasizedLink
