@@ -33,7 +33,7 @@ const PageDataHelper =
         <p>On December 7<sup>th</sup> from 8:00 AM to 9:00 PM, 
            Mobile Development Club will be hosting a hackathon! Come to get <strong>swag and laptop stickers</strong>, study for finals together, or learn something new through our workshops, 
            build something awesome, and win prizes like the <strong>Amazon Echo Dot</strong>, and more!</p>
-        <button class = "hugeButton" onclick = "window.open('https://localhackday.mlh.io/build/locations/2874/');">Register for FREE</button>
+        <button class = "hugeButton" onclick = "window.open('http://organize.mlh.io/participants/events/2874-local-hack-day-uw/register');">Register for FREE</button>
 
         <div>
         <h2>Schedule</h2>
@@ -114,7 +114,7 @@ const PageDataHelper =
                             I have other questions...
                         </summary>
 
-                        Check the <a href="https://localhackday.mlh.io/build/locations/2874/" target="_blank" rel="noopener noreferrer">registration page FAQ</a>,
+                        Check the <a href="https://localhackday.mlh.io/build/locations/2874/" target="_blank" rel="noopener noreferrer">Major League Hacking FAQ</a>,
                         or contact us through 
                         <a href="mailto:appdev@uw.edu">email</a>, <a href="https://twitter.com/uwappdev" target="_blank" rel="noopener noreferrer">twitter</a>, 
                         or <a href="https://t.me/UWAppDev" target="_blank" rel="noopener noreferrer">telegram.</a>
