@@ -367,7 +367,7 @@ a:hover
 
 .lhdStudyGroup::before {
     content: "Study Group";
-    background-color: greenyellow;
+    background-color: skyblue;
     border-radius: 10px;
     padding: 0 5px;
     margin-right: 10px;
@@ -375,7 +375,7 @@ a:hover
 
 .lhdWorkshop::before {
     content: "Workshop";
-    background-color: skyblue;
+    background-color: greenyellow;
     border-radius: 10px;
     padding: 0 5px;
     margin-right: 10px;
