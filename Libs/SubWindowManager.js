@@ -236,25 +236,36 @@ function SubWindow(globals, options)
     var parent = globals.parent;
     
     var me = this;
-    var styleClassName = options.className || "windowContainer";
+    var styleClassName = options.className || "windowContainerDefault";
+    
+    // Get a string representing a component's style classes
+    //for a given suffix.
+    var getStyleClass = (suffix) =>
+    {
+        let result;
+        
+        result = styleClassName + suffix + " " + "windowContainer" + suffix;
+        
+        return result;
+    };
     
     this.zIndex = globals.minZIndex;
     
     this.container = document.createElement("div");
-    this.container.setAttribute("class", styleClassName);
+    this.container.setAttribute("class", getStyleClass(""));
     
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.position = "fixed";
     
     this.titleBar = document.createElement("div");
-    this.titleBar.setAttribute("class", styleClassName + "TitleBar");
+    this.titleBar.setAttribute("class", getStyleClass("TitleBar"));
     
     this.titleBar.style.display = "flex";
     this.titleBar.style.flexDirection = "row";
     
     this.titleContent = document.createElement("div");
-    this.titleContent.setAttribute("class", styleClassName + "TitleContent");
+    this.titleContent.setAttribute("class", getStyleClass("TitleContent"));
     this.titleContent.style.flexGrow = "1";
 
     this.alwaysOnTop = options.alwaysOnTop || false;
@@ -274,7 +285,7 @@ function SubWindow(globals, options)
     }
     
     this.tabZone = document.createElement("div");
-    this.tabZone.setAttribute("class", styleClassName + "TabZone");
+    this.tabZone.setAttribute("class", getStyleClass("TabZone"));
     this.tabZone.style.display = "none";
     var hasTabs = false;
     var tabs = [];
@@ -297,7 +308,7 @@ function SubWindow(globals, options)
     var onCloseListener = undefined;
     
     this.content = document.createElement("div");
-    this.content.setAttribute("class", styleClassName + "Content");
+    this.content.setAttribute("class", getStyleClass("Content"));
     this.content.style.flexGrow = "1";
     
     if (options.contentHTML)
@@ -590,7 +601,7 @@ function SubWindow(globals, options)
         me.closeButton = document.createElement("div");
         me.closeButton.innerHTML = "X";
         
-        me.closeButton.setAttribute("class", styleClassName + "CloseButton");
+        me.closeButton.setAttribute("class", getStyleClass("CloseButton"));
         
         me.titleBar.appendChild(me.closeButton);
         
@@ -605,7 +616,7 @@ function SubWindow(globals, options)
     this.createMinimizeMaximizeButton = function()
     {
         me.minMaxButton = document.createElement("div");
-        me.minMaxButton.setAttribute("class", styleClassName + "MaximizeButton");
+        me.minMaxButton.setAttribute("class", getStyleClass("MaximizeButton"));
         me.titleBar.appendChild(me.minMaxButton);
         
         // Original state
@@ -648,7 +659,7 @@ function SubWindow(globals, options)
             if (me.minMaxButton.getAttribute("class").indexOf("MinimizeB") === -1)
             {
                 // Change the button's looks!
-                me.minMaxButton.setAttribute("class", styleClassName + "MinimizeButton");
+                me.minMaxButton.setAttribute("class", getStyleClass("MinimizeButton"));
                 
                 // Allow a return to the state of the window before maximization.
                 storeOriginalState();
@@ -681,7 +692,7 @@ function SubWindow(globals, options)
                 me.locationTransition.start(originalX, originalY).then(() => 
                 {
                     // Only change state related to minimization/maximization at the end.
-                    me.minMaxButton.setAttribute("class", styleClassName + "MaximizeButton");
+                    me.minMaxButton.setAttribute("class", getStyleClass("MaximizeButton"));
                     me.setDraggable(originalMovable);
                 });
                 
@@ -706,7 +717,7 @@ function SubWindow(globals, options)
         var bbox = me.container.getBoundingClientRect();
     
         me.resizeZone = document.createElement("div");
-        me.resizeZone.setAttribute("class", styleClassName + "ResizeZone");
+        me.resizeZone.setAttribute("class", getStyleClass("ResizeZone"));
         me.resizeZone.style.position = "absolute"; // Note: "fixed" has issues in WebKit.
         me.container.appendChild(me.resizeZone);
         
@@ -937,9 +948,81 @@ SubWindowHelper.create = function(options)
     return newWindow;
 };
 
-SubWindowHelper.alert = function(title, message, onClose, htmlText)
+SubWindowHelper.confirm = function(title, message, okLabel, cancelLabel, htmlText, windowOptions)
 {
-    var alertDialog = SubWindowHelper.create({ title: title, content: "", noCloseButton: true, noResize: true, maxWidth: 400, minWidth: 400, x: (window.innerWidth / 2 - 200), minHeight: 120 });
+    var dialog = SubWindowHelper.create(windowOptions 
+    || { title: title, 
+         content: "", 
+         noCloseButton: true, 
+         noResize: true, 
+         maxWidth: 400, 
+         minWidth: 400, 
+         x: (window.innerWidth / 2 - 200), 
+         minHeight: 120 });
+    
+    var contentDiv = document.createElement("div");
+    
+    if (!htmlText)
+    {
+        contentDiv.innerText = message;
+    }
+    else
+    {
+        contentDiv.innerHTML = message;
+    }
+    
+    dialog.enableFlex("column");
+    contentDiv.style.flexGrow = 2;
+    contentDiv.style.overflowY = "auto";
+    
+    // Add additional padding.
+    contentDiv.style.paddingLeft = "4px";
+    
+    var submitButtonOk = document.createElement("button");
+    var submitButtonCancel = document.createElement("button");
+    
+    submitButtonOk.innerHTML = okLabel || "Ok";
+    submitButtonCancel.innerHTML = cancelLabel || "Cancel";
+    
+    submitButtonOk.setAttribute("class", "dialogSubmitButton");
+    submitButtonCancel.setAttribute("class", "dialogSubmitButton");
+    
+    dialog.content.appendChild(contentDiv);
+    dialog.content.appendChild(submitButtonOk);
+    dialog.content.appendChild(submitButtonCancel);
+    
+    return new Promise((resolve, reject) =>
+    {
+        const submit = (result) =>
+        {
+            dialog.close();
+            
+            resolve(this, result);
+        };
+    
+        submitButtonOk.onclick = function()
+        {
+            submit(true);
+        };
+        
+        submitButtonCancel.onclick = function()
+        {
+            submit(false);
+        };
+    });
+};
+
+SubWindowHelper.alert = function(title, message, onClose, htmlText, windowOptions)
+{
+    var alertDialog = SubWindowHelper.create(windowOptions 
+    || { title: title, 
+         content: "", 
+         noCloseButton: true, 
+         noResize: true, 
+         maxWidth: 400, 
+         minWidth: 400, 
+         x: (window.innerWidth / 2 - 200), 
+         minHeight: 120 });
     
     var contentDiv = document.createElement("div");
     
@@ -983,12 +1066,20 @@ SubWindowHelper.alert = function(title, message, onClose, htmlText)
 };
 
 // Prompt a user for input.
-//This method bo
+//This method takes a map of input placeholders/
+//labels to input types as "inputs". It returns a promise.
 SubWindowHelper.prompt = function(title, message, inputs, 
-        onClose)
+        windowOptions)
 {
     var promptDialog = SubWindowHelper.create
-            ({ title: title });
+            (windowOptions
+             || { title: title, 
+                  content: "",  
+                  minWidth: 400, 
+                  x: (window.innerWidth / 2 - 200), 
+                  minHeight: 120 });
+                  
+    promptDialog.enableFlex("column");
             
     var contentArea = document.createElement("div");
     var messageZone = document.createElement("div");
@@ -997,19 +1088,78 @@ SubWindowHelper.prompt = function(title, message, inputs,
     contentArea.appendChild(messageZone);
     contentArea.appendChild(inputZone);
     
+    promptDialog.appendChild(contentArea);
+    
     messageZone.innerText = message;
     
-    var inputElements = {};
+    var addedInputs = [];
+    var inputMap = {};
+    var submit = () => {};
     
     var handleInput = (label) =>
     {
-        let newInputContainer = document.createElement("span");
+        const inputIndex = addedInputs.length;
         
-        let inputType = HTMLHelper.getSuitableInputType(inputs[label]);
+        let newInputContainer = document.createElement("div");
         
+        newInputContainer.style.display = "flex";
+        newInputContainer.style.flexDirection = "row";
         
-        let newInput = HTMLHelper.addInput(label, inputs[label], inputType, newInputContainer);
+        let labelElement = HTMLHelper.addLabel(label, newInputContainer);
+        
+        labelElement.style.paddingRight = "6px";
+        
+        let newInput = HTMLHelper.addInput(label, "", inputs[label], newInputContainer, (value) => // On input.
+        {
+            inputMap[label] = value;
+        }, (value) => // On Enter key.
+        {
+            inputMap[label] = value;
+            
+            if (inputIndex + 1 < addedInputs.length 
+                    && inputs[label] !== "textarea")
+            {
+                addedInputs[inputIndex + 1].focus();
+            }
+            else
+            {
+                submit();
+            }
+        });
+        
+        newInput.style.flexGrow = 1;
+        
+        inputZone.appendChild(newInputContainer);
+        
+        return newInput;
     };
+    
+    // For every given input...
+    for (var label in inputs)
+    {
+        let input = handleInput(label);
+        
+        inputMap[label] = undefined;
+        addedInputs.push(input);
+    }
+    
+    // Add a submit button.
+    const submitButton = HTMLHelper.addButton("Submit", promptDialog, () =>
+    {
+        submit();
+    });
+    
+    submitButton.style.flexGrow = 1;
+    
+    return new Promise((resolve, reject) =>
+    {
+        submit = () =>
+        {
+            promptDialog.close();
+            
+            resolve(inputMap);
+        };
+    });
 };
 
 // Creates a dialog... Returns an object with

@@ -58,11 +58,6 @@ HTMLHelper.setInputContent = function(inputElement, inputType, setTo)
     }
 };
 
-HTMLHelper.getSuitableInputType = function(inputs)
-{
-    
-};
-
 // Adds an element containing HTML text to parent, with NS of elementName.
 HTMLHelper.addTextElement = function(content, parent, elementName)
 {
@@ -133,12 +128,30 @@ HTMLHelper.addButton = function(content, parent, onSubmit)
     
     parent.appendChild(element);
     
-    element.addEventListener("click", function()
+    if (onSubmit)
     {
-        onSubmit.apply(this, arguments);
-    });
+        element.addEventListener("click", function()
+        {
+            onSubmit.apply(element, arguments);
+        });
+    }
     
     return element;
+};
+
+// Convert a map of key-function pairs to buttons.
+HTMLHelper.addButtons = function(nameToOnClickMap, parent)
+{
+    let container = document.createElement("div");
+    
+    for (let label in nameToOnClickMap)
+    {
+        HTMLHelper.addButton(label, container, nameToOnClickMap[label]);
+    }
+    
+    parent.appendChild(container);
+    
+    return container;
 };
 
 // Adds an input of inputType to parent. OnInput is called
@@ -196,6 +209,164 @@ HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, o
     return input;
 };
 
+// Add an input with an attached label! The label
+//argument doubles as the placeholder.
+HTMLHelper.addLabeledInput = function(label, initialContent, inputType, parent, 
+            onInput, onEnterKey)
+{
+    const inputGroup = document.createElement("div");
+
+    const labelElem = HTMLHelper.addLabel(label, inputGroup, "span");
+    labelElem.style.paddingRight = "4px";
+    
+    const inputElement = HTMLHelper.addInput.call(this, label, initialContent, inputType, inputGroup, onInput, onEnterKey);
+    
+    parent.appendChild(inputGroup);
+    
+    return inputElement;
+};
+
+// Adds an element that helps the user create a password.
+//An object is returned that includes a method, isValid, which
+//returns true if the password matches that specified by the arguments.
+HTMLHelper.addPasswordConcocter = (parent, options) =>
+{
+    let status = document.createElement("div"), initialInput, confirmInput, progressBar;
+    const specialChars = options.specialChars || "@!$&^*()_+.,?";
+    const NUMBER_SYMBOLS = "0123456789";
+
+    // Default options.
+    options.minLength        = options.minLength === undefined        ? 7 : options.minLength;
+    options.specialCharCount = options.specialCharCount === undefined ? 2 : options.specialCharCount;
+    options.numberCharCount  = options.numberCharCount === undefined  ? 2 : options.numberCharCount;
+
+    // Helper methods.
+    let onValid = () => {}, onInvalid = () => {};
+    
+    const passwordChecks =
+    [
+        (noteFail, password, confirmedPassword) =>
+        {
+            if (password !== confirmedPassword)
+            {
+                noteFail("Passwords do not match. ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            if (password.length < options.minLength)
+            {
+                noteFail("Password cannot be less than " + options.minLength + " characters. ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            let specialCharCount = JSHelper.getCharCount(password, specialChars);
+            
+            if (specialCharCount < options.specialCharCount)
+            {
+                noteFail("Password contains only " + specialCharCount
+                    + "/" + options.specialCharCount + " special characters ("
+                    + specialChars + "). ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            let numberCount = JSHelper.getCharCount(password, NUMBER_SYMBOLS);
+            
+            if (numberCount < options.minNumberCount)
+            {
+                noteFail("Password contains only " + numberCount
+                    + "/" + options.minNumberCount + " of the required number symbols (" + NUMBER_SYMBOLS + ").");
+            }
+        }
+    ];
+    
+    const setFailReason = (reason) =>
+    {
+        status.innerText = reason;
+    };
+    
+    const checkPasswords = (password, confirmedPassword) =>
+    {
+        let failReasons = "";
+        let maxProgress = passwordChecks.length;
+        let progress    = maxProgress;
+        
+        let noteFail = (reason) =>
+        {
+            failReasons += reason + " ";
+            progress--;
+        };
+        
+        for (var i = 0; i < passwordChecks.length; i++)
+        {
+            passwordChecks[i](noteFail, password, confirmedPassword);
+        }
+        
+        setFailReason(failReasons);
+        progressBar.setProgress(progress / maxProgress);
+        
+        return progress === maxProgress;
+    };
+    
+    let lastCheckValid = false;
+    const checkInputs = () =>
+    {
+        let currentlyValid = checkPasswords(initialInput.value, confirmInput.value);
+        
+        if (lastCheckValid !== currentlyValid)
+        {
+            if (currentlyValid)
+            {
+                onValid();
+            }
+            else
+            {
+                onInvalid();
+            }
+        }
+        
+        lastCheckValid = currentlyValid;
+        
+        return currentlyValid;
+    };
+    
+    // Create the container.
+    const container = document.createElement("div");
+    
+    // Add elements.
+    container.appendChild(status);
+    initialInput = HTMLHelper.addInput("Password", "", "password", container, checkInputs);
+    confirmInput = HTMLHelper.addInput("Confirm Password", "", "password", container, checkInputs);
+    progressBar = HTMLHelper.addProgressBar(0, container);
+    
+    // Styling.
+    progressBar.container.style.height = "10px";
+    
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.classList.add("passwordConcocter");
+    
+    status.style.fontWeight = "bold";
+    
+    // Add it to the parent.
+    parent.appendChild(container);
+    
+    // Create and return the result.
+    let result = 
+    {
+        isValid: () => checkInputs(),
+        container: container,
+        input: initialInput,
+        get: () => initialInput.value,
+        onValid: (fn) => onValid = fn,
+        onInvalid: (fn) => onInvalid = fn
+    };
+    
+    return result;
+};
+
 // Adds a sequence of inputs to the container that permits the editing
 //of a given vector.
 HTMLHelper.addVectorEditor = function(vector, numComponents, parent)
@@ -219,7 +390,7 @@ HTMLHelper.addVectorEditor = function(vector, numComponents, parent)
 };
 
 // Create a progress bar! Returns an element with
-//properties container, track, and a method setProgress.
+//properties container, track, and a method setProgress(number 0 to 1).
 HTMLHelper.addProgressBar = function(initialProgress, parent)
 {
     const container = document.createElement("div");

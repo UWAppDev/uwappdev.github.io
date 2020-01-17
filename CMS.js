@@ -27,7 +27,7 @@ async function(name, doNotAddToHistory)
     contentZone.parentElement.classList.add("shrinkGrow");
     
     // Check: Are we already on the page?
-    if (ContentManager.currentPage == name)
+    if (ContentManager.currentPage === name)
     {
         return; // No need to load it twice.
     }
@@ -110,7 +110,7 @@ async function()
     loadButtons();
     
     // Check the URL -- has a specific page been linked to?
-    let requestedPage = ContentManager.getURLRequestedPage() || undefined;
+    let requestedPage = ContentManager.getURLRequestedPage() || PageDataHelper.defaultPage;
     
     // Display it.
     ContentManager.displayPage(requestedPage);
@@ -143,9 +143,38 @@ ContentManager.getURLRequestedPage = () =>
  * For example, a sign-in button and survey management tools.
  */
 ContentManager.addCMSControls = 
-function(parent)
+async function(parent)
 {
+    AuthHelper.insertAuthCommands(parent);
     
+    // Any windows opened by the CMS.
+    let CMSWindows = [];
+    
+    // Show the content-management system.
+    const showCMS = () =>
+    {
+        
+    };
+    
+    // Hide the content-management system.
+    const hideCMS = () =>
+    {
+        
+    };
+    
+    while (true)
+    {
+        if (!AuthHelper.isSignedIn())
+        {
+            await JSHelper.Notifier.waitFor(AuthHelper.SIGN_IN_EVENT);
+        }
+        
+        showCMS();
+        
+        await JSHelper.Notifier.waitFor(AuthHelper.SIGN_OUT_EVENT);
+        
+        hideCMS();
+    }
 };
 
 /**
@@ -207,13 +236,14 @@ function(parent)
 
 // Show/hide the blade.
 ContentManager.toggleBlade = () => {};
+ContentManager.setBladeClosed = (closed) => {};
 
 /**
  *  Connects the main menu's UI to actions, among other things, connecting its
  * logo element to a menu.
  */
 ContentManager.initializeMainMenu = 
-function()
+async function()
 {
     let logoDisplay = document.querySelector(".navabar .logo");
     let menuBlade = document.querySelector("#mainBlade"); // Lets call them "blades" --
@@ -230,11 +260,32 @@ function()
     // Click listeners for showing/hiding.
     logoDisplay.addEventListener("click", showHideBlade);
     ContentManager.toggleBlade = showHideBlade;
+    ContentManager.setBladeClosed = (closed) =>
+    {
+        if (closed)
+        {
+            menuBlade.classList.add("bladeClosed");
+            menuBlade.classList.remove("bladeOpen");
+            logoDisplay.classList.remove("requestRotate");
+        }
+        else
+        {
+            menuBlade.classList.remove("bladeClosed");
+            menuBlade.classList.add("bladeOpen");
+            logoDisplay.classList.add("requestRotate");
+        }
+    };
     
     // Add a sign-in button and a search bar.
     ContentManager.addCMSControls(menuBlade);
     HTMLHelper.addSpacer         (menuBlade);
     ContentManager.addPageSearch (menuBlade);
+    
+    while (true)
+    {
+        await JSHelper.Notifier.waitFor(AuthHelper.AUTH_MENU_USED);
+        ContentManager.setBladeClosed  (true);
+    }
 };
 
 // Handle all tasks related to initialization.

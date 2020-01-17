@@ -181,6 +181,12 @@ body
     cursor: pointer;
 }
 
+.blade .authCommands
+{
+    display: flex;
+    flex-direction: column;
+}
+
 .bladeClosed
 {
     margin-left: -300px; /* The blade's maximum width. */
@@ -243,6 +249,24 @@ body
 .searchResults button
 {
     color: white;
+}
+
+.signInWindow
+{
+    box-shadow: 0px 0px 64px rgba(0, 0, 255, 0.7);
+    background-image: linear-gradient(25deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8));
+    background-color: rgba(150, 0, 100, 0.9);
+}
+
+.signInWindowTitleBar
+{
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0.0);
+    color: black;
+    
+    box-shadow: none;
+    
+    border-top-right-radius: 2px;
 }
 
 .content

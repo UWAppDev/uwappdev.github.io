@@ -438,3 +438,19 @@ JSHelper.NotImplemented = (signature, message) =>
         throw "Not implemented: " + signature + " " + message;
     };
 };
+
+// Count the number of characters in charset in the given text.
+JSHelper.getCharCount = (text, charset) =>
+{
+    let charCount = 0;
+    
+    for (let i = 0; i < text.length; i++)
+    {
+        if (charset.indexOf(text.charAt(i)) !== -1)
+        {
+            charCount++;
+        }
+    }
+    
+    return charCount;
+};
