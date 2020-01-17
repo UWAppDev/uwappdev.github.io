@@ -11,7 +11,8 @@ const CloudHelper = {};
 //CloudHelper.
 CloudHelper.Service = 
 {
-    FIRESTORE: 1
+    FIRESTORE: 1,
+    FIREBASE_STORAGE: 2
 };
 
 // A prefix used for notifications involving the availablity of services.
@@ -65,7 +66,8 @@ CloudHelper.initDB = (database, options) =>
     
     options.dbName = options.dbName || CloudHelper.PRIMARY_DB_NAME;
     
-    const firebaseApp = options.resources.includes(CloudHelper.Service.FIRESTORE);
+    const firebaseApp = options.resources.includes(CloudHelper.Service.FIRESTORE)
+                        || options.resources.includes(CloudHelper.Service.FIREBASE_STORAGE);
     
     if (firebaseApp)
     {
@@ -98,6 +100,20 @@ CloudHelper.initDB = (database, options) =>
                         
                     // Pass the database to listeners.
                     relevantData = firestoreData.db;
+                }
+                break;
+            case CloudHelper.Service.FIREBASE_STORAGE:
+                if (!CloudHelper.ServiceData.FirebaseStorage)
+                {
+                    CloudHelper.ServiceData.FirebaseStorage = {};
+                    
+                    let storageData = CloudHelper.ServiceData.FirebaseStorage;
+                    
+                    // Get a reference to the service.
+                    storageData.storage = database.storage();
+                    
+                    // Pass it to listeners.
+                    relevantData = storageData.storage;
                 }
                 break;
             default:

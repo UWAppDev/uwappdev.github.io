@@ -140,6 +140,22 @@ body
     background-image: radial-gradient(purple, purple, black);
 }
 
+.profilePhoto
+{
+    border-radius: 100%;
+    box-shadow: 0px 0px 3px rgba(0, 0, 255, 0.6);
+    
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: content;
+    
+    max-width: 100%;
+    max-height: 100%;
+    
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .blade
 {
     background-color: black;
@@ -251,14 +267,14 @@ body
     color: white;
 }
 
-.signInWindow
+.accountWindow
 {
     box-shadow: 0px 0px 64px rgba(0, 0, 255, 0.7);
     background-image: linear-gradient(25deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8));
     background-color: rgba(150, 0, 100, 0.9);
 }
 
-.signInWindowTitleBar
+.accountWindowTitleBar
 {
     background-image: none;
     background-color: rgba(0, 0, 0, 0.0);

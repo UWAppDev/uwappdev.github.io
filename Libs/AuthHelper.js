@@ -8,6 +8,10 @@ const AuthHelper = {};
 AuthHelper.SIGN_IN_EVENT  = "AUTH_SIGN_IN";
 AuthHelper.SIGN_OUT_EVENT = "AUTH_SIGN_OUT";
 AuthHelper.AUTH_MENU_USED = "AUTH_MENU_USED";
+AuthHelper.PHOTO_STORE_LOCATION = "https://firebasestorage.googleapis.com/";
+AuthHelper.PROFILE_PHOTO_SIZE = 150;
+AuthHelper.PHOTO_NAME_PREFIX = "_"; // Prefix all photos with this when stored on the server.
+AuthHelper.PHOTO_DIR = "profile_photos";
 
 // Add buttons for managing authentication
 //to the element, parent. Actions are completed
@@ -51,9 +55,12 @@ async (parent) =>
     parent.appendChild(signedInDisplay);
     
     // Handle events.
-    signInButton.addEventListener       ("click", AuthHelper.signIn       );
-    createAccount.addEventListener      ("click", AuthHelper.createAccount);
+    signInButton.addEventListener   ("click", AuthHelper.signIn       );
+    createAccount.addEventListener  ("click", AuthHelper.createAccount);
+    signOutButton.addEventListener  ("click", AuthHelper.signOut      );
+    accountSettings.addEventListener("click", AuthHelper.manageAccount);
     
+    // Show/hide relevant commands when the user authenticates/deauthenticates.
     while (true)
     {
         await JSHelper.Notifier.waitFor(AuthHelper.SIGN_IN_EVENT);
@@ -111,15 +118,42 @@ async () =>
     SubWindowHelper.alert("Signed in!", "You are signed in!");
 };
 
+// Sign the user out.
+AuthHelper.signOut =
+async () =>
+{
+    JSHelper.Notifier.notify(AuthHelper.AUTH_MENU_USED);
+    
+    try
+    {
+        await firebase.auth().signOut();
+        
+        if (AuthHelper.isSignedIn())
+        {
+            throw "You seem to still be signed in. Please contact a site administrator.";
+        }
+    }
+    catch(e)
+    {
+        SubWindowHelper.alert(e.code || "Error", e.message || e + "");
+        
+        return;
+    }
+    
+    SubWindowHelper.alert("Signed out.", "You are now signed out.");
+};
+
 // Display UI letting users create
 //an account.
 AuthHelper.createAccount =
 async () =>
 {
+    JSHelper.Notifier.notify(AuthHelper.AUTH_MENU_USED);
+    
     const accountCreateWindow = SubWindowHelper.create(
     {
         title: "Create an Account",
-        className: "signInWindow"
+        className: "accountWindow"
     });
     
     let contentWrapper = document.createElement("div");
@@ -205,6 +239,189 @@ async () =>
     });
     
     accountCreateWindow.appendChild(contentWrapper);
+};
+
+AuthHelper.photoCtx = document.createElement("canvas").getContext("2d");
+
+// Get the SRC of the user's profile picture.
+AuthHelper.getProfilePhotoSrc = 
+async () =>
+{
+    let user = firebase.auth().currentUser;
+    
+    if (user.photoURL && user.photoURL.startsWith(AuthHelper.PHOTO_STORE_LOCATION)
+            && user.photoURL.indexOf(" ") === -1)
+    {
+        return user.photoURL;
+    }
+    
+    // Reset the canvas.
+    let ctx = AuthHelper.photoCtx;
+    ctx.canvas.width = AuthHelper.PROFILE_PHOTO_SIZE;
+    ctx.canvas.height = AuthHelper.PROFILE_PHOTO_SIZE;
+    
+    // Clear it!
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Draw a background.
+    ctx.fillStyle = "gray";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Draw text.
+    ctx.fillStyle = "white";
+    ctx.font = "12pt courier, sans";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    
+    let outputText = (user.displayName || user.email).charAt(0).toUpperCase();
+    
+    ctx.fillText(outputText, ctx.canvas.width / 2, ctx.canvas.height / 2);
+    
+    await JSHelper.nextAnimationFrame();
+    
+    return ctx.canvas.toDataURL("img/png");
+};
+
+// Display account-management UI.
+//Pre: The user is signed in.
+AuthHelper.manageAccount = 
+async () =>
+{
+    JSHelper.Notifier.notify(AuthHelper.AUTH_MENU_USED);
+    
+    // Global declaration.
+    let user,
+        changedProperties = {},
+        accountManageWindow,
+        profileImg;
+    
+    // Helper functions.
+    // Prompt the user for a photograph to
+    //be associated with their profile.
+    const selectPhoto = 
+    async (buttonElement) =>
+    {
+        let drawer = new Drawer2D(
+        async (img, dataURL) =>
+        {
+            
+            // Upload the photo to FireStore.
+            let storage = await CloudHelper.awaitComponent(CloudHelper.Service.FIREBASE_STORAGE);
+            let storageRef = storage.ref();
+            
+            let userImages = storageRef.child(AuthHelper.PHOTO_DIR);
+            
+            let photoFilename = AuthHelper.PHOTO_NAME_PREFIX + user.uid + ".png";
+            let photo = userImages.child(photoFilename);
+            
+            let photoURL;
+            
+            try
+            {
+                await photo.putString(dataURL, "data_url");
+                
+                photoURL = await userImages.child(photoFilename).getDownloadURL();
+                await user.updateProfile({ photoURL: photoURL });
+            }
+            catch(e)
+            {
+                SubWindowHelper.alert("Error " + e.code, e.message);
+                
+                return;
+            }
+            
+            // Set the new photoURL.
+            SubWindowHelper.alert("Done!", "Updated photograph!");
+            
+            // CLose the window.
+            accountManageWindow.close();
+        },
+        {
+            initialImage: profileImg
+        });
+    };
+    
+    // Handle a single option (e.g. add an input.
+    //See below for usage. Data should be an array
+    //of length two. The first element should be the
+    //property name, the second, the input type/a button
+    //command.
+    const handleOption = (description, data, parent) =>
+    {
+        const userProperty = data[0],
+              action       = data[1];
+        
+        if (typeof (action) === "function")
+        {
+            // Add a button.
+            HTMLHelper.addButton(description, parent, () =>
+            {
+                action.call(this, this);
+            });
+        }
+        else
+        {
+            // Add an input.
+            HTMLHelper.addLabeledInput(description, user[userProperty], action, parent, 
+            (value) =>
+            {
+                changedProperties[userProperty] = value;
+            });
+        }
+    };
+    
+    // Define state.
+    user = firebase.auth().currentUser;
+    const singleAuthManaged =
+    {
+        "Name": ["displayName", "text"],
+        "Photo": ["photoURL",   selectPhoto]
+    };
+    
+    // Create the window.
+    accountManageWindow = SubWindowHelper.create(
+    {
+        title: "Manage Account",
+        className: "accountWindow"
+    });
+    
+    accountManageWindow.enableFlex("column");
+    
+    
+    profileImg = new Image(AuthHelper.PROFILE_PHOTO_SIZE, AuthHelper.PROFILE_PHOTO_SIZE);
+    profileImg.crossOrigin = "Anonymous";
+    
+    profileImg.src = await AuthHelper.getProfilePhotoSrc();
+    profileImg.classList.add("profilePhoto");
+    
+    // Add the user's profile photo.
+    accountManageWindow.appendChild(profileImg);
+    
+    for (let description in singleAuthManaged)
+    {
+        handleOption(description, singleAuthManaged[description], accountManageWindow);
+    }
+    
+    // Add the submit button.
+    HTMLHelper.addButton("Submit", accountManageWindow, 
+    async () =>
+    {
+        try
+        {
+            await user.updateProfile(changedProperties);
+        }
+        catch(error)
+        {
+            SubWindowHelper.alert(error.code, error.message);
+            
+            return;
+        }
+        
+        accountManageWindow.close();
+    });
+    
+    // Add any double-auth managed state.
+    
 };
 
 AuthHelper.isSignedIn = () =>

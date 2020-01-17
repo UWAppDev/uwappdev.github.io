@@ -454,3 +454,29 @@ JSHelper.getCharCount = (text, charset) =>
     
     return charCount;
 };
+
+// Get the next animation frame in a promise.
+JSHelper.nextAnimationFrame = () =>
+{
+    // A promise should push to the next frame,
+    //but in case the browser doesn't render between
+    //promises as it does for animation frames, pass it to an
+    //animation frame.
+    let result = new Promise((resolve, reject) =>
+    {
+        requestAnimationFrame(() => { resolve(true); });
+    });
+    
+    return result;
+};
+
+// Wait for waitTime milliseconds. Returns a promise.
+JSHelper.waitFor = (waitTime) =>
+{
+    let result = new Promise((resolve, reject) =>
+    {
+        setTimeout(() => { resolve(true); }, waitTime);
+    });
+    
+    return result;
+};

@@ -154,6 +154,25 @@ HTMLHelper.addButtons = function(nameToOnClickMap, parent)
     return container;
 };
 
+// Adds an image with src to parent and gives it
+//className (className is optional).
+HTMLHelper.addImage = function(src, parent, className)
+{
+    let element = document.createElement("img");
+    element.src = src;
+    
+    element.style.flexGrow = 1;
+    
+    parent.appendChild(element);
+    
+    if (className)
+    {
+        element.classList.add(className);
+    }
+    
+    return element;
+};
+
 // Adds an input of inputType to parent. OnInput is called
 //when an "input" event is fired -- when the user changes
 //the content of the input. This DOES support checkboxes,
@@ -216,10 +235,16 @@ HTMLHelper.addLabeledInput = function(label, initialContent, inputType, parent,
 {
     const inputGroup = document.createElement("div");
 
+    // Allow the input box to grow, as needed.
+    inputGroup.style.display = "flex";
+
     const labelElem = HTMLHelper.addLabel(label, inputGroup, "span");
     labelElem.style.paddingRight = "4px";
     
     const inputElement = HTMLHelper.addInput.call(this, label, initialContent, inputType, inputGroup, onInput, onEnterKey);
+    
+    // Expand with parent.
+    inputElement.style.flexGrow = "1";
     
     parent.appendChild(inputGroup);
     

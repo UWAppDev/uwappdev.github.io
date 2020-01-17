@@ -643,13 +643,14 @@ function initLibraries()
             authDomain: "proj-ect.firebaseapp.com",
             databaseURL: "https://proj-ect.firebaseio.com",
             projectId: "proj-ect",
-            storageBucket: "proj-ect.appspot.com",
-            messagingSenderId: "1050739360656",
+            storageBucket: "proj-ect.appspot.com", // See https://firebase.google.com/docs/storage/web/download-files
+            messagingSenderId: "1050739360656",    // for info on how to configure CORS.
             appId: "1:1050739360656:web:23e4a9ab109a5119836915"
         },
         resources:
         [
-            CloudHelper.Service.FIRESTORE
+            CloudHelper.Service.FIRESTORE,
+            CloudHelper.Service.FIREBASE_STORAGE
         ]
     });
     

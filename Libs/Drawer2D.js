@@ -12,8 +12,8 @@ function Drawer2D(onSubmit, options)
     let undoStack = [];
     let redoStack = [];
     
-    const INITIAL_WIDTH = 500;
-    const INITIAL_HEIGHT = 500;
+    const INITIAL_WIDTH = options.initialWidth || 500;
+    const INITIAL_HEIGHT = options.initialHeight || 500;
     const MAX_UNDO = 30;
     
     const INITIAL_VIEW_X = 0;
@@ -52,6 +52,8 @@ function Drawer2D(onSubmit, options)
     {
         imageCtx.canvas.width = options.initialImage.width;
         imageCtx.canvas.height = options.initialImage.height;
+        
+        imageCtx.drawImage(options.initialImage, 0, 0);
     }
     else
     {
@@ -168,13 +170,11 @@ function Drawer2D(onSubmit, options)
         
         let result = new Promise((resolve, reject) =>
         {
+            onLoad = (imageToCache) => resolve({ image: imageToCache, dataURL: imageToCache.src });
+            
             if (loaded)
             {
-                resolve(imageToCache);
-            }
-            else
-            {
-                onLoad = resolve;
+                onLoad(imageToCache);
             }
         });
         
@@ -299,9 +299,12 @@ function Drawer2D(onSubmit, options)
     {
         fileMenu.addCommand("Submit", () =>
         {
-            cacheState().then((image) =>
+            cacheState().then((data) =>
             {
-                onSubmit.call(me, image);
+                const { image, dataURL } = data;
+                
+                onSubmit.call(me, image, dataURL);
+                me.mainSubWindow.close();
             });
         });
     }
@@ -342,12 +345,12 @@ function Drawer2D(onSubmit, options)
     };
     
     // View Menu.
-    let showControlTab;
+    let showControlTab, controlsWindow;
     showControlTab = toolMenu.addCommand("Show Controls Window", () =>
     {
         showControlTab.hide();
         
-        let controlsWindow = SubWindowHelper.create({ title: "Tools", noResize: true, alwaysOnTop: true });
+        controlsWindow = SubWindowHelper.create({ title: "Tools", noResize: true, alwaysOnTop: true });
         
         let handleToolButton = (toolName, tool) =>
         {
@@ -392,6 +395,12 @@ function Drawer2D(onSubmit, options)
         {
             // Notify the current tool.
             me.currentTool.onDeInit();
+        }
+        
+        // If the controls window is open, close it.
+        if (controlsWindow)
+        {
+            controlsWindow.close();
         }
     });
     
@@ -475,6 +484,16 @@ function Drawer2D(onSubmit, options)
             cacheStateIfNecessary();
         }
     }, false);
+    
+    // Any async setup.
+    (async () =>
+    {
+        // Wait for the window to resize.
+        //TODO Remove magic variable.
+        await JSHelper.waitFor(500);
+        
+        render();
+    })();
 }
 
 // Define tools to be used with the Drawer2D.
