@@ -112,8 +112,10 @@ function WorldObject()
  * This is ideal for small, in-page animations,
  * like that of a spinning/squishable logo.
  */
-function WorldBox()
+function WorldBox(options)
 {
+    options = options || {};
+
     WorldObject.apply(this);            // Each WorldBox is considered
                                         //a box in the larger world.
 
@@ -122,6 +124,7 @@ function WorldBox()
     this.objects = [];
     this.unregisteredObjects = [];
     this.destinationCtx = undefined;
+    this.renderer = options.renderer;   // A renderer to override the FullWorld's default.
     this.outputResolution = 1;
     
     // When asked to register models,
@@ -175,9 +178,9 @@ function WorldBox()
     
     this.render = function(renderer)
     {
-        if (me.destinationCtx)
+        if (me.destinationCtx || me.renderer)
         {
-            var canvas = me.destinationCtx.canvas;
+            var canvas = me.destinationCtx ? me.destinationCtx.canvas : me.renderer.getOutputCanvas();
         
             // Update the renderer's size if necessary.
             renderer.updateViewIfNeeded(canvas.clientWidth * me.outputResolution,
@@ -277,13 +280,16 @@ function FullWorld()
     
     this.updateWorld = function(world, deltaT)
     {
-        me.renderer.saveUniforms();
+        let worldRenderer = world.renderer || me.renderer; // Use the world's renderer,
+                                                           //if it has one.
+    
+        worldRenderer.saveUniforms();
         
-        world.animate(me.renderer, deltaT);
-        world.render(me.renderer);
-        world.cleanup(me.renderer);
+        world.animate(worldRenderer, deltaT);
+        world.render(worldRenderer);
+        world.cleanup(worldRenderer);
         
-        me.renderer.restoreUniforms();
+        worldRenderer.restoreUniforms();
     };
     
     this.loopOnce = function()

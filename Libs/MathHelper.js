@@ -12,8 +12,10 @@ MathHelper.numberScheme = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 MathHelper.parseCharacter = function(character, numberScheme)
 {
     numberScheme = numberScheme || MathHelper.numberScheme;
+    
+    let numberIndex = numberScheme.indexOf(character);
 
-    return numberScheme.indexOf(character);
+    return numberIndex;
 };
 
 // Parses a number and does not throw invalid formatting exceptions.

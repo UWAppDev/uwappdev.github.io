@@ -103,6 +103,16 @@ HTMLHelper.addHR = function(parent)
     return HTMLHelper.addTextElement("", parent, "hr");
 };
 
+// Adds a div with class spacer.
+HTMLHelper.addSpacer = function(parent)
+{
+    const result = HTMLHelper.addTextElement("", parent, "div");
+    
+    result.classList.add("spacer");
+    
+    return result;
+};
+
 // Adds an element (by default, a span) to parent and gives
 //it a class of label.
 HTMLHelper.addLabel = function(labelText, parent, element)
@@ -136,7 +146,7 @@ HTMLHelper.addButton = function(content, parent, onSubmit)
 //the content of the input. This DOES support checkboxes,
 //but at the time of this writing, not radio-boxes or spinners
 //(selects).
-HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, onInput)
+HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, onInput, onEnterKey)
 {
     var inputElementType = "input";
     
@@ -165,6 +175,23 @@ HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, o
         
         return true;
     }, true);
+    
+    // Handle enter key presses.
+    if (onEnterKey)
+    {
+        input.addEventListener("keyup", function(event)
+        {
+            // If the user hit enter,
+            if (event.keyCode === 13)
+            {
+                var inputContent = HTMLHelper.getInputContent(input, inputType);
+                
+                onEnterKey.call(this, inputContent, arguments);
+                
+                return true;
+            }
+        });
+    }
     
     return input;
 };

@@ -27,6 +27,7 @@
     <script src = "Libs/JSHelper.js"></script>
     <script src = "Libs/ProgressEstimator.js"></script>
     <script src = "Libs/SerializationHelper.js"></script>
+    <script src = "Libs/StorageHelper.js"></script>
     <script src = "Libs/ThreadHelper.js"></script>
     <script src = "Libs/Point.js"></script>
     <script src = "Libs/Vector3.js"></script>
@@ -36,7 +37,7 @@
     <script src = "Libs/Modeler3D.js"></script>
 
     <script src = "Libs/Keyboard.js" encoding = "utf-8"></script> <!-- The utf-8 is
-                                                                  necessary -- 
+                                                                  necessary -\-
                                                                   the keyboard
                                                                   uses unicode
                                                                   picture-like
@@ -54,6 +55,16 @@
     <script src = "Libs/IntroScreen.js"></script>
     <script src = "Libs/Worlds.js"></script>
     
+    <script src = "Libs/CloudHelper.js"></script>
+    <script src = "CMS.js" encoding = "utf-8"></script>
+
+    <!-- External Libraries -->
+    <!--   Cloud Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-firestore.js"></script>
+    
+
+
     <!-- Include page-specific files. -->
     <script src = "pages.js"></script>
     <script src = "main.js"></script>
@@ -70,7 +81,7 @@
     </div>
     
     <!-- A side pane called a (I think) blade. -->
-    <div id = "mainBlade" class = "blade bladeClosed navigationButtons">
+    <div id = "mainBlade" class = "blade bladeClosed cms">
         <!-- Filled by JS. -->
     </div>
     

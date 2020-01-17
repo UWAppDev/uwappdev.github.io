@@ -8,16 +8,64 @@
 
 const PageDataHelper =
 {
-    loaded: true,
-    awaitLoad: () =>
-    new Promise((resolve, reject) =>
+    loaded: false,
+    awaitLoad: 
+    (async () =>
     {
-        // We don't have a backend/CMS yet,
-        //so for now, just resolve with the data.
-        resolve(PageDataHelper.pages);
+        if (!PageDataHelper.loaded)
+        {
+            PageDataHelper.loaded = true;
+            
+            // We will be using the Firebase CMS.
+            let db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+            
+            const pageTitleQuery   = await db.collection("pageTitles").get();
+            const linkedPagesDoc = await db.collection("config").doc("buttonLinks").get();
+            
+            // For every page...
+            pageTitleQuery.forEach((doc) =>
+            {
+                let docData = doc.data();
+                
+                if (PageDataHelper.hasCached(docData.title, docData.timestamp)) // getTime is already in UTC.
+                {
+                    PageDataHelper.pages[docData.title] = 
+                    async () =>
+                    {
+                        const pageDoc = await db.collection("pages").get(docData.title);
+                        const pageContent = pageDoc.data().content;
+                        
+                        // Store the content in the pages database.
+                        PageDataHelper.pages[docData.title] = pageContent;
+                        
+                        // Cache it.
+                        PageDataHelper.cachePage(docData.title, pageContent, docData.timestamp);
+                    };
+                }
+                else
+                {
+                    PageDataHelper.recallCachedPage(docData.title);
+                }
+            });
+            
+            // Set pages linked to with large buttons.
+            if (linkedPagesDoc.exists)
+            {
+                let pageLinks = linkedPagesDoc.data();
+                
+                for (let i in pageLinks)
+                {
+                    PageDataHelper.linkedPages.push(pageLinks[i]);
+                }
+            }
+        }
+        
+        // Now, allow the user to load the page.
+        return PageDataHelper.pages;
     }),
     
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
+    linkedPages: ["Join"],
     pages:
     {
         "About":
@@ -134,5 +182,80 @@ const PageDataHelper =
         `
     },
     
-    defaultPage: "Events"
+    defaultPage: "About"
+};
+
+// Helper methods.
+
+// Cache a page.
+PageDataHelper.cachePage = function(pageName, pageContent)
+{
+    StorageHelper.put(pageName, pageContent);
+};
+
+// Read a page from the cache and store it.
+PageDataHelper.recallCachedPage = function(pageName)
+{
+    const pageData = StorageHelper.get(pageName);
+    
+    if (pageData)
+    {
+        PageDataHelper.pages[pageName] = pageData;
+    }
+};
+
+// Get whether a page has been cached and whether that cache has
+//not expired.
+PageDataHelper.hasCached = (pageTitle, pageTimestamp) =>
+{
+    const pageData = StorageHelper.getItemDetails(pageTitle);
+    
+    return pageData.created >= pageTimestamp;
+};
+
+// Search for a specific page. The search query is
+//case-insensitive. A sorted list of [page name, applicability]
+//is returned, where applicability is an arbitrary positive number
+//representing the applicability of a result to the search. Greater
+//positive numbers are considered more applicable. Results with
+//greater applicability should come first in the resultant array.
+PageDataHelper.query = function(query)
+{
+    let results = [];
+    let matchesTitle, matchesInContent;
+    
+    let queryWords = query.toLowerCase().split(" ");
+    
+    const checkAgainstQuery = (text) =>
+    {
+        let resultsCount = 0;
+        let lowerCaseText = text.toLowerCase();
+        
+        for (let i = 0; i < queryWords.length; i++)
+        {
+            resultsCount += lowerCaseText.split(queryWords[i]).length - 1;
+        }
+        
+        return resultsCount;
+    };
+    
+    for (let page in PageDataHelper.pages)
+    {
+        matchesTitle     = checkAgainstQuery(page);
+        matchesInContent = checkAgainstQuery(PageDataHelper.pages[page] || ""); // Content for unloaded
+                                                                                //pages might be null.
+        
+        if (matchesTitle + matchesInContent > 0)
+        {
+            results.push([page, matchesTitle * 10 + matchesInContent]);
+        }
+    }
+    
+    // Sort the results.
+    results.sort((a, b) =>
+    {
+        return b[1] - a[1];
+    });
+    
+    return results;
 };

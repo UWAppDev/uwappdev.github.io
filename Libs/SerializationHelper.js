@@ -158,7 +158,11 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     {
         currentPart = key + ": ";
     
-        if (typeof (part[key]) != "object" && part[key] && part[key].toString)
+        if (typeof (part[key]) == "string")
+        {
+            currentPart += part[key].toSource();
+        }
+        else if (typeof (part[key]) != "object" && part[key] && part[key].toString)
         {
             currentPart += part[key].toString();
         }
@@ -179,4 +183,15 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     return result;
 };
 
+SerializationHelper.evalParseFromString = (data) =>
+{
+    return SerializationHelper.inflateObject(eval("(" + data + ")"));
+};
 
+// Serialize data such that reading it with parseFromString
+//returns a close copy of the original. Danger! This method
+//is imperfect.
+SerializationHelper.stringSerialize = (data) =>
+{
+    return SerializationHelper.stringifyFull(SerializationHelper.serializeObject(data));
+};

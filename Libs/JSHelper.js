@@ -327,17 +327,40 @@ JSHelper.Events.registerPointerEvent = function(eventName, target, onEvent, allo
     }
 };
 
+// A set of global events to be deployed through
+//the notifier. JSHelper does not fire these events.
+//The main application code should handle this.
+JSHelper.GlobalEvents = 
+{
+    PAGE_SETUP_COMPLETE: "global_e_page_setup_complete"
+};
+
 // An implementation of the observer pattern.
 JSHelper.Notifier = new
 (function()
 {
     let listeners = {};
     let listenerIdCounter = 0; // The id for the next listener.
+    let dispatchedEvents = {}; // Data concerning previously dispatched events.
     
     // Wait for eventName to be distributed by notify.
     //A message is included with the distributed event.
-    this.waitFor = (eventName) =>
+    //If fireForFirst is true, if the event has ever been
+    //triggered, the listener is fired.
+    this.waitFor = (eventName, fireForFirst) =>
     {
+        // Has the event already fired?
+        if (fireForFirst && dispatchedEvents[eventName] && dispatchedEvents[eventName].count > 0)
+        {
+            let result = new Promise((resolve, reject) =>
+            {
+                resolve.call(this, dispatchedEvents[eventName].data);
+            });
+            
+            return result;
+        }
+    
+        // Create a set of listeners for the event.
         if (listeners[eventName] === undefined)
         {
             listeners[eventName] = {};
@@ -393,5 +416,25 @@ JSHelper.Notifier = new
                 }
             }
         }
+        
+        if (!dispatchedEvents[eventName])
+        {
+            dispatchedEvents[eventName] = { count: 0, data: undefined };
+        }
+        
+        dispatchedEvents[eventName].count++;
+        dispatchedEvents[eventName].data = content;
     };
 })();
+
+// A method that throws.
+JSHelper.NotImplemented = (signature, message) => 
+{
+    signature = signature || "";
+    message = message || "";
+
+    return () => 
+    {
+        throw "Not implemented: " + signature + " " + message;
+    };
+};

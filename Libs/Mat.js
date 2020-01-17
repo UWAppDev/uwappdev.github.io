@@ -11,6 +11,7 @@ function Mat(width, height)
     var me = this;
     
     this.content = [];
+    this.rightMulTransform = true;
     
     var w = width;
     var h = height;
@@ -229,9 +230,16 @@ function Mat(width, height)
     
     this.translate = function(translation)
     {
-        for (var i = 0; i < translation.length && i < h - 1; i++)
+        for (var i = 0; i < translation.length && i < h - 1 && i < w - 1; i++)
         {
-            this.setAt(w - 1, i, this.getAt(w - 1, i) + translation[i]);
+            if (this.rightMulTransform)
+            {
+                this.setAt(w - 1, i, this.getAt(w - 1, i) + translation[i]);
+            }
+            else
+            {
+                this.setAt(i, h - 1, this.getAt(i, h - 1) + translation[i]);
+            }
         }
     };
     
@@ -432,8 +440,7 @@ function Mat44()
 {
     var me = this;
     
-    this.__proto__ = new Mat(4, 4);
-    this.rightMulTransform = true;
+    Mat.call(me, 4, 4);
     
     var transform = function(transformMatrix)
     {
@@ -444,24 +451,6 @@ function Mat44()
         else
         {
             me.leftMulAndSet(transformMatrix.transpose());
-        }
-    };
-
-    this.translate = function(array)
-    {
-        var translateMatrix = new Mat44();
-
-        translateMatrix.toRightMulTranslateMatrix(array);
-
-        if (me.rightMulTransform)
-        {
-            me.rightMulAndSet(translateMatrix);
-        }
-        else
-        {
-            translateMatrix.transposeAndSet();
-
-            me.leftMulAndSet(translateMatrix);
         }
     };
     

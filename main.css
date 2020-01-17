@@ -193,6 +193,58 @@ body
     filter: opacity(100%);
 }
 
+.searchContainer
+{
+    display: flex;
+}
+
+.searchContainer input
+{
+    flex-grow: 3;
+    
+    background-color: white;
+    background-image: none;
+    color: rgba(60, 60, 60, 0.8);
+    
+    border-radius: 2em;
+    border: 0px solid white;
+    padding: 8px;
+    
+    margin-right: 3px;
+    
+    font-size: 11pt;
+}
+
+.searchContainer button
+{
+    flex-grow: 1;
+    color: white;
+    
+    font-weight: bold;
+    font-size: 16pt;
+}
+
+.searchResults
+{
+    padding: 8px;
+    
+    font: 12pt Serif;
+    
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    display: flex;
+    flex-direction: column;
+    
+    color: white;
+}
+
+.searchResults button
+{
+    color: white;
+}
+
 .content
 {
     max-width: 700px;

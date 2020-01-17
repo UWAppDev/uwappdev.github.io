@@ -450,9 +450,14 @@ function SubWindow(globals, options)
         me.content.removeChild(child);
     };
     
-    this.enableFlex = function()
+    this.enableFlex = function(direction)
     {
         me.content.style.display = "flex";
+        
+        if (direction)
+        {
+            me.content.style.flexDirection = direction;
+        }
     };
 
     var widthPreSnap = undefined, heightPreSnap = undefined;
@@ -932,12 +937,27 @@ SubWindowHelper.create = function(options)
     return newWindow;
 };
 
-SubWindowHelper.alert = function(title, message, onClose)
+SubWindowHelper.alert = function(title, message, onClose, htmlText)
 {
-    var alertDialog = SubWindowHelper.create({ title: title, content: "", noCloseButton: true, noResize: true, maxWidth: 400, minWidth: 400, x: (window.innerWidth / 2 - 200), minHeight: 100 });
+    var alertDialog = SubWindowHelper.create({ title: title, content: "", noCloseButton: true, noResize: true, maxWidth: 400, minWidth: 400, x: (window.innerWidth / 2 - 200), minHeight: 120 });
     
     var contentDiv = document.createElement("div");
-    contentDiv.innerText = message;
+    
+    if (!htmlText)
+    {
+        contentDiv.innerText = message;
+    }
+    else
+    {
+        contentDiv.innerHTML = message;
+    }
+    
+    alertDialog.enableFlex("column");
+    contentDiv.style.flexGrow = 2;
+    contentDiv.style.overflowY = "auto";
+    
+    // Add additional padding.
+    contentDiv.style.paddingLeft = "4px";
     
     var submitButton = document.createElement("button");
     submitButton.innerHTML = "Ok";

@@ -9,7 +9,7 @@
  * (this method's implementation might, however, change in the future).
  */
 
-function Renderer()
+function Renderer(baseCanvas)
 {
     var me = this;
 
@@ -114,7 +114,7 @@ function Renderer()
     
     me.lastClear = [0, 0, 0, 1];
 
-    me.outputCanvas = document.createElement("canvas");
+    me.outputCanvas = baseCanvas || document.createElement("canvas");
     me.gl = me.outputCanvas.getContext("webgl");
     
     // Enable extensions.
@@ -805,6 +805,10 @@ function Renderer()
 // Define a helper object for the creation and management of rendering objects.
 const RendererHelper = {};
 
+// A dictionary containing cached renderers specific to canvases. These renderers are to be
+//used for rapid rendering. For example, a background that must update as the user scrolls.
+RendererHelper.rapidRenderers = {};
+
 // Get a potentially-shared instance of a renderer.
 //Consider using this instead of constructing a single renderer.
 //DANGER! If the size of the requested canvas changes frequently,
@@ -817,4 +821,26 @@ RendererHelper.getRenderer = () =>
     }
     
     return RendererHelper.renderer;
+};
+
+// Get a renderer specific to a canvas.
+//A canvas element must be given -- the renderer
+//will use it directly (instead of writing it
+//onto a background canvas first).
+// If an identifier is given, it will be used to hash
+//the renderer. Otherwise, all calls to getRapidRenderer
+//for a given canvas will return new Renderer objects.
+//Beware!
+RendererHelper.getRapidRenderer = (canvas, canvasId) =>
+{
+    let result = (canvasId !== undefined && RendererHelper.rapidRenderers[canvasId])
+                    ? RendererHelper.rapidRenderers[canvasId]
+                    : new Renderer(canvas); 
+
+    if (canvasId !== undefined && !RendererHelper.rapidRenderers[canvasId])
+    {
+        RendererHelper.rapidRenderers[canvasId] = canvas;
+    }
+
+    return result;
 };
