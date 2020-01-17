@@ -56,10 +56,10 @@ async (parent) =>
     
     while (true)
     {
-        await JSHelper.waitFor(AuthHelper.SIGN_IN_EVENT);
+        await JSHelper.Notifier.waitFor(AuthHelper.SIGN_IN_EVENT);
         showRelevantCommands();
         
-        await JSHelper.waitFor(AuthHelper.SIGN_OUT_EVENT);
+        await JSHelper.Notifier.waitFor(AuthHelper.SIGN_OUT_EVENT);
         showRelevantCommands();
     }
 };
