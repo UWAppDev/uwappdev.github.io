@@ -139,6 +139,14 @@ ContentManager.getURLRequestedPage = () =>
 };
 
 /**
+ * Display UI letting users edit/manage pages.
+ */
+ContentManager.editPages = () =>
+{
+    const pageEditWindow = SubWindowHelper.create({ title: "TODO" });
+};
+
+/**
  * Add any global content-management controls to the page.
  * For example, a sign-in button and survey management tools.
  */
@@ -150,17 +158,35 @@ async function(parent)
     // Any windows opened by the CMS.
     let CMSWindows = [];
     
+    // Wrap all content-management utilities in
+    //a div.
+    let cmsWrapper = document.createElement("div");
+    
+    cmsWrapper.style.display = "none";
+    cmsWrapper.style.flexDirection = "column";
+    
+    // Add buttons to the CMS.
+    HTMLHelper.addButton("Page Editor", cmsWrapper, () =>
+    {
+        ContentManager.setBladeClosed(true);
+        
+        ContentManager.editPages();
+    });
+    
     // Show the content-management system.
     const showCMS = () =>
     {
-        
+        cmsWrapper.style.display = "flex";
     };
     
     // Hide the content-management system.
     const hideCMS = () =>
     {
-        
+        cmsWrapper.style.display = "none";
     };
+    
+    // Add the wrapper.
+    parent.appendChild(cmsWrapper);
     
     while (true)
     {
