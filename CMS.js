@@ -263,6 +263,7 @@ function(parent)
     searchInput  = HTMLHelper.addInput("Search Pages", "", "text", 
                                             searchDiv, undefined, submitSearch);
     const searchButton = HTMLHelper.addButton("⥋", searchDiv, submitSearch);
+    searchButton.setAttribute("title", "Submit search.");
     
     searchDiv.classList.add("searchContainer");
     searchResultsDiv.classList.add("searchResults");
@@ -297,7 +298,9 @@ async function()
     // Click listeners for showing/hiding.
     logoDisplay.addEventListener("click", showHideBlade);
     logoDisplay.setAttribute("tabindex", 1); // Allow focusing.
-    logoDisplay.setAttribute("title", "Push Button. Push to access the main menu.");
+    logoDisplay.setAttribute("title", "Push to access the main menu. Use as a button." + 
+                                       " After opening, items should be selectable with the " +
+                                       " up and down arrow keys. ");
     
     ContentManager.toggleBlade = showHideBlade;
     ContentManager.setBladeClosed = (closed) =>
