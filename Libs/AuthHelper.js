@@ -12,6 +12,9 @@ AuthHelper.PHOTO_STORE_LOCATION = "https://firebasestorage.googleapis.com/";
 AuthHelper.PROFILE_PHOTO_SIZE = 150;
 AuthHelper.PHOTO_NAME_PREFIX = "_"; // Prefix all photos with this when stored on the server.
 AuthHelper.PHOTO_DIR = "profile_photos";
+AuthHelper.PASSWORD_REQUIREMENTS = { minLength: 13, 
+                                     specialCharCount: 3,
+                                     numberCharCount: 4 };
 
 // Add buttons for managing authentication
 //to the element, parent. Actions are completed
@@ -71,7 +74,7 @@ async (parent) =>
     }
 };
 
-// Display a UI permitting the user to sign in.
+// Display a UI permitting the user to sign in or re-authenticate.
 AuthHelper.signIn = 
 async () =>
 {
@@ -89,6 +92,7 @@ async () =>
     {
         const password = response.Password;
         
+        // Sign in the user.
         await window.firebase.auth().signInWithEmailAndPassword
                                         (email, password);
     }
@@ -115,7 +119,9 @@ async () =>
         return;
     }
     
-    SubWindowHelper.alert("Signed in!", "You are signed in!");
+    await SubWindowHelper.alert("Signed in!", "You are signed in!");
+    
+    return true;
 };
 
 // Sign the user out.
@@ -165,9 +171,7 @@ async () =>
     let emailInput = HTMLHelper.addLabeledInput("Email Address", "", "text", contentWrapper);
     
     let passwordInput = HTMLHelper.addPasswordConcocter(contentWrapper,
-                                                       { minLength: 13, 
-                                                          specialCharCount: 3,
-                                                          numberCharCount: 4 });
+                                                       AuthHelper.PASSWORD_REQUIREMENTS);
     let disclaimer = HTMLHelper.addParagraph(`Please, do <i><b>not</b></i> create an
                                               account unless explicitly told to do so
                                               by club administration. We reserve the
@@ -337,7 +341,9 @@ async () =>
             accountManageWindow.close();
         },
         {
-            initialImage: profileImg
+            initialImage: profileImg,
+            imageWidth: AuthHelper.PROFILE_PHOTO_SIZE,
+            imageHeight: AuthHelper.PROFILE_PHOTO_SIZE
         });
     };
     
@@ -372,10 +378,37 @@ async () =>
     
     // Define state.
     user = firebase.auth().currentUser;
+    
+    // Request things of the user, if necessary.
+    if (!user.emailVerified)
+    {
+        try
+        {
+            await user.sendEmailVerification();
+        }
+        catch(e)
+        {
+            await SubWindowHelper.alert("Error " + e.code, e.message);
+            
+            return;
+        }
+        
+        SubWindowHelper.alert("Email Verification", 
+        `
+            <p>It looks like you haven't verified your email.
+            We've sent you another verification request.
+            If you are unable to find this request, please check
+            your junk and spam folders.</p>
+            <p>Your email is currently listed as ${user.email}.
+            If this is in error, please correct it using menus under
+            &ldquo;Secured Settings&rdquo;.
+        `, undefined, true); // No onclose, but use html.
+    }
+    
     const singleAuthManaged =
     {
         "Name": ["displayName", "text"],
-        "Photo": ["photoURL",   selectPhoto]
+        "Change Photo": ["photoURL",   selectPhoto]
     };
     
     // Create the window.
@@ -388,11 +421,17 @@ async () =>
     accountManageWindow.enableFlex("column");
     
     
-    profileImg = new Image(AuthHelper.PROFILE_PHOTO_SIZE, AuthHelper.PROFILE_PHOTO_SIZE);
+    profileImg = new Image();
     profileImg.crossOrigin = "Anonymous";
     
     profileImg.src = await AuthHelper.getProfilePhotoSrc();
     profileImg.classList.add("profilePhoto");
+    
+    // Reset the resize circle's position.
+    setTimeout(() =>
+    {
+        accountManageWindow.updateResizeCircleLocation();
+    }, 1000); // After a short delay. TODO: Fix this.
     
     // Add the user's profile photo.
     accountManageWindow.appendChild(profileImg);
@@ -421,7 +460,168 @@ async () =>
     });
     
     // Add any double-auth managed state.
+    HTMLHelper.addButton("Secured Settings", accountManageWindow,
+    async () =>
+    {
+        await AuthHelper.manageSecureSettings();
+        accountManageWindow.close();
+    });
+};
+
+// Delete all data associated with a user.
+AuthHelper.deleteUserData = 
+async () =>
+{
+    const user = firebase.auth().currentUser;
     
+    let storage = await CloudHelper.awaitComponent(CloudHelper.Service.FIREBASE_STORAGE);
+    let storageRef = storage.ref();
+    
+    let userImages = storageRef.child(AuthHelper.PHOTO_DIR);
+    
+    let photoFilename = AuthHelper.PHOTO_NAME_PREFIX + user.uid + ".png";
+    let photo = userImages.child(photoFilename);
+    
+    await photo.delete();
+};
+
+// Manage secured settings -- open a GUI for
+//changing password/email/deleting account.
+AuthHelper.manageSecureSettings = 
+async () =>
+{
+    // Re-authenticate the user.
+    let signInResult = await AuthHelper.signIn();
+    
+    if (!signInResult)
+    {
+        return false;
+    }
+    
+    // Create a window with secured settings.
+    const accountManageWindow = SubWindowHelper.create(
+    {
+        title: "Manage Account (Secured Settings)",
+        className: "accountWindowSecuredSettings"
+    });
+    
+    // Get the user.
+    const user = firebase.auth().currentUser;
+    
+    // Enable flexible-box
+    accountManageWindow.enableFlex("column");
+    
+    HTMLHelper.addButton("Change Email Address", accountManageWindow,
+    async () =>
+    {
+        accountManageWindow.close();
+        
+        let emails = {};
+        
+        do
+        {
+            emails = await SubWindowHelper.prompt("New Email Address", 
+                "Enter and confirm the new email address.",
+                { "Email": "text", "Confirm Email": "text" });
+        }
+        while (emails.Email !== emails["Confirm Email"]);
+        
+        // Update it!
+        try
+        {
+            await user.updateEmail(emails.Email);
+            await user.sendEmailVerification();
+        }
+        catch(error)
+        {
+            SubWindowHelper.alert(error.code, error.message);
+            return;
+        }
+        
+        SubWindowHelper.alert("Email Address Changed", "Your email address has been changed. Please, verify the new address.");
+    });
+    
+    HTMLHelper.addButton("Change Password", accountManageWindow,
+    async () =>
+    {
+        accountManageWindow.close();
+        
+        let submitButton;
+        
+        const passwordChangeWindow = SubWindowHelper.create(
+        {
+            title: "Change Password",
+            className: "accountWindow"
+        });
+        
+        
+        HTMLHelper.addLabel("Enter a new password: ", passwordChangeWindow);
+        
+        const passwordCreator = HTMLHelper.addPasswordConcocter(passwordChangeWindow,
+                                                       AuthHelper.PASSWORD_REQUIREMENTS);
+        
+        submitButton = HTMLHelper.addButton("Submit", passwordChangeWindow, 
+        async () =>
+        {
+            const password = passwordCreator.get();
+            
+            try
+            {
+                await user.updatePassword(password);
+            }
+            catch(error)
+            {
+                SubWindowHelper.alert(error.message, error.code);
+                
+                return;
+            }
+            
+            SubWindowHelper.alert("Updated password!", "Your password has been updated.");
+            
+            passwordChangeWindow.close();
+        });
+        
+        // TODO This looks like duplicated code...
+        //      How might this be fixed?
+        submitButton.style.height = "0em";
+        submitButton.style.transition = "0.4s ease all";
+        submitButton.style.overflow = "hidden";
+        
+        passwordCreator.onValid(() =>
+        {
+            submitButton.style.height = "1.5em";
+        });
+        
+        passwordCreator.onInvalid(() =>
+        {
+            submitButton.style.height = "0em";
+        });
+    });
+    
+    HTMLHelper.addButton("Delete Account", accountManageWindow,
+    async () =>
+    {
+        const doDelete = await SubWindowHelper.confirm("Confirm Deletion", "Really delete account?", "Yes", "No");
+        
+        if (!doDelete)
+        {
+            return;
+        }
+        
+        accountManageWindow.close();
+        
+        try
+        {
+            await AuthHelper.deleteUserData();
+            await user.delete();
+            
+            await SubWindowHelper.alert("Deletion", "Account deleted.");
+        }
+        catch(e)
+        {
+            await SubWindowHelper.alert("Error: " + e.code, e.message);
+        }
+    });
 };
 
 AuthHelper.isSignedIn = () =>

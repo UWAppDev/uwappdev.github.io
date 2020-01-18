@@ -50,10 +50,17 @@ function Drawer2D(onSubmit, options)
     
     if (options.initialImage)
     {
-        imageCtx.canvas.width = options.initialImage.width;
-        imageCtx.canvas.height = options.initialImage.height;
+        imageCtx.canvas.width = options.imageWidth || options.initialImage.width;
+        imageCtx.canvas.height = options.imageHeight || options.initialImage.height;
         
-        imageCtx.drawImage(options.initialImage, 0, 0);
+        try
+        {
+            imageCtx.drawImage(options.initialImage, 0, 0, imageCtx.canvas.width, imageCtx.canvas.height);
+        }
+        catch(e)
+        {
+            SubWindowHelper.alert("Unable to draw image", "Error: " + e + ". Proceeding.");
+        }
     }
     else
     {

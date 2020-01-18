@@ -997,7 +997,7 @@ SubWindowHelper.confirm = function(title, message, okLabel, cancelLabel, htmlTex
         {
             dialog.close();
             
-            resolve(this, result);
+            resolve(result);
         };
     
         submitButtonOk.onclick = function()
