@@ -240,15 +240,22 @@ function(parent)
         };
         
         // Note the number of results.
-        HTMLHelper.addTextElement("Found " + results.length + " result" + 
-                                    (results.length == 1 ? '' : 's') + ".",
-                                  searchResultsDiv);
+        let foundText = HTMLHelper.addTextElement("Found " + results.length + " result" + 
+                                                 (results.length == 1 ? '' : 's') + ".",
+                                                  searchResultsDiv);
         
         // Link to each.
         for (let i = 0; i < results.length; i++)
         {
             makePageLink(results[i][0], results[i][1]);
         }
+        
+        // Focus the results.
+        searchResultsDiv.setAttribute("tabindex", 2);
+        searchResultsDiv.focus();
+        
+        foundText.setAttribute("tabIndex", 2);
+        foundText.focus();
     };
 
     searchResultsDiv = document.createElement("div"); 
@@ -289,6 +296,9 @@ async function()
     
     // Click listeners for showing/hiding.
     logoDisplay.addEventListener("click", showHideBlade);
+    logoDisplay.setAttribute("tabindex", 1); // Allow focusing.
+    logoDisplay.setAttribute("title", "Push Button. Push to access the main menu.");
+    
     ContentManager.toggleBlade = showHideBlade;
     ContentManager.setBladeClosed = (closed) =>
     {

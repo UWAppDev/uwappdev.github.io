@@ -426,6 +426,7 @@ async () =>
     
     profileImg = new Image();
     profileImg.crossOrigin = "Anonymous";
+    profileImg.setAttribute("title", "Profile Image");
     
     let resetCircle = (waitTime) =>
     {

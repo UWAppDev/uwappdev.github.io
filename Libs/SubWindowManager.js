@@ -260,9 +260,11 @@ function SubWindow(globals, options)
     
     this.titleBar = document.createElement("div");
     this.titleBar.setAttribute("class", getStyleClass("TitleBar"));
+    this.titleBar.setAttribute("tabIndex", 2);
     
     this.titleBar.style.display = "flex";
     this.titleBar.style.flexDirection = "row";
+    this.titleBar.setAttribute("title", "In-page window. Title bar.");
     
     this.titleContent = document.createElement("div");
     this.titleContent.setAttribute("class", getStyleClass("TitleContent"));
@@ -601,6 +603,9 @@ function SubWindow(globals, options)
         me.closeButton = document.createElement("div");
         me.closeButton.innerHTML = "X";
         
+        me.closeButton.setAttribute("title", "Push button: Close");
+        me.closeButton.setAttribute("tabIndex", 2);
+        
         me.closeButton.setAttribute("class", getStyleClass("CloseButton"));
         
         me.titleBar.appendChild(me.closeButton);
@@ -617,6 +622,10 @@ function SubWindow(globals, options)
     {
         me.minMaxButton = document.createElement("div");
         me.minMaxButton.setAttribute("class", getStyleClass("MaximizeButton"));
+        
+        me.minMaxButton.setAttribute("title", "Push button: Minimize or maximize.");
+        me.minMaxButton.setAttribute("tabIndex", 2);
+        
         me.titleBar.appendChild(me.minMaxButton);
         
         // Original state
@@ -787,6 +796,10 @@ function SubWindow(globals, options)
                 globals.moveTopLevelWindowsToTheFore();
             }
         }
+        
+        // Select the container.
+        me.container.setAttribute("tabindex", 1);
+        me.container.focus();
     };
     
     this.getDraggable = function()

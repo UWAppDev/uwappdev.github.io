@@ -61,10 +61,23 @@
     transition: 0.5s ease all;
 }
 
-.navabar .logo:hover
+.navabar .logo:hover, .logo:focus
 {
-    transform: rotate(-5deg);
+    transform: rotate(-5deg) scale(1.1, 1.1);
     cursor: pointer;
+}
+
+.logo:focus
+{
+    background-color: rgba(0, 255, 0, 1.0);
+}
+
+.logo
+{
+    box-shadow: 1px 2px 4px rgba(100, 100, 100, 0.6);
+    border-radius: 100%;
+    background-color: rgba(100, 100, 100, 1.0);
+    background-image: radial-gradient(rgba(155, 0, 100, 0.6), rgba(155, 0, 100, 0.6), black);
 }
 
 .navabar button
@@ -130,14 +143,6 @@ body
 {
     background-image: radial-gradient(rgba(0, 0, 0, 0.8), rgba(100, 0, 100, 0.6));
     background-size: 5px 5px;
-}
-
-.logo
-{
-    box-shadow: 1px 2px 4px rgba(100, 100, 100, 0.6);
-    border-radius: 100%;
-    background-color: white;
-    background-image: radial-gradient(purple, purple, black);
 }
 
 .profilePhoto
