@@ -54,8 +54,6 @@ JSHelper.getArrayOfRandomColors = (count, round, numComponents, ...componentRang
 {
     let result = [], currentColor, colorComponentIndex;
 
-    console.log(componentRanges);
-
     numComponents = numComponents || 4;
 
     for (let index = 0; index < count; index++)

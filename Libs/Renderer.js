@@ -65,11 +65,7 @@ function Renderer(baseCanvas)
         if (attrName === "a_position")
         {
             this.numTriangles = Math.floor(data.length / me.attributes["a_position"]);
-
-            console.log("NUM_TRIANGLES: " + this.numTriangles);
         }
-
-        console.log("GIVEN: " + attrName + ": " + data.length);
     };
 
     // Load the object from a ModelHelper.Object.
@@ -508,8 +504,6 @@ function Renderer(baseCanvas)
 
             // Enable it.
             gl.enableVertexAttribArray(location);
-
-            console.log (name + ": " + size);
 
             // Tell WebGL how to retrieve data from this buffer,
             //we assume it contains floats.

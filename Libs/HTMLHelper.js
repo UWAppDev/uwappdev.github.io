@@ -299,10 +299,10 @@ HTMLHelper.addPasswordConcocter = (parent, options) =>
         {
             let numberCount = JSHelper.getCharCount(password, NUMBER_SYMBOLS);
             
-            if (numberCount < options.minNumberCount)
+            if (numberCount < options.numberCharCount)
             {
                 noteFail("Password contains only " + numberCount
-                    + "/" + options.minNumberCount + " of the required number symbols (" + NUMBER_SYMBOLS + ").");
+                    + "/" + options.numberCharCount + " of the required number symbols (" + NUMBER_SYMBOLS + ").");
             }
         }
     ];

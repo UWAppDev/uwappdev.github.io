@@ -125,7 +125,7 @@ StorageHelper.removeExpired = () =>
                                 
             if (expTime !== NaN && expTime !== undefined)
             {
-                console.log(itemKey + " expires in " + Math.floor(expTime / 60 / 60 / 24 / 1000) 
+                console.log(itemKey + " expires in " + Math.floor((expTime - (new Date()).getTime()) / 60 / 60 / 24 / 1000) 
                         + " day(s).");
             }
                     

@@ -12,7 +12,7 @@ AuthHelper.PHOTO_STORE_LOCATION = "https://firebasestorage.googleapis.com/";
 AuthHelper.PROFILE_PHOTO_SIZE = 150;
 AuthHelper.PHOTO_NAME_PREFIX = "_"; // Prefix all photos with this when stored on the server.
 AuthHelper.PHOTO_DIR = "profile_photos";
-AuthHelper.PASSWORD_REQUIREMENTS = { minLength: 13, 
+AuthHelper.PASSWORD_REQUIREMENTS = { minLength: 14, 
                                      specialCharCount: 3,
                                      numberCharCount: 4 };
 
@@ -176,7 +176,10 @@ async () =>
                                               account unless explicitly told to do so
                                               by club administration. We reserve the
                                               right to delete accounts and any data
-                                              associated with them.`, contentWrapper);
+                                              associated with them. We may also share
+                                              any data given to this app <span class = "dash"></span>
+                                              including your name and email <span class = "dash"></span>
+                                              with anyone.`, contentWrapper);
     
     let submitButton = HTMLHelper.addButton("Sumbit", contentWrapper);
     
@@ -424,14 +427,21 @@ async () =>
     profileImg = new Image();
     profileImg.crossOrigin = "Anonymous";
     
-    profileImg.src = await AuthHelper.getProfilePhotoSrc();
-    profileImg.classList.add("profilePhoto");
+    let resetCircle = (waitTime) =>
+    {
+        // But do it after the display has had time to update.
+        setTimeout(() => { accountManageWindow.updateResizeCircleLocation(true); }, waitTime || 200);
+    };
     
     // Reset the resize circle's position.
-    setTimeout(() =>
-    {
-        accountManageWindow.updateResizeCircleLocation();
-    }, 1000); // After a short delay. TODO: Fix this.
+    // TODO Make this better!
+    profileImg.addEventListener("load", resetCircle);
+    
+    // Reset the circle two seconds after load.
+    resetCircle(2000);
+    
+    profileImg.src = await AuthHelper.getProfilePhotoSrc();
+    profileImg.classList.add("profilePhoto");
     
     // Add the user's profile photo.
     accountManageWindow.appendChild(profileImg);
@@ -472,6 +482,7 @@ async () =>
 AuthHelper.deleteUserData = 
 async () =>
 {
+    // Delete files (for now, just the profile photo).
     const user = firebase.auth().currentUser;
     
     let storage = await CloudHelper.awaitComponent(CloudHelper.Service.FIREBASE_STORAGE);
@@ -482,7 +493,17 @@ async () =>
     let photoFilename = AuthHelper.PHOTO_NAME_PREFIX + user.uid + ".png";
     let photo = userImages.child(photoFilename);
     
-    await photo.delete();
+    //await photo.delete();
+    
+    // Delete user data.
+    let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    
+    let userContent = await database.collection("userData").doc(user.uid).get();
+    
+    if (userContent.exists)
+    {
+        await database.collection("userData").doc(user.uid).delete();
+    }
 };
 
 // Manage secured settings -- open a GUI for

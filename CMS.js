@@ -40,7 +40,7 @@ async function(name, doNotAddToHistory)
     name = name || PageDataHelper.defaultPage;
     
     // Set content.
-    contentZone.innerHTML = PageDataHelper.pages[name];
+    contentZone.innerHTML = await PageDataHelper.getPageContent(name);
     
     // Did the page request a background?
     JSHelper.Notifier.notify(BACKGROUND_CHANGE_EVENT, PageDataHelper.pageBackgrounds[name]);
@@ -143,7 +143,11 @@ ContentManager.getURLRequestedPage = () =>
  */
 ContentManager.editPages = () =>
 {
-    const pageEditWindow = SubWindowHelper.create({ title: "TODO" });
+    const pageEditWindow = SubWindowHelper.create(
+    { 
+        title: "TODO",
+        className: "pageManagementWindow"
+    });
 };
 
 /**

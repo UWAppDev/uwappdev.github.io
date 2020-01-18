@@ -136,6 +136,31 @@ SerializationHelper.inflateObject = function(serializationData)
     return result;
 };
 
+// Chrome doesn't support toSource on strings,
+//so we need another function. This function
+//escapes text such that all (old) backslashes and
+//single/double are preceeded with a (new) backslash.
+//The returned text is surrounded with double-quotes.
+SerializationHelper.stringToSource = function(text)
+{
+    let currentChar, result = "\"";
+    
+    for (let i = 0; i < text.length; i++)
+    {
+        currentChar = text.charAt(i);
+        
+        // Does it need escaping.
+        if (currentChar == '"' || currentChar == "\'" || currentChar == "\\")
+        {
+            result += "\\";
+        }
+        
+        result += currentChar;
+    }
+    
+    return result + "\"";
+};
+
 // Like JSON.stringify, but also converts functions to source.
 SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
 {
@@ -160,7 +185,7 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     
         if (typeof (part[key]) == "string")
         {
-            currentPart += part[key].toSource();
+            currentPart += SerializationHelper.escapeString(part[key]);
         }
         else if (typeof (part[key]) != "object" && part[key] && part[key].toString)
         {
@@ -168,7 +193,7 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
         }
         else if (typeof (part[key]) == "object")
         {
-            currentPart += SerializationHelper.stringifyFull(part[key], maxDepth, depth + 1);
+            currentPart += SerializationHelper.stringToSource(part[key], maxDepth, depth + 1);
         }
         else
         {

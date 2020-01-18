@@ -165,6 +165,12 @@ span.tabContentShown > input, span.tabContentShown > button
     width: 100%;
 }
 
+input::placeholder
+{
+    color: #333333;
+    opacity: 0.6;
+}
+
 input, button
 {
     background-color: rgba(155, 100, 255, 0.6);

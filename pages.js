@@ -40,6 +40,8 @@ const PageDataHelper =
                         
                         // Cache it.
                         PageDataHelper.cachePage(docData.title, pageContent, docData.timestamp);
+                        
+                        return pageContent;
                     };
                 }
                 else
@@ -186,6 +188,20 @@ const PageDataHelper =
 };
 
 // Helper methods.
+
+// Get a page.
+PageDataHelper.getPageContent   = 
+async function(pageName)
+{
+    let content = PageDataHelper.pages[pageName];
+    
+    if (typeof content === "function")
+    {
+        PageDataHelper.pages[pageName] = await content();
+    }
+    
+    return PageDataHelper.pages[pageName]
+};
 
 // Cache a page.
 PageDataHelper.cachePage = function(pageName, pageContent)
