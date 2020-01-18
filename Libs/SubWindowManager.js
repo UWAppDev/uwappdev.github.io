@@ -802,9 +802,6 @@ function SubWindow(globals, options)
                 globals.moveTopLevelWindowsToTheFore();
             }
         }
-        
-        // Select the container's title.
-        me.titleContent.focus();
     };
     
     this.getDraggable = function()
@@ -931,6 +928,9 @@ function SubWindow(globals, options)
         {
             me.makeMovable();
         }
+        
+        // Select the container's title.
+        me.titleContent.focus();
         
         // Allow the window to scale, then
         //change its dimensions, if necessary.
