@@ -128,6 +128,7 @@ function SubWindowTab(label, options)
     this.mainElementCommand = document.createElement("span");
     this.mainElementCommand.setAttribute("class", stylePrefix + "TabLabel");
     this.mainElementCommand.textContent = label;
+    this.label = label;
     this.mainElement.appendChild(this.mainElementCommand);
     
     if (!options.command)
@@ -162,6 +163,7 @@ function SubWindowTab(label, options)
     this.setLabel = function(newLabel)
     {
         me.mainElementCommand.textContent = newLabel;
+        me.label = newLabel;
     };
     
     this.addCommand = function(label, action)
@@ -190,6 +192,7 @@ function SubWindowTab(label, options)
         me.mainElement.style.visibility = "visible";
         me.mainElement.style.width = "auto";
         me.mainElement.style.height = "auto";
+        me.mainElement.setAttribute("title", "Visible item. " + me.label);
     };
     
     this.hide = function()
@@ -197,6 +200,7 @@ function SubWindowTab(label, options)
         me.mainElement.style.visibility = "hidden";
         me.mainElement.style.height = "0px";
         me.mainElement.style.width = "0px";
+        me.mainElement.setAttribute("title", "Hidden item. " + me.label);
     };
     
     this.destroy = function()
@@ -227,6 +231,7 @@ function SubWindowTab(label, options)
         delete me.mainElement;
     };
     
+    this.mainElementCommand.setAttribute("tabIndex", 2);
     this.mainElementCommand.addEventListener("click", me.onClick);
 }
 
@@ -269,6 +274,7 @@ function SubWindow(globals, options)
     this.titleContent = document.createElement("div");
     this.titleContent.setAttribute("class", getStyleClass("TitleContent"));
     this.titleContent.style.flexGrow = "1";
+    this.titleContent.setAttribute("tabIndex", 2);
 
     this.alwaysOnTop = options.alwaysOnTop || false;
     this.unsnappable = options.unsnappable === undefined ? (options.noResize || false) : options.unsnappable;
@@ -797,9 +803,8 @@ function SubWindow(globals, options)
             }
         }
         
-        // Select the container.
-        me.container.setAttribute("tabindex", 1);
-        me.container.focus();
+        // Select the container's title.
+        me.titleContent.focus();
     };
     
     this.getDraggable = function()
