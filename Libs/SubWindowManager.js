@@ -616,12 +616,12 @@ function SubWindow(globals, options)
         
         me.titleBar.appendChild(me.closeButton);
         
-        me.closeButton.onclick = function(event)
+        me.closeButton.addEventListener("click", function(event)
         {
             event.preventDefault();
             
             me.destroy();
-        };
+        });
     };
     
     this.createMinimizeMaximizeButton = function()
@@ -663,7 +663,7 @@ function SubWindow(globals, options)
             }
         };
         
-        me.minMaxButton.onclick = function(event)
+        me.minMaxButton.addEventListener("click", function(event)
         {
             event.preventDefault();
             
@@ -719,7 +719,7 @@ function SubWindow(globals, options)
                     me.resizeZone.style.display = originalResizeCircleDisplay;
                 }
             }
-        };
+        });
     };
     
     this.updateResizeCircleLocation = function(measureSize)
@@ -1018,15 +1018,15 @@ SubWindowHelper.confirm = function(title, message, okLabel, cancelLabel, htmlTex
             resolve(result);
         };
     
-        submitButtonOk.onclick = function()
+        submitButtonOk.addEventListener("click", function()
         {
             submit(true);
-        };
+        });
         
-        submitButtonCancel.onclick = function()
+        submitButtonCancel.addEventListener("click", function()
         {
             submit(false);
-        };
+        });
     });
 };
 
@@ -1069,7 +1069,7 @@ SubWindowHelper.alert = function(title, message, onClose, htmlText, windowOption
     
     return new Promise((resolve, reject) =>
     {
-        submitButton.onclick = function()
+        submitButton.addEventListener("click", function()
         {
             alertDialog.close();
             
@@ -1079,7 +1079,7 @@ SubWindowHelper.alert = function(title, message, onClose, htmlText, windowOption
             }
             
             resolve(this);
-        };
+        });
     });
 };
 

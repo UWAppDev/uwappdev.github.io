@@ -493,10 +493,13 @@ function (eventType, onEnact, ...allOthers)
     {
         eventType = "keyup";
         JSHelper.replacedMethods.addEventListener.apply(this, [eventType, 
-        (event) =>
+        function(event)
         {
             if (event.keyCode === 13) // Enter key.
             {
+                // Make it look somewhat like a mouse event.
+                event.button = 0;
+                
                 onEnact.apply(this, arguments);
             }
         }].concat(allOthers));
