@@ -77,12 +77,12 @@ function SubWindowGlobals(parent, windowsList)
         }
     };
     
-    // Listen for shift + tab to switch between windows.
+    // Listen for shift + F3 to switch between windows.
     me.parent.addEventListener("keydown", function(event)
     {
         if (event.shiftKey && me.windowsList.length > 0)
         {
-            if (event.key === "Tab")
+            if (event.key === "F3")
             {
                 // Don't perform default action.
                 event.preventDefault();
@@ -237,6 +237,28 @@ function SubWindowTab(label, options)
 
 function SubWindow(globals, options)
 {
+    // Several significant options:
+    //  minWidth    Minimum width (px)                              int
+    //  minHeight   Minimum height (px)                             int
+    //  maxWidth    Maximum width (px)                              int
+    //  maxHeight   Maximum height (px)                             int
+    //  title       Title content                                   str
+    //  className   Additional style sheets for the window, all     str
+    //              prepended with className.
+    //fixWindowSize Whether to set the window's dimensions to a     bool
+    //              size in pixels after load or to allow its size
+    //              to be determined by its contents until resize.
+    //  noResize    Disable window resizing.                        bool
+    // unsnappable  Prohibits a "snapping" behavior from occurring  bool
+    //              when a window is brought near an edge of the screen.
+    // fixed        Whether the user can drag the window.           bool
+    //noCloseButton Whether to include the "X" button.              bool
+    //titleHTML     HTML-based content for the title. If used,      str
+    //              please also specify title, for accessibility.
+    //contentHTML   HTML-based content for the window.              str
+    //title         Text-based title content.                       str
+    //content       Text-based window content.                      str
+
     options = options || {};
     var parent = globals.parent;
     
@@ -735,6 +757,14 @@ function SubWindow(globals, options)
         me.resizeZone.setAttribute("class", getStyleClass("ResizeZone"));
         me.resizeZone.style.position = "absolute"; // Note: "fixed" has issues in WebKit.
         me.container.appendChild(me.resizeZone);
+        
+        // If specified, set the width and height of the window
+        //to concrete values.
+        if (options.fixWindowSize)
+        {
+            me.container.style.width = me.container.clientWidth + "px";
+            me.container.style.height = me.container.clientHeight + "px";
+        }
         
         var left = me.container.clientWidth - 5;
         var top = me.container.clientHeight - 5;

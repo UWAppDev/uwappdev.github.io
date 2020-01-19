@@ -472,9 +472,9 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
     let selectedTab = null;
     
     // Create containers.
-    let groupContainer = document.createElement("div"); // Contains everything in this display.
-    let tabLabelContainer = document.createElement("div"); // Contains just the parent element of the tabs.
-    let contentContainer = document.createElement("div"); // Contains the content to be displayed.
+    let groupContainer = document.createElement("span"); // Contains everything in this display.
+    let tabLabelContainer = document.createElement("span"); // Contains just the parent element of the tabs.
+    let contentContainer = document.createElement("span"); // Contains the content to be displayed.
     
     // Set container styles.
     groupContainer.setAttribute("class", "tabGroupContainer"); // TODO groupContainer should have display flex, etc.

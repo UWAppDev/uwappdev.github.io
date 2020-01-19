@@ -12,6 +12,7 @@ const ContentManager = {};
 
 ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to request a specific page.
 ContentManager.currentPage = null;
+ContentManager.SEARCH_CHAR = "⥋";
 
 /**
  *  Display a single page. If doNotAddToHistory is set,
@@ -145,9 +146,116 @@ ContentManager.editPages = () =>
 {
     const pageEditWindow = SubWindowHelper.create(
     { 
-        title: "TODO",
-        className: "pageManagementWindow"
+        title: "Manage Pages",
+        className: "pageManagementWindow",
+        minWidth: 256,
+        minHeight: 100,
+        fixWindowSize: true
     });
+    
+    // Enable flex-boxing.
+    pageEditWindow.enableFlex("row");
+    
+    // Create both the left and right panes.
+    const leftPane = document.createElement("div");
+    const rightPane = document.createElement("div");
+    
+    // Styling.
+    leftPane.classList.add("pageListManage");
+    rightPane.classList.add("pageEditManage");
+    
+    // Add both to the window.
+    pageEditWindow.appendChild(leftPane);
+    pageEditWindow.appendChild(rightPane);
+    
+    // Add content to panes.
+    let searchInput, pageEditor;
+    
+    const searchPanel = document.createElement("div");
+    searchPanel.classList.add("searchContainer");
+    
+    // Create the results display.
+    const resultsDisplay = document.createElement("div");
+    resultsDisplay.style.display = "flex";
+    resultsDisplay.style.flexDirection = "column";
+    
+    let currentPage = undefined;
+    
+    // Manage search.
+    const runSearch = () =>
+    {
+        const queryText = searchInput.value;
+        
+        const results = PageDataHelper.query(queryText);
+        
+        const createListItem = (pageTitle) =>
+        {
+            const listItem = document.createElement("div");
+            listItem.setAttribute("tabIndex", 2);
+            listItem.setAttribute("title", "Page edit selector.");
+            listItem.classList.add("pageListItemManage");
+            
+            listItem.innerText = pageTitle;
+            
+            listItem.addEventListener("click", () =>
+            {
+                // Select it.
+                if (currentPage && currentPage.classList)
+                {
+                    currentPage.classList.remove("selected");
+                }
+                
+                currentPage = listItem;
+                currentPage.classList.add("selected");
+                
+                //pageEditor.editPage(pageTitle);
+            });
+            
+            resultsDisplay.appendChild(listItem);
+        };
+        
+        // Clear the results.
+        resultsDisplay.innerHTML = "";
+        
+        for (var i = 0; i < results.length; i++)
+        {
+            createListItem(results[i][0]);
+        }
+    };
+    
+    searchInput = HTMLHelper.addInput("Search Pages...", "", "text", searchPanel, undefined,
+                                            runSearch);
+    const searchButton = HTMLHelper.addButton(ContentManager.SEARCH_CHAR, searchPanel, runSearch);
+    searchButton.setAttribute("title", "Submit search");
+    
+    searchInput.setAttribute("tabIndex", 2);
+    
+    // Add elements to panes.
+    leftPane.appendChild(searchPanel);
+    leftPane.appendChild(resultsDisplay);
+    
+    // Spacer & commands below it.
+    HTMLHelper.addSpacer(leftPane);
+    
+    // Hide and show left pane buttons.
+    let showPane = HTMLHelper.addButton("Show Pane", rightPane, () =>
+    {
+        leftPane.classList.remove("hidden");
+        showPane.classList.add("hidden");
+    });
+    
+    showPane.classList.add("showPane");
+    showPane.classList.add("hidden");
+    
+    HTMLHelper.addButton("Hide Pane", leftPane, () =>
+    {
+        leftPane.classList.add("hidden");
+        showPane.classList.remove("hidden");
+    });
+    
+    
+    
+    pageEditor = PageEditor.create(rightPane);
 };
 
 /**
@@ -262,7 +370,7 @@ function(parent)
     const searchDiv     = document.createElement("div");
     searchInput  = HTMLHelper.addInput("Search Pages", "", "text", 
                                             searchDiv, undefined, submitSearch);
-    const searchButton = HTMLHelper.addButton("⥋", searchDiv, submitSearch);
+    const searchButton = HTMLHelper.addButton(ContentManager.SEARCH_CHAR, searchDiv, submitSearch);
     searchButton.setAttribute("title", "Submit search.");
     
     searchDiv.classList.add("searchContainer");
