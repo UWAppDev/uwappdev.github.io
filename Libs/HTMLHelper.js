@@ -470,6 +470,7 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
     let tabActiveFunctions = {};
     let tabLabels = {}; // The selectable labels.
     let selectedTab = null;
+    let onTabChange = null;
     
     // Create containers.
     let groupContainer = document.createElement("span"); // Contains everything in this display.
@@ -525,11 +526,13 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         tabLabel.setAttribute("class", "tabLabel tabLabelUnselected"); // Styling.
         tabLabel.textContent = tabName;
         
+        tabLabel.setAttribute("tabIndex", 2);
+        
         // Click.
-        tabLabel.onclick = (event) =>
+        tabLabel.addEventListener("click", (event) =>
         {
             selectTab(tabName);
-        };
+        });
         
         tabLabels[tabName] = tabLabel; // Stored for deletion purposes.
         
@@ -584,6 +587,8 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
     
     let selectTab = (tabName) =>
     {
+        let previouslySelectedTab = null;
+        
         // If a tab is already selected,
         //deselect it.
         if (selectedTab !== null && selectedTab in tabContents && selectedTab in tabLabels)
@@ -595,6 +600,9 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
             tabContents[selectedTab].classList.remove("tabContentShown");
                                                                         
             tabLabels[selectedTab].setAttribute("class", "tabLabel tabLabelUnselected");
+            
+            // Note the previously selected tab.
+            previouslySelectedTab = selectedTab;
         }
         
         // Note the newly-selected tab.
@@ -613,6 +621,12 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         {
             tabActiveFunctions[selectedTab].call(this, tabContents[selectedTab]);
         }
+        
+        // Notify.
+        if (onTabChange)
+        {
+            onTabChange.call(this, tabContents, selectedTab, previouslySelectedTab);
+        }
     };
     
     for (var i in tabDescriptors)
@@ -625,13 +639,14 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         selectTab(defaultTab);
     }
     
-    let result = 
+    const result = 
     {
         selectTab: selectTab,
         showTab: showTab,
         hideTab: hideTab,
         addTab: addTab,
-        removeTab: removeTab
+        removeTab: removeTab,
+        setOnTabChange: (newOnTabChange) => { onTabChange = newOnTabChange; }
     };
     
     return result;

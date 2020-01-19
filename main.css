@@ -402,14 +402,16 @@ body
 .pageEditor
 {
     flex-grow: 1;
+    flex-shrink: 1;
     height: 95%;
+    padding-top: 8%;
 }
 
 .pageEditor .codeEditorContainer
 {
     background-color: black;
     padding-top: 2px;
-    height: calc(100% - 10px);
+    height: calc(90% - 15px);
 }
 
 .pageEditor .textEditorContainer
@@ -421,14 +423,46 @@ body
 .pageEditor .textEditorContainer textarea
 {
     width: calc(100% - 1px);
-    height: calc(96% - 1px);
+    height: calc(94% - 1px);
+}
+
+.pageEditor .previewContainer
+{
+    height: 100%;
+    width: 100%;
 }
 
 .pageEditor .previewContainer iframe
 {
-    height: 50%;
+    height: 75% !important;
     width: calc(100% - 6px);
     border: 1px solid gray;
+}
+
+.pageEditor input.pageNameInput
+{
+    background-color: white;
+    background-image: linear-gradient(10deg, white, rgba(255, 240, 255, 0.6), white);
+    height: 1.6em;
+    
+    position: absolute;
+    top: 0em;
+    opacity: 0.95;
+    z-index: 5;
+    
+    font: 1em Sans;
+    color: black;
+    transform: scale(1, 1.1);
+    
+    transition: 0.4s ease all;
+}
+
+.pageEditor input.pageNameInput:focus, .pageEditor input.pageNameInput:active,
+        .pageEditor input.pageNameInput:hover
+{
+    top: 0em;
+    opacity: 1;
+    transform: scale(1, 1);
 }
 
 .content

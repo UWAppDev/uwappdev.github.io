@@ -14,7 +14,7 @@ const EDITOR_SOURCE = "<!DOCTYPE " + "html>\n"
                      + 
                      document.documentElement.outerHTML;
 
-const VERSION_CODE = "1.07 (Main)";
+const VERSION_CODE = "1.08 (Branch)";
 
 function EditControl(ctx)
 {
@@ -1656,14 +1656,15 @@ Path: ${ me.saveDir }
 
     this.editCanvas.setAttribute('tabindex', 0);
 
-    this.toggleRun = function()
+    // Setting forceState=true forces a run, setting forceState = false forces hiding.
+    this.toggleRun = function(forceState)
     {
-        if (me.runFrame.style.display === "block")
+        if ((me.runFrame.style.display === "block" || forceState === false) && forceState !== true)
         {
             me.runFrame.style.display = "none";
             me.runFrame.src = "data:text/html;charset=UTF-8,Loading...";
         }
-        else
+        else if (forceState === undefined || forceState === true)
         {
             var contentToRun = me.editControl.getText();
 
@@ -1730,6 +1731,9 @@ Path: ${ me.saveDir }
         
         var checkSyntax = me.editControl.appendLine("Check Syntax");
         checkSyntax.editable = false;
+        
+        var wrapLongLines    = me.editControl.appendLine("Wrap Long Lines");
+        wrapLongLines.editable = false;
 
         var exitLine = me.editControl.appendLine("Hide Advanced Options");
         exitLine.editable = false;
@@ -1811,6 +1815,13 @@ Path: ${ me.saveDir }
             exitAdvancedOptions();
             
             me.toggleSyntaxCheck();
+        };
+        
+        wrapLongLines.onentercommand = function()
+        {
+            exitAdvancedOptions();
+            
+            me.wrapLongLines();
         };
 
         if (setPathToSpellingDictionary != undefined)
@@ -1910,6 +1921,185 @@ Path: ${ me.saveDir }
         }
         
         checkingSyntax = !checkingSyntax;
+    };
+    
+    me.wrappingLongLines = false;
+    this.wrapLongLines = function()
+    {
+        if (me.wrappingLongLines)
+        {
+            me.editControl.restoreState();
+            me.wrappingLongLines = false;
+            
+            return;
+        }
+        
+        me.wrappingLongLines = true;
+        
+        let toWrap = me.editControl.getText();
+        
+        me.editControl.saveStateAndClear();
+
+        let quoteOptionText = "Quote ('\") Option: ";
+        let maximumLengthText = "Maximum length: ";
+        let maximumLength = 78;
+        let quoteOptions = ["BREAK", "BREAK_AND_CONCAT", "DO_NOT_BREAK"];
+        let autoIndent  = true;
+        let quoteOptionIndex = 0;
+        
+        let quoteActions =
+        {
+            "BREAK": (line, index) =>
+            {
+                return "\n";
+            },
+            "BREAK_AND_CONCAT": (line, index, quoteChar, indentLevel) =>
+            {
+                return quoteChar + " + \n" + indentLevel + quoteChar;
+            },
+            "DO_NOT_BREAK": (line, index) =>
+            {
+                return "";
+            }
+        };
+        
+        const wrapText = (initialText) =>
+        {
+            let result = "";
+            let currentWord = "";
+            let inQuoteType = undefined; // The type of quote currently in.
+            let lineLength = 0;
+            let currentChar;
+            let indentCount = 0;
+            let indent = "";
+            
+            for (let i = 0; i < initialText.length; i++)
+            {
+                currentChar = initialText.charAt(i);
+                lineLength++;
+                
+                if (currentChar == " " && lineLength === indentCount + 1
+                        && autoIndent)
+                {
+                    indentCount ++;
+                    indent += " ";
+                }
+                
+                if (inQuoteType === currentChar)
+                {
+                    inQuoteType = undefined;
+                    result += currentWord + currentChar;
+                    currentWord = "";
+                    
+                    continue;
+                }
+                else if ((currentChar == "'" || currentChar == '"') && inQuoteType === undefined)
+                {
+                    inQuoteType = currentChar;
+                }
+                else if (currentChar == "\n")
+                {
+                    lineLength = 0;
+                    inQuoteType = undefined; // Out of any quotes we were in.
+                }
+                else if (currentChar == " " || currentChar == '\t')
+                {
+                    result += currentWord;
+                    currentWord = "";
+                }
+                
+                currentWord += currentChar;
+                
+                if (lineLength + currentWord.length > maximumLength)
+                {
+                    let newLineLength = 0, newPart;
+                    
+                    if (inQuoteType === undefined)
+                    {
+                        newPart = indent + currentWord;
+                        result += "\n" + newPart;
+                        newLineLength += newPart.length;
+                    }
+                    else
+                    {
+                        newPart = quoteActions[quoteOptions[quoteOptionIndex]](result, i, 
+                                        inQuoteType, indent) + currentWord;
+                        result += newPart;
+                        
+                        let breakIndex = newPart.indexOf("\n");
+                        
+                        if (breakIndex >= 0)
+                        {
+                            newLineLength = newPart.length - breakIndex;
+                        }
+                        else
+                        {
+                            newLineLength = lineLength + newPart.length;
+                        }
+                    }
+                    
+                    currentWord = "";
+                    lineLength  = newLineLength;
+                }
+            }
+            
+            return result + currentWord;
+        };
+
+        let maximumLengthLine = me.editControl.appendLine(maximumLengthText + maximumLength);
+        let quoteOption       = me.editControl.appendLine(quoteOptionText + "BREAK");
+        let indentOption      = me.editControl.appendLine("Auto-indent: ON");
+        let cancelLine        = me.editControl.appendLine("   CANCEL   ");
+        let submitLine        = me.editControl.appendLine("   SUBMIT   ");
+        
+        submitLine.editable = false;
+        cancelLine.editable = false;
+        indentOption.editable = false;
+        quoteOption.editable = false;
+        
+        maximumLengthLine.onentercommand = function()
+        {
+            const newLengthPart = maximumLengthLine.text.substring(maximumLengthText.length);
+            maximumLength = MathHelper.forceParseInt(newLengthPart);
+        };
+        
+        quoteOption.onentercommand = function()
+        {
+            quoteOptionIndex++;
+            quoteOptionIndex %= quoteOptions.length;
+            
+            quoteOption.text = quoteOptionText + quoteOptions[quoteOptionIndex];
+        };
+        
+        indentOption.onentercommand = function()
+        {
+            autoIndent = !autoIndent;
+            indentOption.text = "Auto-indent: " + (autoIndent ? "ON" : "OFF");
+        };
+        
+        submitLine.onentercommand = function()
+        {
+            me.wrappingLongLines = false;
+            
+            me.editControl.restoreState();
+            me.editControl.clear(true);
+            
+            let wrapped = wrapText(toWrap);
+            
+            me.editControl.displayContent(wrapped);
+        };
+
+        cancelLine.onentercommand = function()
+        {
+            me.wrappingLongLines = false;
+            
+            me.editControl.restoreState();
+        };
+
+        requestAnimationFrame(function()
+        {
+            maximumLengthLine.focus();
+        });
     };
 
     this.spellCheck = function()
@@ -2557,6 +2747,7 @@ Path: ${ me.saveDir }
     me.clear = me.editControl.clear;
     me.displayContent = me.editControl.displayContent;
     me.render = me.editControl.render;
+    me.getText = me.editControl.getText;
     me.scrollToFocus = () =>
     {
         me.editControl.shiftViewIfNecessary(me.editControl.getSelEnd().y);

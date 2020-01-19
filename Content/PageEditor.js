@@ -18,32 +18,127 @@ PageEditor.__Editor = function(parent)
     me.textEditorContainer = document.createElement("div");
     me.codeEditorContainer = document.createElement("div");
     me.previewContainer    = document.createElement("div");
-    
     me.keyboardContainer   = document.createElement("div");
+    me.actionsContainer    = document.createElement("div");
+    
+    me.pageNameInput = HTMLHelper.addInput("Page Name", "", "text", me.content, 
+            undefined, me.updatePageName);
     
     // Create editors.
     me.codeEditorDiv = document.createElement("div");
     
     me.codeEditor = new Editor(me.codeEditorDiv, me.keyboardContainer,
-                               me.textEditorContainer, me.previewContainer);
-                               
+                               document.createElement("div"), me.previewContainer);
+    me.textEditor = document.createElement("textarea");
+    
     me.codeEditorContainer.appendChild(me.codeEditorDiv);
+    me.textEditorContainer.appendChild(me.textEditor);
     
     // Styling.
     me.codeEditorContainer.classList.add("codeEditorContainer");
     me.textEditorContainer.classList.add("textEditorContainer");
+    me.previewContainer.classList.add("previewContainer");
+    me.actionsContainer.classList.add("actionsContainer");
+    me.pageNameInput.classList.add("pageNameInput");
+    me.codeEditor.editCanvas.style.backgroundColor = "black";
     
-    // Create tabs.
+    // Navigation & tabs.
     me.tabOptions = HTMLHelper.addTabGroup
     ({
         "Code Editor": me.codeEditorContainer,
         "Raw Text Editor": me.textEditorContainer,
-        "Preview": me.previewContainer
+        "Preview": me.previewContainer,
+        "Actions": me.actionsContainer
      }, me.content, "Code Editor");
     
-    parent.appendChild(me.content);
+    // Set the content of the code editor.
+    me.setCodeEditorText = (content) =>
+    {
+        me.codeEditor.clear();
+        me.codeEditor.displayContent(content);
+        me.codeEditor.render();
+    };
     
-    setInterval(me.notifyResize, 100);
+    me.getTextEditorContent = () =>
+    {
+        return me.textEditor.value;
+    };
+    
+    me.setTextEditorContent = (newContent) =>
+    {
+        me.textEditor.value = newContent;
+    };
+    
+    // Get and set contents.
+    let getContent = () => { return me.codeEditor.getText() };
+    let setContent = me.setCodeEditorText;
+    let currentPageKey;
+    
+    // Configure tabs.
+    me.tabOptions.setOnTabChange((tabContents,
+             newTabName, oldTabName) =>
+    {
+        // Use the old tab's contents to update that of the
+        //new tab.
+        let oldContent = undefined;
+        
+        if (oldTabName === "Code Editor")
+        {
+            oldContent = me.codeEditor.getText();
+        }
+        else if (oldTabName === "Raw Text Editor")
+        {
+            oldContent = me.textEditor.value;
+        }
+        else if (oldTabName === "Preview")
+        {
+            me.codeEditor.toggleRun(false);
+            oldContent = getContent();
+        }
+        else
+        {
+            // Otherwise, in the actions tab.
+            oldContent = getContent();
+        }
+        
+        // Update the current view.
+        if (newTabName === "Code Editor")
+        {
+            if (oldContent !== undefined && me.codeEditor.getText() !== oldContent)
+            {
+                me.setCodeEditorText(oldContent);
+            }
+            
+            getContent = () => { return me.codeEditor.getText() };
+            setContent = me.setCodeEditorText;
+        }
+        else if (newTabName === "Raw Text Editor")
+        {
+            if (oldContent !== undefined)
+            {
+                me.textEditor.value = oldContent;
+            }
+            
+            getContent = me.getTextEditorContent;
+            setContent = me.setTextEditorContent;
+        }
+        else if (newTabName === "Preview")
+        {
+            if (oldContent !== undefined && me.codeEditor.getText() !== oldContent)
+            {
+                me.setCodeEditorText(oldContent);
+            }
+            
+            me.codeEditor.toggleRun(true);
+        }
+        else // Otherwise, we're in the Actions tab.
+        {
+            
+        }
+    });
+    
+    // Show
+    parent.appendChild(me.content);
     
     // Public function definitions.
     this.grayRegion = function()
@@ -51,13 +146,33 @@ PageEditor.__Editor = function(parent)
         me.content.classList.add("inactive");
     };
     
-    this.loadPage = function(pageName)
+    this.editPage = async function(pageName)
     {
         me.content.classList.remove("inactive");
         
-        // TODO
+        // Show its title.
+        me.pageNameInput.value = pageName;
+        
+        let pageContent = await PageDataHelper.getPageContent(pageName);
+        currentPageKey = pageName;
+        
+        // Display content in both the editor
+        //and the text editor.
+        me.codeEditor.clear();
+        me.codeEditor.displayContent(pageContent);
+        me.codeEditor.render();
+        
+        me.textEditor.value = pageContent;
     };
     
+    this.updatePageName = function()
+    {
+        let newPageName = me.pageNameInput.value;
+        
+        
+    };
+    
+    // Note that nothing has been loaded.
     me.grayRegion();
 };
 

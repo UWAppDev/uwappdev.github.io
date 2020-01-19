@@ -208,7 +208,7 @@ ContentManager.editPages = () =>
                 currentPage = listItem;
                 currentPage.classList.add("selected");
                 
-                //pageEditor.editPage(pageTitle);
+                pageEditor.editPage(pageTitle);
             });
             
             resultsDisplay.appendChild(listItem);
@@ -252,8 +252,6 @@ ContentManager.editPages = () =>
         leftPane.classList.add("hidden");
         showPane.classList.remove("hidden");
     });
-    
-    
     
     pageEditor = PageEditor.create(rightPane);
 };

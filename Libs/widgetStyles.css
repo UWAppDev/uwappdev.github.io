@@ -148,10 +148,9 @@ span.tabContentShown > input, span.tabContentShown > button
     cursor: cross;
 }
 
-.tabLabelUnselected:hover
+.tabLabelUnselected:hover, .tabLabelUnselected:focus
 {
-    transform: rotate(2deg) scale(0.9, 1);
-    margin-right: 0px;
+    transform: rotate(2deg) scale(1, 1.1);
 }
 
 .tabDisplay

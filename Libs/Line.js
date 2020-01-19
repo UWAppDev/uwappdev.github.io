@@ -550,14 +550,7 @@ function Line(ctx, parentEditor, x, y, h, myIndex)
 
         if (me.hadFocus && me.onentercommand && (key === "⏬" || key === "\n" || key === "Enter"))
         {
-            try
-            {
-                me.onentercommand(me, myIndex);
-            }
-            catch(e)
-            {
-                noteError(e);
-            }
+            me.onentercommand(me, myIndex);
         }
 
         me.updateModifiedTime();
