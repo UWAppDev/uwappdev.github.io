@@ -250,16 +250,40 @@ async () =>
 
 AuthHelper.photoCtx = document.createElement("canvas").getContext("2d");
 
-// Get the SRC of the user's profile picture.
+// Get the SRC of the current user's profile picture.
 AuthHelper.getProfilePhotoSrc = 
-async () =>
+async (requestedUserId) =>
 {
     let user = firebase.auth().currentUser;
+    let userData = user;
     
-    if (user.photoURL && user.photoURL.startsWith(AuthHelper.PHOTO_STORE_LOCATION)
-            && user.photoURL.indexOf(" ") === -1)
+    if (requestedUserId !== user.id && requestedUserId !== undefined)
     {
-        return user.photoURL;
+        let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    
+        let doc = database.collection("userData").doc(requestedUserId);
+        let docData = await doc.get();
+        
+        if (docData.exists)
+        {
+            userData = docData.data();
+            userData.photoURL = userData.profileURL; // Correct different naming.
+        }
+        else
+        {
+            userData =
+            {
+                photoURL: null,
+                displayName: "?"
+            };
+        }
+    }
+    
+    // If a photoURL...
+    if (userData.photoURL && userData.photoURL.startsWith(AuthHelper.PHOTO_STORE_LOCATION)
+            && userData.photoURL.indexOf(" ") === -1)
+    {
+        return userData.photoURL;
     }
     
     // Reset the canvas.
@@ -280,13 +304,38 @@ async () =>
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
-    let outputText = (user.displayName || user.email).charAt(0).toUpperCase();
+    let displayName = userData.displayName || "?";
+    let nameWords = displayName.split(" ");
+    let textToUse = "?";
+    
+    if (nameWords.length > 0 && nameWords[0].length > 1)
+    {
+        textToUse = nameWords[0].charAt(0);
+        
+        if (nameWords.length > 1 && nameWords[nameWords.length - 1].length > 0)
+        {
+            textToUse += nameWords[nameWords.length - 1].charAt(0);
+        }
+    }
+    
+    let outputText = textToUse.toUpperCase();
     
     ctx.fillText(outputText, ctx.canvas.width / 2, ctx.canvas.height / 2);
     
     await JSHelper.nextAnimationFrame();
     
     return ctx.canvas.toDataURL("img/png");
+};
+
+// Get whether the current user has admin privlidges.
+AuthHelper.isAdmin = async () =>
+{
+    let user = firebase.auth().currentUser;
+    let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    
+    let doc = await database.collection("admins").doc(user.uid).get();
+    
+    return doc.exists;
 };
 
 // Display account-management UI.
@@ -329,6 +378,7 @@ async () =>
                 
                 photoURL = await userImages.child(photoFilename).getDownloadURL();
                 await user.updateProfile({ photoURL: photoURL });
+                await AuthHelper.publishUserData();
             }
             catch(e)
             {
@@ -459,6 +509,7 @@ async () =>
         try
         {
             await user.updateProfile(changedProperties);
+            await AuthHelper.publishUserData();
         }
         catch(error)
         {
@@ -479,6 +530,38 @@ async () =>
     });
 };
 
+// Publish user-related data.
+AuthHelper.publishUserData = 
+async () =>
+{
+    const dataMismatch = (data, user) =>
+    {
+        return user.uid !== data.uid || data.displayName !== user.displayName
+                    || data.profileURL !== user.photoURL;
+    };
+
+    const user = firebase.auth().currentUser;
+    
+    let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    
+    let doc = database.collection("userData").doc(user.uid);
+    let userDataPublic = await doc.get();
+    
+    if (!userDataPublic.exists || dataMismatch(userDataPublic.data(), user))
+    {
+        let docContent = 
+        {
+            uid: user.uid,
+            displayName: user.displayName,
+            profileURL: user.photoURL
+        };
+        
+        console.log(docContent);
+        
+        doc.set(docContent);
+    }
+};
+
 // Delete all data associated with a user.
 AuthHelper.deleteUserData = 
 async () =>
@@ -494,7 +577,7 @@ async () =>
     let photoFilename = AuthHelper.PHOTO_NAME_PREFIX + user.uid + ".png";
     let photo = userImages.child(photoFilename);
     
-    //await photo.delete();
+    await photo.delete();
     
     // Delete user data.
     let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);

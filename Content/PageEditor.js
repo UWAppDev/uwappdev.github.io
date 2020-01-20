@@ -22,7 +22,7 @@ PageEditor.__Editor = function(parent)
     me.actionsContainer    = document.createElement("div");
     
     me.pageNameInput = HTMLHelper.addInput("Page Name", "", "text", me.content, 
-            undefined, me.updatePageName);
+            undefined, () => me.updatePageName());
     
     // Create editors.
     me.codeEditorDiv = document.createElement("div");
@@ -33,6 +33,19 @@ PageEditor.__Editor = function(parent)
     
     me.codeEditorContainer.appendChild(me.codeEditorDiv);
     me.textEditorContainer.appendChild(me.textEditor);
+    
+    // Add content to the actions tab.
+    HTMLHelper.addButtons(
+    {
+        "Update": () =>
+        {
+            
+        },
+        "Publicization Options": () =>
+        {
+            
+        }
+    }, me.actionsContainer);
     
     // Styling.
     me.codeEditorContainer.classList.add("codeEditorContainer");
@@ -50,6 +63,9 @@ PageEditor.__Editor = function(parent)
         "Preview": me.previewContainer,
         "Actions": me.actionsContainer
      }, me.content, "Code Editor");
+     
+    // Further styling.
+    me.tabOptions.rootElement.classList.add("pageEditTabOptions");
     
     // Set the content of the code editor.
     me.setCodeEditorText = (content) =>
@@ -143,12 +159,12 @@ PageEditor.__Editor = function(parent)
     // Public function definitions.
     this.grayRegion = function()
     {
-        me.content.classList.add("inactive");
+        me.tabOptions.rootElement.classList.add("inactive");
     };
     
     this.editPage = async function(pageName)
     {
-        me.content.classList.remove("inactive");
+        me.tabOptions.rootElement.classList.remove("inactive");
         
         // Show its title.
         me.pageNameInput.value = pageName;
@@ -165,11 +181,41 @@ PageEditor.__Editor = function(parent)
         me.textEditor.value = pageContent;
     };
     
-    this.updatePageName = function()
+    this.updatePageName = async function()
     {
         let newPageName = me.pageNameInput.value;
         
+        if (newPageName === currentPageKey)
+        {
+            return;
+        }
         
+        let optionsWindow = SubWindowHelper.create({ title: "Options" });
+        
+        optionsWindow.enableFlex("column");
+        
+        HTMLHelper.addButton("New page called '" + newPageName + "'", optionsWindow, () =>
+        {
+            optionsWindow.close();
+            me.newPage(newPageName);
+        });
+        
+        if (currentPageKey)
+        {
+            HTMLHelper.addButton("Rename page to '" + newPageName + "'", optionsWindow, () =>
+            {
+                optionsWindow.close();
+                me.renamePage(newPageName);
+            });
+            
+            HTMLHelper.addButton("Make a copy of the page and name it '" + newPageName + "'.", 
+                            optionsWindow,
+                            () =>
+            {
+                optionsWindow.close();
+                me.copyPage(currentPageKey, newPageName);
+            });
+        }
     };
     
     // Note that nothing has been loaded.

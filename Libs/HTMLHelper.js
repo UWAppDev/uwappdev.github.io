@@ -646,7 +646,8 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         hideTab: hideTab,
         addTab: addTab,
         removeTab: removeTab,
-        setOnTabChange: (newOnTabChange) => { onTabChange = newOnTabChange; }
+        setOnTabChange: (newOnTabChange) => { onTabChange = newOnTabChange; },
+        rootElement: groupContainer
     };
     
     return result;

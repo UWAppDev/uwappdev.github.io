@@ -439,6 +439,17 @@ body
     border: 1px solid gray;
 }
 
+.pageEditor .pageEditTabOptions
+{
+    opacity: 1;
+    transition: 1s ease opacity;
+}
+
+.pageEditor .pageEditTabOptions.inactive
+{
+    opacity: 0.6;
+}
+
 .pageEditor input.pageNameInput
 {
     background-color: white;

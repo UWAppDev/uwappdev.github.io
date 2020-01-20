@@ -75,6 +75,8 @@ const PageDataHelper =
             <h1>About</h1>
             <h2>Our Mission</h2>
             <center><i>To provide an inclusive environment where the beginner and the experienced alike can learn and participate in the design, development, marketing, launching, and operating processes of real-world, market-suitable mobile apps.</i></center>
+            <h2>Join</h2>
+            <p>Come to Sieg 329 this Tuesday! Show up at 5:30 PM and start learning!</p>
         `,
         
         "Events":
@@ -179,7 +181,8 @@ const PageDataHelper =
         "Join":
         `
             <h1>Join</h1>
-            <p>Visit our Registered Student Organization Page (on the Husky Union Building's Website) to join!</p>
+            <p>Attend one of our meetings! We meet Tuesdays in Sieg Hall, 
+            room 329 from <b>5:30 PM</b> to <b>7:00 PM</b>.</p>
             
         `
     },
