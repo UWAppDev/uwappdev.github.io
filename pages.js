@@ -14,6 +14,11 @@ const PageDataHelper =
     {
         if (!PageDataHelper.loaded)
         {
+            for (let page in PageDataHelper.pagesLocal)
+            {
+                PageDataHelper.pages[page] = PageDataHelper.pagesLocal[page];
+            }
+            
             PageDataHelper.loaded = true;
             
             // We will be using the Firebase CMS.
@@ -21,19 +26,25 @@ const PageDataHelper =
             
             const pageTitleQuery   = await db.collection("pageTitles").get();
             const linkedPagesDoc = await db.collection("config").doc("buttonLinks").get();
+            const nowTime = (new Date()).getTime();
             
             // For every page...
-            pageTitleQuery.forEach((doc) =>
+            const handleDoc = (doc) =>
             {
                 let docData = doc.data();
                 
-                if (PageDataHelper.hasCached(docData.title, docData.timestamp)) // getTime is already in UTC.
+                if (!PageDataHelper.hasCached(docData.title, docData.timestamp || nowTime)) // getTime is already in UTC.
                 {
                     PageDataHelper.pages[docData.title] = 
                     async () =>
                     {
-                        const pageDoc = await db.collection("pages").get(docData.title);
-                        const pageContent = pageDoc.data().content;
+                        let pageContent = docData.content;
+                        
+                        if (!docData.content)
+                        {
+                            const pageDoc = await db.collection("pages").get(docData.title);
+                            pageContent = pageDoc.data().content;
+                        }
                         
                         // Store the content in the pages database.
                         PageDataHelper.pages[docData.title] = pageContent;
@@ -48,7 +59,25 @@ const PageDataHelper =
                 {
                     PageDataHelper.recallCachedPage(docData.title);
                 }
-            });
+            };
+            
+            // If not an admin, search the published pages.
+            if (!(await AuthHelper.isAdmin()))
+            {
+                pageTitleQuery.forEach((doc) =>
+                {
+                    handleDoc(doc);
+                });
+            }
+            else // Otherwise, search ALL pages.
+            {
+                let allPages = await db.collection("pages").get();
+                
+                allPages.forEach((doc) =>
+                {
+                    handleDoc(doc);
+                });
+            }
             
             // Set pages linked to with large buttons.
             if (linkedPagesDoc.exists)
@@ -68,7 +97,8 @@ const PageDataHelper =
     
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
     linkedPages: ["Join"],
-    pages:
+    pages: {},
+    pagesLocal:
     {
         "About":
         `
@@ -192,6 +222,18 @@ const PageDataHelper =
 
 // Helper methods.
 
+PageDataHelper.PAGES_RELOAD = "PAGE_DATA_RELOAD_EVENT";
+
+// Reload pages.
+PageDataHelper.reloadPages      = 
+async function()
+{
+    PageDataHelper.pages = {};
+    PageDataHelper.loaded = false;
+    
+    JSHelper.Notifier.notify(PageDataHelper.PAGES_RELOAD);
+};
+
 // Get a page.
 PageDataHelper.getPageContent   = 
 async function(pageName)
@@ -209,6 +251,7 @@ async function(pageName)
 // Cache a page.
 PageDataHelper.cachePage = function(pageName, pageContent)
 {
+    console.log("Caching " + pageName);
     StorageHelper.put(pageName, pageContent);
 };
 
@@ -227,7 +270,14 @@ PageDataHelper.recallCachedPage = function(pageName)
 //not expired.
 PageDataHelper.hasCached = (pageTitle, pageTimestamp) =>
 {
+    if (!StorageHelper.has(pageTitle))
+    {
+        return false;
+    }
+
     const pageData = StorageHelper.getItemDetails(pageTitle);
+    
+    console.log("Do I have " + pageTitle + " in " + (pageData.created - pageTimestamp) + "?");
     
     return pageData.created >= pageTimestamp;
 };
@@ -238,15 +288,23 @@ PageDataHelper.hasCached = (pageTitle, pageTimestamp) =>
 //representing the applicability of a result to the search. Greater
 //positive numbers are considered more applicable. Results with
 //greater applicability should come first in the resultant array.
-PageDataHelper.query = function(query)
+PageDataHelper.query = async function(query)
 {
     let results = [];
     let matchesTitle, matchesInContent;
+    
+    await PageDataHelper.awaitLoad();
     
     let queryWords = query.toLowerCase().split(" ");
     
     const checkAgainstQuery = (text) =>
     {
+        if (typeof text === 'function')
+        {
+            return 1; // Return 1 -- we haven't gotten the page from
+                      //the server yet.
+        }
+        
         let resultsCount = 0;
         let lowerCaseText = text.toLowerCase();
         
@@ -261,7 +319,7 @@ PageDataHelper.query = function(query)
     for (let page in PageDataHelper.pages)
     {
         matchesTitle     = checkAgainstQuery(page);
-        matchesInContent = checkAgainstQuery(PageDataHelper.pages[page] || ""); // Content for unloaded
+        matchesInContent = checkAgainstQuery(PageDataHelper.pages[page]); // Content for unloaded
                                                                                 //pages might be null.
         
         if (matchesTitle + matchesInContent > 0)

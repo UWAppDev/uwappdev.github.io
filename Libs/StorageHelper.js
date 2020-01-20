@@ -31,6 +31,8 @@ StorageHelper.put = (key, data, expiration) =>
     
     let saveData = StorageHelper.STORAGE_PREFIX + nowTime + "/" + expiration + "?" + SerializationHelper.stringSerialize(data);
     
+    console.warn(saveData);
+    
     if (window.localStorage)
     {
         window.localStorage.setItem(key, saveData);
@@ -64,6 +66,19 @@ StorageHelper.get = (key) =>
     }
     
     return undefined;
+};
+
+/**
+ * Get whether an object is stored!
+ */
+StorageHelper.has = (key) =>
+{
+    if (window.localStorage)
+    {
+        return window.localStorage.getItem(key) !== null;
+    }
+    
+    return false;
 };
 
 // Get the details of an item in the format:

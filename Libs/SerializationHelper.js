@@ -185,7 +185,7 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     
         if (typeof (part[key]) == "string")
         {
-            currentPart += SerializationHelper.escapeString(part[key]);
+            currentPart += SerializationHelper.stringToSource(part[key]);
         }
         else if (typeof (part[key]) != "object" && part[key] && part[key].toString)
         {
@@ -193,7 +193,7 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
         }
         else if (typeof (part[key]) == "object")
         {
-            currentPart += SerializationHelper.stringToSource(part[key], maxDepth, depth + 1);
+            currentPart += SerializationHelper.stringifyFull(part[key], maxDepth, depth + 1);
         }
         else
         {

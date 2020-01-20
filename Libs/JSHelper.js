@@ -480,9 +480,11 @@ JSHelper.waitFor = (waitTime) =>
 };
 
 // Override some default behaviour! Much of this is for
-//accessibility!
-JSHelper.replacedMethods = {};
-JSHelper.replacedMethods.addEventListener = HTMLElement.prototype.addEventListener;
+//accessibility! Note: JSHelper_replacedMethods contains
+//refrences to browser-based functions. SerializationHelper
+//can't serialize these, so put them in a different object.
+const JSHelper_replacedMethods = {};
+JSHelper_replacedMethods.addEventListener = HTMLElement.prototype.addEventListener;
 
 // Define a new event, push, that awaits both clicks and
 //the press of the enter key.
@@ -492,7 +494,7 @@ function (eventType, onEnact, ...allOthers)
     if (eventType === "click")
     {
         eventType = "keyup";
-        JSHelper.replacedMethods.addEventListener.apply(this, [eventType, 
+        JSHelper_replacedMethods.addEventListener.apply(this, [eventType, 
         function(event)
         {
             if (event.keyCode === 13) // Enter key.
@@ -508,5 +510,5 @@ function (eventType, onEnact, ...allOthers)
         eventType = "click";
     }
     
-    return JSHelper.replacedMethods.addEventListener.apply(this, arguments);
+    return JSHelper_replacedMethods.addEventListener.apply(this, arguments);
 };

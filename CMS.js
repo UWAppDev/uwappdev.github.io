@@ -182,11 +182,11 @@ ContentManager.editPages = () =>
     let currentPage = undefined;
     
     // Manage search.
-    const runSearch = () =>
+    const runSearch = async () =>
     {
         const queryText = searchInput.value;
         
-        const results = PageDataHelper.query(queryText);
+        const results = await PageDataHelper.query(queryText);
         
         const createListItem = (pageTitle) =>
         {
@@ -221,6 +221,12 @@ ContentManager.editPages = () =>
         {
             createListItem(results[i][0]);
         }
+        
+        // Wait for data refresh.
+        await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
+        
+        // Clear results.
+        resultsDisplay.innerHTML = "";
     };
     
     searchInput = HTMLHelper.addInput("Search Pages...", "", "text", searchPanel, undefined,
@@ -322,12 +328,12 @@ function(parent)
     let searchInput, searchResultsDiv; // Define elements here so they can be accessed in helper
                                     //functions.
     
-    const submitSearch = () =>
+    const submitSearch = async () =>
     {
         const searchText = searchInput.value;
         
         // Get search results!
-        const results = PageDataHelper.query(searchText);
+        const results = await PageDataHelper.query(searchText);
         
         // Clear the results list.
         searchResultsDiv.innerHTML = "";
@@ -362,6 +368,13 @@ function(parent)
         
         foundText.setAttribute("tabIndex", 2);
         foundText.focus();
+        
+        
+        // Wait for data refresh.
+        await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
+        
+        // Clear results.
+        searchResultsDiv.innerHTML = "Pages reloaded...";
     };
 
     searchResultsDiv = document.createElement("div"); 

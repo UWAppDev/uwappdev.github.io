@@ -11,6 +11,11 @@ PageEditor.__Editor = function(parent)
 {
     const me = this;
     
+    const ACTION_RENAME = 1, ACTION_NEW = 2, ACTION_UPDATE = 3,
+            ACTION_DELETE = 4;
+            
+    let currentPageKey, getContent, setContent;
+    
     me.content = document.createElement("div");
     me.content.classList.add("pageEditor");
     
@@ -39,11 +44,29 @@ PageEditor.__Editor = function(parent)
     {
         "Update": () =>
         {
+            me.updatePage();
+            PageDataHelper.reloadPages();
+        },
+        "Delete": async () =>
+        {
+            let doDelete = await SubWindowHelper.confirm("Really delete?", "Relally delete " + currentPageKey + "?", "Yes", "No");
             
+            if (doDelete)
+            {
+                await me.updatePage(currentPageKey, ACTION_DELETE);
+                
+                me.grayRegion();
+                currentPageKey = undefined;
+                setContent("DELETED");
+                
+                PageDataHelper.reloadPages();
+                
+                me.pageNameInput.value = "";
+            }
         },
         "Publicization Options": () =>
         {
-            
+            // TODO
         }
     }, me.actionsContainer);
     
@@ -86,9 +109,8 @@ PageEditor.__Editor = function(parent)
     };
     
     // Get and set contents.
-    let getContent = () => { return me.codeEditor.getText() };
-    let setContent = me.setCodeEditorText;
-    let currentPageKey;
+    getContent = () => { return me.codeEditor.getText() };
+    setContent = me.setCodeEditorText;
     
     // Configure tabs.
     me.tabOptions.setOnTabChange((tabContents,
@@ -181,6 +203,89 @@ PageEditor.__Editor = function(parent)
         me.textEditor.value = pageContent;
     };
     
+    this.updatePage = async (pageName, action) =>
+    {
+        action = action || ACTION_UPDATE;
+        pageName = pageName || currentPageKey;
+    
+        // Get database/user components.
+        const user = firebase.auth().currentUser;
+        
+        try
+        {
+            let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+            
+            const pageDoc = database.collection("pages").doc(pageName);
+            const pageData = pageDoc.get();
+            
+            if (pageData.exists && action !== ACTION_UPDATE
+                && action !== ACTION_DELETE)
+            {
+                await SubWindowHelper.alert("Conflict!", "A page with the name, " + pageName + ", already exists! It may not be public.");
+                
+                return false;
+            }
+            else if (action !== ACTION_DELETE)
+            {
+                let newContent = 
+                {
+                    title: pageName,
+                    content: getContent(),
+                    timestamp: (new Date()).getTime()
+                };
+                
+                // Push to Firestore!
+                await pageDoc.set(newContent);
+            }
+            
+            // Delete the old page, if renaming/deleting
+            if (action === ACTION_RENAME || action === ACTION_DELETE)
+            {
+                let oldPageDoc = database.collection("pages").doc(currentPageKey);
+                await oldPageDoc.delete();
+            }
+        }
+        catch(error)
+        {
+            await SubWindowHelper.alert(error.code || "Error/unknown", error.message);
+            return false;
+        }
+        
+        // Set the current page name.
+        currentPageKey = pageName;
+        return true;
+    };
+    
+    this.renamePage = async (pageName) =>
+    {
+        let result = false;
+        
+        if (pageName !== currentPageKey)
+        {
+            result = me.updatePage(pageName, ACTION_RENAME);
+        }
+        else
+        {
+            await SubWindowHelper.alert("Error/same name", "The old and new names must differ.");
+        }
+        
+        
+        // If a success...
+        if (result)
+        {
+            await SubWindowHelper.alert("Done!", "Done renaming!");
+            return true;
+        }
+        
+        return false;
+    };
+    
+    this.newPage = async (pageName) =>
+    {
+        await me.updatePage(pageName, ACTION_NEW);
+        await me.editPage(pageName);
+    };
+    
     this.updatePageName = async function()
     {
         let newPageName = me.pageNameInput.value;
@@ -193,12 +298,6 @@ PageEditor.__Editor = function(parent)
         let optionsWindow = SubWindowHelper.create({ title: "Options" });
         
         optionsWindow.enableFlex("column");
-        
-        HTMLHelper.addButton("New page called '" + newPageName + "'", optionsWindow, () =>
-        {
-            optionsWindow.close();
-            me.newPage(newPageName);
-        });
         
         if (currentPageKey)
         {
@@ -213,7 +312,15 @@ PageEditor.__Editor = function(parent)
                             () =>
             {
                 optionsWindow.close();
-                me.copyPage(currentPageKey, newPageName);
+                me.newPage(newPageName);
+            });
+        }
+        else
+        {
+            HTMLHelper.addButton("New page called '" + newPageName + "'", optionsWindow, () =>
+            {
+                optionsWindow.close();
+                me.newPage(newPageName);
             });
         }
     };
