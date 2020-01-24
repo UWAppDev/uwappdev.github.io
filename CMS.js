@@ -12,7 +12,7 @@ const ContentManager = {};
 
 ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to request a specific page.
 ContentManager.currentPage = null;
-ContentManager.SEARCH_CHAR = "⇀";
+ContentManager.SEARCH_CHAR = "↺";
 ContentManager.PAGE_CHANGE_EVENT = "PAGE_CHANGED_CMS";
 ContentManager.UPDATE_PAGE_NOTIFY = "PAGE_SPECIFIC_CHANGED: ";
 ContentManager.PAGE_NOT_FOUND = `<h2>We couldn't find that page!</h2>
