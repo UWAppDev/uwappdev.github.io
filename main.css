@@ -695,7 +695,7 @@ a:hover
     margin: 5px 0;
 }
 
-.qaSection 
+.qaSection, .mainDetails
 {
     list-style: none;
     column-count: 2;
@@ -705,7 +705,7 @@ a:hover
 
 @media screen and (max-width: 750px) 
 {
-    .qaSection 
+    .qaSection, .mainDetails 
     {
         column-count: 1;
     }
