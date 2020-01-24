@@ -29,10 +29,8 @@ const PageDataHelper =
             const nowTime = (new Date()).getTime();
             
             // For every page...
-            const handleDoc = (doc) =>
-            {
-                let docData = doc.data();
-                
+            const handleDoc = (docData) =>
+            {   
                 if (!PageDataHelper.hasCached(docData.title, docData.timestamp || nowTime)) // getTime is already in UTC.
                 {
                     PageDataHelper.pages[docData.title] = 
@@ -55,18 +53,25 @@ const PageDataHelper =
                         return pageContent;
                     };
                 }
+                else if (!docData.content)
+                {
+                    PageDataHelper.pages[docData.title] = docData.content;
+                }
                 else
                 {
                     PageDataHelper.recallCachedPage(docData.title);
                 }
             };
             
+            // Let clients note document updates.
+            PageDataHelper.noteDocUpdate = handleDoc;
+            
             // If not an admin, search the published pages.
             if (!(await AuthHelper.isAdmin()))
             {
                 pageTitleQuery.forEach((doc) =>
                 {
-                    handleDoc(doc);
+                    handleDoc(doc.data());
                 });
             }
             else // Otherwise, search ALL pages.
@@ -75,7 +80,7 @@ const PageDataHelper =
                 
                 allPages.forEach((doc) =>
                 {
-                    handleDoc(doc);
+                    handleDoc(doc.data());
                 });
             }
             
@@ -95,6 +100,7 @@ const PageDataHelper =
         return PageDataHelper.pages;
     }),
     
+    noteDocUpdate: null, // Not loaded yet.
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
     linkedPages: ["Join"],
     pages: {},

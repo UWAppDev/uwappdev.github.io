@@ -13,13 +13,16 @@ const ContentManager = {};
 ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to request a specific page.
 ContentManager.currentPage = null;
 ContentManager.SEARCH_CHAR = "⥋";
+ContentManager.PAGE_CHANGE_EVENT = "PAGE_CHANGED_CMS";
+ContentManager.UPDATE_PAGE_NOTIFY = "PAGE_SPECIFIC_CHANGED: ";
 
 /**
  *  Display a single page. If doNotAddToHistory is set,
  * the page will not be added to the window's set of backstacked pages.
+ * Use forceReload to reload a page (set to true).
  */
 ContentManager.displayPage = 
-async function(name, doNotAddToHistory)
+async function(name, doNotAddToHistory, forceReload)
 {
     // Get elements.
     let contentZone = document.querySelector("#mainData");
@@ -28,7 +31,7 @@ async function(name, doNotAddToHistory)
     contentZone.parentElement.classList.add("shrinkGrow");
     
     // Check: Are we already on the page?
-    if (ContentManager.currentPage === name)
+    if (ContentManager.currentPage === name && !forceReload)
     {
         return; // No need to load it twice.
     }
@@ -60,6 +63,23 @@ async function(name, doNotAddToHistory)
               url   = ContentManager.URL_PAGE_SPECIFIER_START + name;
               
         window.history.pushState(state, title, url);
+    }
+    
+    // If the pages list was reloaded, reload the page!
+    while (true)
+    {
+        let result = await JSHelper.Notifier.waitForAny(PageDataHelper.PAGES_RELOAD, 
+                ContentManager.PAGE_CHANGE_EVENT, ContentManager.UPDATE_PAGE_NOTIFY + name);
+        
+        
+        // Stop if a new page was loaded.
+        if (result.event === ContentManager.PAGE_CHANGE_EVENT)
+        {
+            break;
+        }
+        
+        // Otherwise, reload the current page.
+        ContentManager.displayPage(name, true, true); // Don't add it to history again, force reload.
     }
 };
 
@@ -179,55 +199,73 @@ ContentManager.editPages = () =>
     resultsDisplay.style.display = "flex";
     resultsDisplay.style.flexDirection = "column";
     
+    let reSearch = () => {};
     let currentPage = undefined;
     
     // Manage search.
     const runSearch = async () =>
     {
-        const queryText = searchInput.value;
-        
-        const results = await PageDataHelper.query(queryText);
-        
-        const createListItem = (pageTitle) =>
+        reSearch = async (queryText) =>
         {
-            const listItem = document.createElement("div");
-            listItem.setAttribute("tabIndex", 2);
-            listItem.setAttribute("title", "Page edit selector.");
-            listItem.classList.add("pageListItemManage");
+            const results = await PageDataHelper.query(queryText);
             
-            listItem.innerText = pageTitle;
-            
-            listItem.addEventListener("click", () =>
+            const createListItem = (pageTitle) =>
             {
-                // Select it.
-                if (currentPage && currentPage.classList)
+                const listItem = document.createElement("div");
+                listItem.setAttribute("tabIndex", 2);
+                listItem.setAttribute("title", "Page edit selector.");
+                listItem.classList.add("pageListItemManage");
+                
+                listItem.innerText = pageTitle;
+                
+                listItem.addEventListener("click", () =>
                 {
-                    currentPage.classList.remove("selected");
+                    // Select it.
+                    if (currentPage && currentPage.classList)
+                    {
+                        currentPage.classList.remove("selected");
+                    }
+                    
+                    currentPage = listItem;
+                    currentPage.classList.add("selected");
+                    
+                    pageEditor.editPage(pageTitle);
+                });
+                
+                // If the item IS the currently-selected,
+                //note this.
+                if (pageTitle == pageEditor.getPageName())
+                {
+                    listItem.classList.add("selected");
                 }
                 
-                currentPage = listItem;
-                currentPage.classList.add("selected");
-                
-                pageEditor.editPage(pageTitle);
-            });
+                resultsDisplay.appendChild(listItem);
+            };
             
-            resultsDisplay.appendChild(listItem);
+            // Clear the results.
+            resultsDisplay.innerHTML = "";
+            
+            for (var i = 0; i < results.length; i++)
+            {
+                createListItem(results[i][0]);
+            }
         };
         
-        // Clear the results.
-        resultsDisplay.innerHTML = "";
-        
-        for (var i = 0; i < results.length; i++)
-        {
-            createListItem(results[i][0]);
-        }
-        
-        // Wait for data refresh.
-        await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
-        
-        // Clear results.
-        resultsDisplay.innerHTML = "";
+        await reSearch(searchInput.value);
     };
+    
+    // Re-run last search on reload of pages.
+    (async () =>
+    {
+        while (!pageEditWindow.closed)
+        {
+            // Wait for data refresh.
+            await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
+            
+            // Re-search.
+            reSearch(searchInput.value);
+        }
+    })();
     
     searchInput = HTMLHelper.addInput("Search Pages...", "", "text", searchPanel, undefined,
                                             runSearch);
@@ -378,14 +416,20 @@ function(parent)
         
         foundText.setAttribute("tabIndex", 2);
         foundText.focus();
-        
-        
-        // Wait for data refresh.
-        await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
-        
-        // Clear results.
-        searchResultsDiv.innerHTML = "Pages reloaded...";
     };
+    
+    // Clear results on data refresh.
+    (async () =>
+    {
+        while (true)
+        {
+            // Wait for data refresh.
+            await JSHelper.Notifier.waitFor(PageDataHelper.PAGES_RELOAD);
+            
+            // Clear results.
+            searchResultsDiv.innerHTML = "...";
+        }
+    })();
 
     searchResultsDiv = document.createElement("div"); 
     const searchDiv     = document.createElement("div");

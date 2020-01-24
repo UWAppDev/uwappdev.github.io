@@ -344,60 +344,126 @@ JSHelper.Notifier = new
     // Wait for eventName to be distributed by notify.
     //A message is included with the distributed event.
     //If fireForFirst is true, if the event has ever been
-    //triggered, the listener is fired.
-    this.waitFor = (eventName, fireForFirst) =>
+    //triggered, the listener is fired. Listens for ANY
+    //of the given events to occur (an array, or, for a
+    //single event, a string). If multiple listeners
+    //are given, the result is an object with data and
+    //event fields. Data is the value pushed by the event
+    //and event is the event's string ID.
+    this.waitFor = (eventNames, fireForFirst) =>
     {
-        // Has the event already fired?
-        if (fireForFirst && dispatchedEvents[eventName] && dispatchedEvents[eventName].count > 0)
+        // If not an array...
+        if (typeof eventNames !== "object" || eventNames.length == 0)
         {
-            let result = new Promise((resolve, reject) =>
-            {
-                resolve.call(this, dispatchedEvents[eventName].data);
-            });
-            
-            return result;
-        }
-    
-        // Create a set of listeners for the event.
-        if (listeners[eventName] === undefined)
-        {
-            listeners[eventName] = {};
+            // Make it one!
+            eventNames = [eventNames];
         }
         
-        let registered = false, registeredContent;
-        let listenerId = "l" + (listenerIdCounter++); // Each listener has an ID. This is ours.
-        
-        // Put a default method in place, in case a notification comes before the next browser
-        //frame.
-        listeners[eventName][listenerId] = (content) =>
-        {
-            registered = true;
-            registeredContent = content;
-                
-            // Remove our listener.
-            delete listeners[eventName][listenerId];
+        let resolved = false,
+            resolver = undefined;
+        let eventData = undefined;
+        let resolve = (data, eventName) => 
+        { 
+            resolved = true; 
+            eventData = data;
+            resolver = eventName; // Note who resolved it.
         };
         
-        let result = new Promise((resolve, reject) =>
+        // Create the result.
+        let result = new Promise((doResolve, doReject) =>
         {
-            // Have we already put the listener?
-            if (!registered)
+            // Full data to be given to 
+            //the result when the event is ambiguous.
+            let resolveFullData = 
             {
-                listeners[eventName][listenerId] = (content) =>
+                data: eventData,
+                event: resolver
+            };
+        
+            // Only give the full data when there is more
+            //than one listener specified.
+            if (resolved && eventNames.length == 1)
+            {
+                doResolve(eventData);
+            }
+            else if (resolved)
+            {
+                doResolve(resolveFullData);
+            }
+            else if (eventNames.length == 1)
+            {
+                resolve = (...args) =>
                 {
-                    resolve.call(this, content);
-                
-                    // Remove our listener.
-                    delete listeners[eventName][listenerId];
+                    resolved = true;
+                    
+                    doResolve.apply(this, args);
                 };
             }
-            else // We already received the event!
-            {    // Notify now.
-                resolve(registeredContent);
+            else
+            {
+                resolve = (data, resolver) =>
+                {
+                    resolved = true;
+                    
+                    resolveFullData.data = data;
+                    resolveFullData.event = resolver;
+                    
+                    doResolve(resolveFullData);
+                };
             }
         });
+    
+        // Registers a single requested event.
+        const registerEvent = (eventName) =>
+        {
+            // Has the event already fired?
+            if (fireForFirst && dispatchedEvents[eventName] && dispatchedEvents[eventName].count > 0)
+            {
+                if (!resolved)
+                {
+                    resolve.call(this, dispatchedEvents[eventName].data, eventName);
+                }
+                
+                return;
+            }
+            
+            // Create a set of listeners for the event.
+            if (listeners[eventName] === undefined)
+            {
+                listeners[eventName] = {};
+            }
+            
+            let registered = false, registeredContent;
+            let listenerId = "l" + (listenerIdCounter++); // Each listener has an ID. This is ours.
+            
+            // Listen!
+            listeners[eventName][listenerId] = (content) =>
+            {
+                if (!resolved)
+                {
+                    resolve.call(this, content, eventName);
+                }
+                
+                // Remove our listener.
+                delete listeners[eventName][listenerId];
+            };
+            
+        };
         
+        // Register all events.
+        for (let i = 0; i < eventNames.length; i++)
+        {
+            registerEvent(eventNames[i]);
+        }
+        
+        // Return a promise!
         return result;
+    };
+    
+    // Wait for any of the given events to occur.
+    this.waitForAny = (...events) =>
+    {
+        return this.waitFor.call(this, events);
     };
     
     // Notify all listeners on eventName.

@@ -44,8 +44,8 @@ PageEditor.__Editor = function(parent)
     {
         "Update": () =>
         {
-            me.updatePage();
-            PageDataHelper.reloadPages();
+            me.updatePage(); // No need to reload page content/data. UpdatePage
+                             //does this for us!
         },
         "Delete": async () =>
         {
@@ -210,7 +210,7 @@ PageEditor.__Editor = function(parent)
     this.updatePage = async (pageName, action) =>
     {
         // If the user hasn't selected a page...
-        if (!currentPageKey)
+        if (!currentPageKey && !pageName)
         {
             await SubWindowHelper.alert("Error/no-page-name-set", "No page name set! Please select a page name (and make sure you pressed enter)!");
 
@@ -248,6 +248,9 @@ PageEditor.__Editor = function(parent)
                 
                 // Push to Firestore!
                 await pageDoc.set(newContent);
+                
+                PageDataHelper.noteDocUpdate(newContent);
+                JSHelper.Notifier.notify(ContentManager.UPDATE_PAGE_NOTIFY + pageName);
             }
             
             // Delete the old page, if renaming/deleting
@@ -265,6 +268,7 @@ PageEditor.__Editor = function(parent)
         
         // Set the current page name.
         currentPageKey = pageName;
+        
         return true;
     };
     
@@ -296,6 +300,7 @@ PageEditor.__Editor = function(parent)
     {
         await me.updatePage(pageName, ACTION_NEW);
         await me.editPage(pageName);
+        PageDataHelper.reloadPages();
     };
     
     this.updatePageName = async function()
@@ -335,6 +340,11 @@ PageEditor.__Editor = function(parent)
                 me.newPage(newPageName);
             });
         }
+    };
+    
+    this.getPageName = () =>
+    {
+        return currentPageKey;
     };
     
     // Note that nothing has been loaded.
