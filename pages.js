@@ -99,7 +99,7 @@ const PageDataHelper =
                 
                 for (let i in pageLinks)
                 {
-                    PageDataHelper.linkedPages.push(pageLinks[i]);
+                    PageDataHelper.linkedPages[i] = pageLinks[i];
                 }
             }
         }
@@ -110,14 +110,13 @@ const PageDataHelper =
     
     noteDocUpdate: null, // Not loaded yet.
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
-    linkedPages: ["Join"],
+    linkedPages: {},
     publishedPages: {},
     pages: {},
     pagesLocal:
     {
-        "About":
+        "Mission":
         `
-            <h1>About</h1>
             <h2>Our Mission</h2>
             <center><i>To provide an inclusive environment where the beginner and the experienced alike can learn and participate in the design, development, marketing, launching, and operating processes of real-world, market-suitable mobile apps.</i></center>
             <h2>Join</h2>
@@ -221,14 +220,6 @@ const PageDataHelper =
                 </li>
             </ul>
         </div>
-        `,
-        
-        "Join":
-        `
-            <h1>Join</h1>
-            <p>Attend one of our meetings! We meet Tuesdays in Sieg Hall, 
-            room 329 from <b>5:30 PM</b> to <b>7:00 PM</b>.</p>
-            
         `
     },
     
@@ -238,6 +229,7 @@ const PageDataHelper =
 // Helper methods.
 
 PageDataHelper.PAGES_RELOAD = "PAGE_DATA_RELOAD_EVENT";
+PageDataHelper.PAGE_BUTTONS_CHANGED = "PAGE_BUTTONS_CHANGED_EVENT";
 
 // Reload pages.
 PageDataHelper.reloadPages      = 
@@ -254,6 +246,43 @@ PageDataHelper.isPublished      =
 function(pageName)
 {
     return PageDataHelper.publishedPages[pageName] === true; // Turns undefined into false.
+};
+
+// Get whether a page is linked to.
+PageDataHelper.hasButtonLink    =
+function(pageName)
+{
+    return PageDataHelper.linkedPages[pageName] === true || typeof PageDataHelper.linkedPages[pageName] === "string";
+};
+
+// Create a button link to a page.
+PageDataHelper.registerButtonLink=
+async function(pageName, deregister)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const buttonsDoc = db.collection("config").doc("buttonLinks");
+    const buttons = await buttonsDoc.get();
+    
+    let existing = buttons.data() || {};
+    
+    // Add it!
+    if (!deregister)
+    {
+        existing[pageName] = pageName;
+        
+        PageDataHelper.linkedPages[pageName] = pageName;
+    }
+    else
+    {
+        delete existing[pageName];
+        delete PageDataHelper.linkedPages[pageName];
+    }
+    
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_BUTTONS_CHANGED);
+    
+    await buttonsDoc.set(existing);
+    
+    return true;
 };
 
 // Note that a page has been published/unpublished

@@ -106,14 +106,38 @@ function()
 ContentManager.initializePages = 
 async function()
 {
-    const createPage = (pageName, buttonZones) =>
+    let addedButtons = [];
+    
+    const createPageButton = (pageName, buttonZones) =>
     {
         for (let i = 0; i < buttonZones.length; i++)
         {
-            HTMLHelper.addButton(pageName, buttonZones[i], () =>
-            {
-                ContentManager.displayPage(pageName);
-            });
+            addedButtons.push
+            (
+                HTMLHelper.addButton(pageName, buttonZones[i], () =>
+                {
+                    ContentManager.displayPage(pageName);
+                })
+            );
+        }
+    };
+    
+    // Clear all page buttons that have been created.
+    const clearButtons = async () =>
+    {
+        while (addedButtons.length > 0)
+        {
+            let lastButton = addedButtons.pop();
+            
+            // Shrink it.
+            lastButton.style.filter = "opacity(100%)";
+            lastButton.style.transition = "0.1s ease filter";
+            
+            await JSHelper.nextAnimationFrame();
+            lastButton.style.filter = "opacity(0%)";
+            
+            await JSHelper.waitFor(100); // Wait 100ms.
+            lastButton.remove(); // Delete it.
         }
     };
     
@@ -124,12 +148,19 @@ async function()
         let pageName;
     
         // Create a button for every linked page.
-        for (let pageIndex = 0; pageIndex < PageDataHelper.linkedPages.length; pageIndex++)
+        for (let pageName in PageDataHelper.linkedPages)
         {
-            pageName = PageDataHelper.linkedPages[pageIndex];
-            
-            createPage(pageName, buttonAreas);
+            createPageButton(pageName, buttonAreas);
         }
+        
+        // Refresh buttons on edit.
+        (async () =>
+        {
+            await JSHelper.Notifier.waitFor(PageDataHelper.PAGE_BUTTONS_CHANGED);
+            
+            await clearButtons();
+            loadButtons();
+        })();
     };
 
     await PageDataHelper.awaitLoad();

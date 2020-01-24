@@ -445,6 +445,42 @@ PageEditor.__Editor = function(parent)
                 me.publish();
             });
         }
+        
+        // Get whether this page is linked to.
+        let linkedTo = PageDataHelper.hasButtonLink(currentPageKey);
+        
+        if (linkedTo && published)
+        {
+            HTMLHelper.addButton("Remove Link", configWindow, async () =>
+            {
+                configWindow.close();
+                
+                try
+                {
+                    await PageDataHelper.registerButtonLink(currentPageKey, true); // De-register.
+                }
+                catch(error)
+                {
+                    SubWindowHelper.alert("Err: " + error.code, error.message);
+                }
+            });
+        }
+        else if (published)
+        {
+            HTMLHelper.addButton("Add Link", configWindow, async () =>
+            {
+                configWindow.close();
+                
+                try
+                {
+                    await PageDataHelper.registerButtonLink(currentPageKey, false); // De-register.
+                }
+                catch(error)
+                {
+                    SubWindowHelper.alert("Err: " + error.code, error.message);
+                }
+            });
+        }
     };
     
     this.getPageName = () =>

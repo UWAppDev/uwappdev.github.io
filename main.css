@@ -665,7 +665,8 @@ a:hover
     }
 }
 
-.lhdStudyGroup::before {
+.lhdStudyGroup::before 
+{
     content: "Study Group";
     background-color: skyblue;
     border-radius: 10px;
@@ -673,7 +674,8 @@ a:hover
     margin-right: 10px;
 }
 
-.lhdWorkshop::before {
+.lhdWorkshop::before 
+{
     content: "Workshop";
     background-color: greenyellow;
     border-radius: 10px;
@@ -681,30 +683,36 @@ a:hover
     margin-right: 10px;
 }
 
-.lhdSchedule {
+.lhdSchedule 
+{
     font: 11pt mono, monospace, courier, sans;
     list-style: none;
     padding-left: 0;
 }
 
-.lhdSchedule > li {
+.lhdSchedule > li 
+{
     margin: 5px 0;
 }
 
-.qaSection {
+.qaSection 
+{
     list-style: none;
     column-count: 2;
     padding: 0 10px;
     margin: 0 0 16px 0;
 }
 
-@media screen and (max-width: 750px) {
-    .qaSection {
+@media screen and (max-width: 750px) 
+{
+    .qaSection 
+    {
         column-count: 1;
     }
 }
 
-details {
+details 
+{
     -webkit-column-break-inside: avoid;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -718,26 +726,31 @@ details {
     transition: all 400ms ease-in-out;
 }
 
-details:hover {
+details:hover 
+{
     box-shadow: 0 0 6px palevioletred;
 }
 
-summary {
+summary 
+{
     font-size: large;
     font-weight: bold;
     margin: -.5em -.5em 0;
     padding: .5em;
 }
 
-summary:hover {
+summary:hover 
+{
     cursor: pointer;
 }
 
-details[open] {
+details[open] 
+{
     padding: .5em;
 }
 
-details[open] summary {
+details[open] summary 
+{
     border-bottom: 1px solid #aaa;
     margin-bottom: .5em;
 }
