@@ -457,7 +457,7 @@ PageEditor.__Editor = function(parent)
                 
                 try
                 {
-                    await PageDataHelper.registerButtonLink(currentPageKey, true); // De-register.
+                    await PageDataHelper.registerButtonLink(currentPageKey, 0, true); // De-register.
                 }
                 catch(error)
                 {
@@ -473,6 +473,8 @@ PageEditor.__Editor = function(parent)
                 
                 try
                 {
+                    let linkPrecedence = (await SubWindowHelper.prompt("Precedence", 
+                        "Set the button's precedence.", { "Precedence": "number" }))["Precedence"];
                     await PageDataHelper.registerButtonLink(currentPageKey, false); // De-register.
                 }
                 catch(error)

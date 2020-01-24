@@ -12,7 +12,7 @@ const ContentManager = {};
 
 ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to request a specific page.
 ContentManager.currentPage = null;
-ContentManager.SEARCH_CHAR = "↺";
+ContentManager.SEARCH_CHAR = "→";
 ContentManager.PAGE_CHANGE_EVENT = "PAGE_CHANGED_CMS";
 ContentManager.UPDATE_PAGE_NOTIFY = "PAGE_SPECIFIC_CHANGED: ";
 ContentManager.PAGE_NOT_FOUND = `<h2>We couldn't find that page!</h2>
@@ -108,17 +108,19 @@ async function()
 {
     let addedButtons = [];
     
-    const createPageButton = (pageName, buttonZones) =>
+    const createPageButton = (pageName, buttonZones, buttonPrecedence) =>
     {
         for (let i = 0; i < buttonZones.length; i++)
         {
-            addedButtons.push
-            (
-                HTMLHelper.addButton(pageName, buttonZones[i], () =>
-                {
-                    ContentManager.displayPage(pageName);
-                })
-            );
+            let newButton = 
+            HTMLHelper.addButton(pageName, buttonZones[i], () =>
+            {
+                ContentManager.displayPage(pageName);
+            });
+            
+            newButton.style.order = buttonPrecedence || 0;
+            
+            addedButtons.push(newButton);
         }
     };
     
@@ -150,7 +152,7 @@ async function()
         // Create a button for every linked page.
         for (let pageName in PageDataHelper.linkedPages)
         {
-            createPageButton(pageName, buttonAreas);
+            createPageButton(pageName, buttonAreas, PageDataHelper.linkedPages[pageName]);
         }
         
         // Refresh buttons on edit.

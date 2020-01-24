@@ -252,12 +252,12 @@ function(pageName)
 PageDataHelper.hasButtonLink    =
 function(pageName)
 {
-    return PageDataHelper.linkedPages[pageName] === true || typeof PageDataHelper.linkedPages[pageName] === "string";
+    return PageDataHelper.linkedPages[pageName] !== undefined;
 };
 
 // Create a button link to a page.
 PageDataHelper.registerButtonLink=
-async function(pageName, deregister)
+async function(pageName, buttonPrecedence, deregister)
 {
     const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
     const buttonsDoc = db.collection("config").doc("buttonLinks");
@@ -268,7 +268,7 @@ async function(pageName, deregister)
     // Add it!
     if (!deregister)
     {
-        existing[pageName] = pageName;
+        existing[pageName] = buttonPrecedence;
         
         PageDataHelper.linkedPages[pageName] = pageName;
     }
