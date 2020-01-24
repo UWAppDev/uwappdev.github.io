@@ -66,7 +66,7 @@ PageEditor.__Editor = function(parent)
         },
         "Publicization Options": () =>
         {
-            // TODO
+            me.configurePublicization();
         }
     }, me.actionsContainer);
     
@@ -248,6 +248,7 @@ PageEditor.__Editor = function(parent)
                 
                 // Push to Firestore!
                 await pageDoc.set(newContent);
+                await me.updatePublicization(newContent);
                 
                 PageDataHelper.noteDocUpdate(newContent);
                 JSHelper.Notifier.notify(ContentManager.UPDATE_PAGE_NOTIFY + pageName);
@@ -256,6 +257,8 @@ PageEditor.__Editor = function(parent)
             // Delete the old page, if renaming/deleting
             if (action === ACTION_RENAME || action === ACTION_DELETE)
             {
+                await me.unpublish();
+                
                 let oldPageDoc = database.collection("pages").doc(currentPageKey);
                 await oldPageDoc.delete();
             }
@@ -290,6 +293,9 @@ PageEditor.__Editor = function(parent)
         if (result)
         {
             await SubWindowHelper.alert("Done!", "Done renaming!");
+            
+            PageDataHelper.reloadPages();
+            
             return true;
         }
         
@@ -300,6 +306,7 @@ PageEditor.__Editor = function(parent)
     {
         await me.updatePage(pageName, ACTION_NEW);
         await me.editPage(pageName);
+        
         PageDataHelper.reloadPages();
     };
     
@@ -338,6 +345,104 @@ PageEditor.__Editor = function(parent)
             {
                 optionsWindow.close();
                 me.newPage(newPageName);
+            });
+        }
+    };
+    
+    this.unpublish = async () =>
+    {
+        let published = PageDataHelper.isPublished(currentPageKey);
+        
+        if (published)
+        {
+            try
+            {
+                await PageDataHelper.unpublish(currentPageKey);
+            }
+            catch(error)
+            {
+                await SubWindowHelper.alert("Error: " + error.code, error.message);
+                
+                return false;
+            }
+            
+            return true;
+        }
+        
+        return false;
+    };
+    
+    // If the current page has already been published, update
+    //the publication's timestamp.
+    this.updatePublicization = async () =>
+    {
+        let published = PageDataHelper.isPublished(currentPageKey);
+        
+        if (published)
+        {
+            try
+            {
+                await PageDataHelper.publish(currentPageKey);
+            }
+            catch(error)
+            {
+                await SubWindowHelper.alert("Error: " + error.code, error.message);
+                
+                return false;
+            }
+            
+            return true;
+        }
+        
+        return false;
+    };
+    
+    // Publish the page.
+    this.publish = async () =>
+    {
+        try
+        {
+            await PageDataHelper.publish(currentPageKey);
+        }
+        catch(error)
+        {
+            await SubWindowHelper.alert("Error: " + error.code, error.message);
+            
+            return false;
+        }
+        
+        return true;
+    };
+    
+    this.configurePublicization = async () =>
+    {
+        if (!currentPageKey)
+        {
+            SubWindowHelper.alert("Error!", "Select a page first!");
+            return;
+        }
+    
+        let configWindow = SubWindowHelper.create({ title: "Publicization Options" });
+        configWindow.enableFlex("column");
+        
+        let published = PageDataHelper.isPublished(currentPageKey);
+        
+        if (published)
+        {
+            HTMLHelper.addButton("Unpublish", configWindow, () =>
+            {
+                configWindow.close();
+                
+                me.unpublish();
+            });
+        }
+        else
+        {
+            HTMLHelper.addButton("Publish", configWindow, () =>
+            {
+                configWindow.close();
+                
+                me.publish();
             });
         }
     };

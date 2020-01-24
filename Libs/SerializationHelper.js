@@ -155,7 +155,23 @@ SerializationHelper.stringToSource = function(text)
             result += "\\";
         }
         
-        result += currentChar;
+        // Other characters that need escaping.
+        if (currentChar == "\t")
+        {
+            result += "\\t";
+        }
+        else if (currentChar == "\n")
+        {
+            result += "\\n";
+        }
+        else if (currentChar == "\r")
+        {
+            result += "\\r";
+        }
+        else
+        {
+            result += currentChar;
+        }
     }
     
     return result + "\"";

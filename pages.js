@@ -31,6 +31,8 @@ const PageDataHelper =
             // For every page...
             const handleDoc = (docData) =>
             {   
+                PageDataHelper.setPublished(docData.title, pageTitleQuery.docs[docData.title] ? true : false);
+                
                 if (!PageDataHelper.hasCached(docData.title, docData.timestamp || nowTime)) // getTime is already in UTC.
                 {
                     PageDataHelper.pages[docData.title] = 
@@ -40,7 +42,7 @@ const PageDataHelper =
                         
                         if (!docData.content)
                         {
-                            const pageDoc = await db.collection("pages").get(docData.title);
+                            const pageDoc = await db.collection("pages").doc(docData.title).get();
                             pageContent = pageDoc.data().content;
                         }
                         
@@ -53,7 +55,7 @@ const PageDataHelper =
                         return pageContent;
                     };
                 }
-                else if (!docData.content)
+                else if (docData.content)
                 {
                     PageDataHelper.pages[docData.title] = docData.content;
                 }
@@ -103,6 +105,7 @@ const PageDataHelper =
     noteDocUpdate: null, // Not loaded yet.
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
     linkedPages: ["Join"],
+    publishedPages: {},
     pages: {},
     pagesLocal:
     {
@@ -240,18 +243,76 @@ async function()
     JSHelper.Notifier.notify(PageDataHelper.PAGES_RELOAD);
 };
 
+// Get whether a page with the given name exists/has been published.
+PageDataHelper.isPublished      = 
+function(pageName)
+{
+    return PageDataHelper.publishedPages[pageName] === true; // Filters out true-like objects
+                                                             //(not that there are any...)
+};
+
+// Note that a page has been published/unpublished
+//locally (does not contact the server).
+PageDataHelper.setPublished     =
+function(pageName, newPublished)
+{
+    PageDataHelper.publishedPages[pageName] = newPublished === undefined ? true : newPublished;
+};
+
+// Actively unpublish a page. Note: This will fail
+//unless the user has admin privileges (or something
+//is very wrong).
+PageDataHelper.unpublish        =
+async function(pageName)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const publicPages = await db.collection("pageTitles").doc(pageName);
+    
+    // Delete the title, thereby unpublishing the page.
+    await publicPages.delete();
+    
+    // We don't want local records to note that the page is
+    //published.
+    PageDataHelper.setPublished(pageName, false);
+    
+    return true;
+};
+
+// Publishes a page. Requires admin privileges.
+//Also use this on update of a page to ensure even distribution --
+//if not called, the publication timestamp will be incorrect, potentially
+//leading to old cache data.
+PageDataHelper.publish          =
+async function(pageName)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const publicPages = await db.collection("pageTitles").doc(pageName);
+    
+    // Publish the page.
+    await publicPages.set
+    ({
+        title: pageName,
+        timestamp: (new Date()).getTime()
+     });
+    
+    // Note that the page was published.
+    PageDataHelper.setPublished(pageName, true);
+    
+    return true;
+};
+
 // Get a page.
 PageDataHelper.getPageContent   = 
 async function(pageName)
 {
     let content = PageDataHelper.pages[pageName];
     
-    if (typeof content === "function")
+    if (typeof content == "function")
     {
         PageDataHelper.pages[pageName] = await content();
     }
     
-    return PageDataHelper.pages[pageName]
+    return PageDataHelper.pages[pageName];
 };
 
 // Cache a page.
@@ -270,6 +331,10 @@ PageDataHelper.recallCachedPage = function(pageName)
     {
         PageDataHelper.pages[pageName] = pageData;
     }
+    else
+    {
+        console.error("Page data: " + pageData + " inaccessable.");
+    }
 };
 
 // Get whether a page has been cached and whether that cache has
@@ -283,9 +348,7 @@ PageDataHelper.hasCached = (pageTitle, pageTimestamp) =>
 
     const pageData = StorageHelper.getItemDetails(pageTitle);
     
-    console.log("Do I have " + pageTitle + " in " + (pageData.created - pageTimestamp) + "?");
-    
-    return pageData.created >= pageTimestamp;
+    return !pageData.malformed && pageData.created >= pageTimestamp;
 };
 
 // Search for a specific page. The search query is
@@ -305,7 +368,7 @@ PageDataHelper.query = async function(query)
     
     const checkAgainstQuery = (text) =>
     {
-        if (typeof text === 'function')
+        if (typeof text == 'function')
         {
             return 1; // Return 1 -- we haven't gotten the page from
                       //the server yet.

@@ -59,13 +59,38 @@ StorageHelper.get = (key) =>
         }
         catch(e)
         {
-            console.warn(key + " has malformed data.");
+            // Malformed?
+            console.warn(key + " has malformed data. Error: " + e);
+            console.warn("Content of " + key + " has been stored in");
+            console.warn("window.debugStr for debugging purposes.");
+            console.warn("The invalid entry will now be deleted.");
+            
+            window.debugStr = itemDetails.content;
+            
+            // Delete it.
+            StorageHelper.delete(key);
             
             return null;
         }
     }
     
     return undefined;
+};
+
+/**
+ * Delete an item in the store.
+ */
+StorageHelper.delete = (key) =>
+{
+    if (window.localStorage
+        && StorageHelper.has(key))
+    {
+        window.localStorage.removeItem(key);
+        
+        return true;
+    }
+    
+    return false;
 };
 
 /**
