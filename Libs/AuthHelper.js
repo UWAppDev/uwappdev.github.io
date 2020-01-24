@@ -331,11 +331,17 @@ async (requestedUserId) =>
 AuthHelper.isAdmin = async () =>
 {
     let user = firebase.auth().currentUser;
-    let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+
+    if (user)
+    {
+    	let database = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
     
-    let doc = await database.collection("admins").doc(user.uid).get();
-    
-    return doc.exists;
+    	let doc = await database.collection("admins").doc(user.uid).get();
+    	
+    	return doc.exists;
+    }
+
+    return false;
 };
 
 // Display account-management UI.
