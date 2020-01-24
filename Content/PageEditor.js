@@ -174,6 +174,10 @@ PageEditor.__Editor = function(parent)
             
         }
     });
+
+    // Work around a chrome formatting bug.
+    me.tabOptions.rootElement.style.display = "block";
+    me.tabOptions.rootElement.style.height = "100%";
     
     // Show
     parent.appendChild(me.content);
@@ -205,6 +209,14 @@ PageEditor.__Editor = function(parent)
     
     this.updatePage = async (pageName, action) =>
     {
+        // If the user hasn't selected a page...
+        if (!currentPageKey)
+        {
+            await SubWindowHelper.alert("Error/no-page-name-set", "No page name set! Please select a page name (and make sure you pressed enter)!");
+
+            return;
+        }
+
         action = action || ACTION_UPDATE;
         pageName = pageName || currentPageKey;
     

@@ -259,6 +259,16 @@ ContentManager.editPages = () =>
         showPane.classList.remove("hidden");
     });
     
+    // Display a warning if the user isn't an admin.
+    (async () =>
+     {
+        if (!(await AuthHelper.isAdmin()))
+        {
+            await SubWindowHelper.alert("Danger!", "It looks like you aren't an admin. This editor probably won't work, but you can try to use it anyways.");
+        }
+     })();
+
+    // Actually create the editor.
     pageEditor = PageEditor.create(rightPane);
 };
 
