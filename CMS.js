@@ -15,6 +15,11 @@ ContentManager.currentPage = null;
 ContentManager.SEARCH_CHAR = "⥋";
 ContentManager.PAGE_CHANGE_EVENT = "PAGE_CHANGED_CMS";
 ContentManager.UPDATE_PAGE_NOTIFY = "PAGE_SPECIFIC_CHANGED: ";
+ContentManager.PAGE_NOT_FOUND = `<h2>We couldn't find that page!</h2>
+                                <p>Please, check your spelling and try
+                                   again. If you believe that this 
+                                   message is in error, please
+                                   contact a club administrator!</p>`;
 
 /**
  *  Display a single page. If doNotAddToHistory is set,
@@ -44,7 +49,8 @@ async function(name, doNotAddToHistory, forceReload)
     name = name || PageDataHelper.defaultPage;
     
     // Set content.
-    contentZone.innerHTML = await PageDataHelper.getPageContent(name);
+    const pageContent = await PageDataHelper.getPageContent(name);
+    contentZone.innerHTML = pageContent || ContentManager.PAGE_NOT_FOUND;
     
     // Did the page request a background?
     JSHelper.Notifier.notify(BACKGROUND_CHANGE_EVENT, PageDataHelper.pageBackgrounds[name]);

@@ -26,12 +26,18 @@ const PageDataHelper =
             
             const pageTitleQuery   = await db.collection("pageTitles").get();
             const linkedPagesDoc = await db.collection("config").doc("buttonLinks").get();
+            const publishedDocs = {};
             const nowTime = (new Date()).getTime();
+            
+            pageTitleQuery.forEach((doc) =>
+            {
+                publishedDocs[doc.id] = true;
+            });
             
             // For every page...
             const handleDoc = (docData) =>
             {   
-                PageDataHelper.setPublished(docData.title, pageTitleQuery.docs[docData.title] ? true : false);
+                PageDataHelper.setPublished(docData.title, publishedDocs[docData.title] ? true : false);
                 
                 if (!PageDataHelper.hasCached(docData.title, docData.timestamp || nowTime)) // getTime is already in UTC.
                 {
@@ -247,8 +253,7 @@ async function()
 PageDataHelper.isPublished      = 
 function(pageName)
 {
-    return PageDataHelper.publishedPages[pageName] === true; // Filters out true-like objects
-                                                             //(not that there are any...)
+    return PageDataHelper.publishedPages[pageName] === true; // Turns undefined into false.
 };
 
 // Note that a page has been published/unpublished
