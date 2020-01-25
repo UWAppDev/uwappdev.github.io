@@ -599,7 +599,7 @@ PageEditor.__Editor = function(parent)
                         }))["Message"];
                 
                 // Request that this page be reviewed.
-                PageDataHelper.requestPageReview(currentPageKey, // TODO: Implement.
+                await PageDataHelper.requestPageReview(currentPageKey,
                 {
                     "uid": AuthHelper.getUid(),
                     "comment": reviewComment,

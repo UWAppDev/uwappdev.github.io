@@ -361,6 +361,24 @@ async function(pageName)
     return true;
 };
 
+// Submit a page for a review by other admins.
+// Danger: reviewData is modified by this method.
+PageDataHelper.requestPageReview = 
+async function(pageName, reviewData)
+{
+    // Get the database.
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const reviewRequest = db.collection("reviewRequests").doc(pageName);
+
+    reviewData.pageTitle = pageName;
+
+    // Set the content.
+    await reviewRequest.set
+    (
+        reviewData
+    );
+};
+
 // Get a page.
 PageDataHelper.getPageContent   = 
 async function(pageName)
