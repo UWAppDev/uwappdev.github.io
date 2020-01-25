@@ -13,6 +13,7 @@ PageEditor.__Editor = function(parent)
     
     const ACTION_RENAME = 1, ACTION_NEW = 2, ACTION_UPDATE = 3,
             ACTION_DELETE = 4;
+    const EDITOR_CHANGE_PAGE_EVENT = "PageEditor__Editor_ChangePageEvent";
             
     let currentPageKey, getContent, setContent;
     
@@ -205,6 +206,9 @@ PageEditor.__Editor = function(parent)
         me.codeEditor.render();
         
         me.textEditor.value = pageContent;
+        
+        // Note that we're editing the page.
+        JSHelper.Notifier.notify(EDITOR_CHANGE_PAGE_EVENT);
     };
     
     this.updatePage = async (pageName, action) =>
@@ -485,6 +489,11 @@ PageEditor.__Editor = function(parent)
         }
     };
     
+    this.close = () =>
+    {
+        me.closed = true;
+    };
+    
     this.getPageName = () =>
     {
         return currentPageKey;
@@ -492,6 +501,28 @@ PageEditor.__Editor = function(parent)
     
     // Note that nothing has been loaded.
     me.grayRegion();
+    
+    // Published/not-based styling.
+    (async () =>
+    {
+        while (!me.closed)
+        {
+            if (PageDataHelper.isPublished(currentPageKey))
+            {
+                me.actionsContainer.classList.add("publishedPageNotice");
+            }
+            else
+            {
+                me.actionsContainer.classList.remove("publishedPageNotice");
+            }
+            
+            await JSHelper.Notifier.waitForAny(
+                                PageDataHelper.PAGE_PUBLISHED + currentPageKey,
+                                PageDataHelper.PAGE_UNPUBLISHED + currentPageKey,
+                                PageDataHelper.PAGES_RELOAD,
+                                EDITOR_CHANGE_PAGE_EVENT);
+        }
+    })();
 };
 
 // Public constructor for __Editor.

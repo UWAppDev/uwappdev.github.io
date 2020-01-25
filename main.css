@@ -439,6 +439,38 @@ body
     border: 1px solid gray;
 }
 
+.pageEditor .actionsContainer::before
+{
+    transition: 0.5s ease all;
+    
+    position: absolute;
+    
+    bottom: 0;
+    right: 0;
+    opacity: 0;
+    
+    content: "...";
+    
+    font: bold italic 13pt Serif;
+    
+    border-radius: 10px;
+    
+    max-width: 150px;
+}
+
+.pageEditor .actionsContainer.publishedPageNotice::before
+{
+    content: "Danger! This page is published! Consider making a copy and submitting it for review rather than updating this page.";
+    
+    padding: 12px;
+    margin: 8px;
+    
+    box-shadow: 0px 0px 16px rgba(255, 0, 0, 0.5);
+    
+    transform: scale(1, 1);
+    opacity: 1;
+}
+
 .pageEditor .pageEditTabOptions
 {
     opacity: 1;

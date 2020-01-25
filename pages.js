@@ -230,6 +230,8 @@ const PageDataHelper =
 
 PageDataHelper.PAGES_RELOAD = "PAGE_DATA_RELOAD_EVENT";
 PageDataHelper.PAGE_BUTTONS_CHANGED = "PAGE_BUTTONS_CHANGED_EVENT";
+PageDataHelper.PAGE_PUBLISHED = "PAGE_PUBLISHED_EVENT";
+PageDataHelper.PAGE_UNPUBLISHED = "PAGE_UNPUBLISHED_EVENT";
 
 // Reload pages.
 PageDataHelper.reloadPages      = 
@@ -308,6 +310,7 @@ async function(pageName)
     // We don't want local records to note that the page is
     //published.
     PageDataHelper.setPublished(pageName, false);
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_UNPUBLISHED + pageName);
     
     return true;
 };
@@ -331,6 +334,7 @@ async function(pageName)
     
     // Note that the page was published.
     PageDataHelper.setPublished(pageName, true);
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_PUBLISHED + pageName);
     
     return true;
 };

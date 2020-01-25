@@ -347,6 +347,11 @@ ContentManager.editPages = () =>
 
     // Actually create the editor.
     pageEditor = PageEditor.create(rightPane);
+    
+    pageEditWindow.setOnCloseListener(() =>
+    {
+        pageEditor.close();
+    });
 };
 
 /**
