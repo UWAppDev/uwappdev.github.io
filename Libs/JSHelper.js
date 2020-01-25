@@ -519,6 +519,25 @@ JSHelper.getCharCount = (text, charset) =>
     return charCount;
 };
 
+// Unite two maps. Key/value pairs in
+// the first map take precedence.
+JSHelper.mapUnite = (map1, map2) =>
+{
+    let result = {};
+
+    for (let key in map2)
+    {
+        result[key] = map2[key];
+    }
+
+    for (let key in map1)
+    {
+        result[key] = map1[key];
+    }
+
+    return result;
+};
+
 // Get the next animation frame in a promise.
 JSHelper.nextAnimationFrame = () =>
 {
