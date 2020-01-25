@@ -10,7 +10,7 @@
  
 const ContentManager = {};
 
-ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to request a specific page.
+ContentManager.URL_PAGE_SPECIFIER_START = "?="; // Use this string to requestF a specific page.
 ContentManager.currentPage = null;
 ContentManager.SEARCH_CHAR = "→";
 ContentManager.PAGE_CHANGE_EVENT = "PAGE_CHANGED_CMS";
@@ -252,7 +252,6 @@ ContentManager.editPages = () =>
             {
                 const listItem = document.createElement("div");
                 listItem.setAttribute("tabIndex", 2);
-                listItem.setAttribute("title", "Page edit selector.");
                 listItem.classList.add("pageListItemManage");
                 
                 listItem.innerText = pageTitle;
@@ -276,6 +275,18 @@ ContentManager.editPages = () =>
                 if (pageTitle == pageEditor.getPageName())
                 {
                     listItem.classList.add("selected");
+                }
+                
+                // If the item is published, note that, too.
+                if (PageDataHelper.isPublished(pageTitle))
+                {
+                    listItem.classList.add("published");
+                    
+                    listItem.setAttribute("title", "Edit published " + pageTitle);
+                }
+                else
+                {
+                    listItem.setAttribute("title", "Edit " + pageTitle);
                 }
                 
                 resultsDisplay.appendChild(listItem);

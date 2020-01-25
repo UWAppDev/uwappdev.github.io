@@ -344,6 +344,18 @@ AuthHelper.isAdmin = async () =>
     return false;
 };
 
+AuthHelper.getUid = async () =>
+{
+    let user = firebase.auth().currentUser;
+    
+    if (user)
+    {
+        return user.uid;
+    }
+    
+    return undefined;
+};
+
 // Display account-management UI.
 //Pre: The user is signed in.
 AuthHelper.manageAccount = 

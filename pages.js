@@ -69,6 +69,18 @@ const PageDataHelper =
                 {
                     PageDataHelper.recallCachedPage(docData.title);
                 }
+                
+                // If this page backs another,
+                //note that.
+                if (docData.backsPage)
+                {
+                    if (!PageDataHelper.pageBackers[docData.backsPage])
+                    {
+                        PageDataHelper.pageBackers[docData.backsPage] = [];
+                    }
+                    
+                    PageDataHelper.pageBackers[docData.backsPage].push(docData.title);
+                }
             };
             
             // Let clients note document updates.
@@ -111,6 +123,7 @@ const PageDataHelper =
     noteDocUpdate: null, // Not loaded yet.
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
     linkedPages: {},
+    pageBackers: {}, // A list of copies of pages, each with a new, proposed version.
     publishedPages: {},
     pages: {},
     pagesLocal:
@@ -241,6 +254,15 @@ async function()
     PageDataHelper.loaded = false;
     
     JSHelper.Notifier.notify(PageDataHelper.PAGES_RELOAD);
+};
+
+// Get the names of all pages (if any)
+//that claims to back (act as a proposed
+//version of) the given page.
+PageDataHelper.getBackers       =
+function(pageName)
+{
+    return PageDataHelper.pageBackers[pageName] || [];
 };
 
 // Get whether a page with the given name exists/has been published.

@@ -1116,8 +1116,12 @@ SubWindowHelper.alert = function(title, message, onClose, htmlText, windowOption
 // Prompt a user for input.
 //This method takes a map of input placeholders/
 //labels to input types as "inputs". It returns a promise.
+//windowOptions is passed directly to SubWindowHelper.
+//promptOptions is a map with further options related to
+//the prompt. For example, promptOptions.initialContent
+//should map from labels to initial content.
 SubWindowHelper.prompt = function(title, message, inputs, 
-        windowOptions)
+        windowOptions, promptOptions)
 {
     var promptDialog = SubWindowHelper.create
             (windowOptions
@@ -1128,6 +1132,9 @@ SubWindowHelper.prompt = function(title, message, inputs,
                   minHeight: 120 });
                   
     promptDialog.enableFlex("column");
+    
+    promptOptions = promptOptions || {};
+    promptOptions.initialContent = promptOptions.initialContent || {};
             
     var contentArea = document.createElement("div");
     var messageZone = document.createElement("div");
@@ -1157,7 +1164,9 @@ SubWindowHelper.prompt = function(title, message, inputs,
         
         labelElement.style.paddingRight = "6px";
         
-        let newInput = HTMLHelper.addInput(label, "", inputs[label], newInputContainer, (value) => // On input.
+        let newInput = HTMLHelper.addInput(label, 
+                promptOptions.initialContent[label] || "",
+                inputs[label], newInputContainer, (value) => // On input.
         {
             inputMap[label] = value;
         }, (value) => // On Enter key.
@@ -1187,7 +1196,7 @@ SubWindowHelper.prompt = function(title, message, inputs,
     {
         let input = handleInput(label);
         
-        inputMap[label] = undefined;
+        inputMap[label] = HTMLHelper.getInputContent(input, inputs[label]);
         addedInputs.push(input);
     }
     

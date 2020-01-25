@@ -50,7 +50,7 @@ PageEditor.__Editor = function(parent)
         },
         "Delete": async () =>
         {
-            let doDelete = await SubWindowHelper.confirm("Really delete?", "Relally delete " + currentPageKey + "?", "Yes", "No");
+            let doDelete = await SubWindowHelper.confirm("Really delete?", "Really delete " + currentPageKey + "?", "Yes", "No");
             
             if (doDelete)
             {
@@ -68,6 +68,10 @@ PageEditor.__Editor = function(parent)
         "Publicization Options": () =>
         {
             me.configurePublicization();
+        },
+        "Submit for Review": () =>
+        {
+            me.submitForReview();
         }
     }, me.actionsContainer);
     
@@ -308,10 +312,12 @@ PageEditor.__Editor = function(parent)
     
     this.newPage = async (pageName) =>
     {
-        await me.updatePage(pageName, ACTION_NEW);
+        let result = await me.updatePage(pageName, ACTION_NEW);
         await me.editPage(pageName);
         
         PageDataHelper.reloadPages();
+        
+        return result;
     };
     
     this.updatePageName = async function()
@@ -487,6 +493,128 @@ PageEditor.__Editor = function(parent)
                 }
             });
         }
+    };
+    
+    this.submitForReview = async () =>
+    {
+        if (!currentPageKey)
+        {
+            SubWindowHelper.alert("Error!", "Select a page first!");
+            return;
+        }
+        
+        const ACTION_NEW_BACKER = 1, ACTION_SELECT_BACKER = 2;
+    
+        let configWindow = SubWindowHelper.create({ title: "Review Options" });
+        configWindow.enableFlex("column");
+        
+        let published = PageDataHelper.isPublished(currentPageKey);
+        let submitText = "";
+        let backerPages = PageDataHelper.getBackers(currentPageKey);
+        let additionalAction = null;
+        
+        if (published)
+        {
+            if (backerPages.length > 1)
+            {
+                submitText = "Select backer page and request review.";
+                additionalAction = ACTION_SELECT_BACKER;
+            }
+            else if (backerPages.length > 0)
+            {
+                submitText = "Overwrite " + backerPages[0] + " and request review.";
+                additionalAction = ACTION_SELECT_BACKER;
+            }
+            else
+            {
+                submitText = "Create backer page and request review.";
+                additionalAction = ACTION_NEW_BACKER;
+            }
+        }
+        else
+        {
+            submitText = "Submit for review.";
+        }
+        
+        HTMLHelper.addButton(submitText, configWindow,
+        async () =>
+        {
+            configWindow.close();
+            
+            try
+            {
+                // Configure the backing page.
+                // Pre: backerPages.length > 0.
+                if (additionalAction === ACTION_SELECT_BACKER)
+                {
+                    let backerName = 
+                    backerPages.length > 1 
+                    ?
+                        (await SubWindowHelper.prompt("Select a Backing Copy", "Select one of the backing copies!", 
+                        {
+                            "Backer: ": "select"
+                        }, undefined, // No specific window options.
+                        {
+                            initialContent:
+                            {
+                                "Backer: ": backerPages
+                            }
+                        }))["Backer: "]
+                    :
+                        backerPages[0];
+                    
+                    // Overwrite the backer page.
+                    let success = await me.updatePage(backerName, ACTION_UPDATE);
+                    
+                    // Did it work?
+                    if (!success)
+                    {
+                        console.error("Update page failed. Canceling submission!");
+                        
+                        return false;
+                    }
+                    
+                    // currentPageKey now refers to a backing page.
+                }
+                else if (additionalAction === ACTION_NEW_BACKER)
+                {
+                    let backerName = 
+                    (await SubWindowHelper.prompt("Name It", "Give the backing copy a name!", {"Name": "text"}))["Name"];
+                    
+                    // Move to the new page!
+                    let success = await me.newPage(backerName, ACTION_NEW);
+                    
+                    if (!success)
+                    {
+                        console.error("me.newPage returned failure. Canceling.");
+                        
+                        return false;
+                    }
+                }
+                
+                const reviewComment = (await SubWindowHelper.prompt("Message",
+                        "Please, leave a message describing the request.",
+                        {
+                            "Message": "textarea"
+                        }))["Message"];
+                
+                // Request that this page be reviewed.
+                PageDataHelper.requestPageReview(currentPageKey, // TODO: Implement.
+                {
+                    "uid": AuthHelper.getUid(),
+                    "comment": reviewComment,
+                    "isRequest": true
+                });
+            }
+            catch(error)
+            {
+                await SubWindowHelper.alert("Error! " + error.code, error.message);
+                
+                return false;
+            }
+            
+            return true;
+        });
     };
     
     this.close = () =>

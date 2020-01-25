@@ -9,6 +9,7 @@ HTMLHelper.inputTypeToElementNSDictionary =
     "checkbox": "input",
     "textarea": "textarea",
     "number": "input",
+    "select": "select",
     "richtext": "div"
 };
 
@@ -51,6 +52,29 @@ HTMLHelper.setInputContent = function(inputElement, inputType, setTo)
             break;
         case "richtext":
             inputElement.innerHTML = setTo;
+            break;
+        case "select":
+            
+            if (typeof setTo === "object")
+            {
+                inputElement.innerHTML = "";
+                
+                for (var i in setTo)
+                {
+                    let newOption = HTMLHelper.addTextElement(setTo[i], 
+                                        inputElement, "option");
+                    
+                    // If an array, the value is the content, otherwise, the 
+                    //key.
+                    newOption.value = typeof setTo.length === "number" ? setTo[i] : i;
+                    
+                    inputElement.appendChild(newOption);
+                }
+            }
+            else
+            {
+                inputElement.value = setTo;
+            }
             break;
         default:
             inputElement.value = setTo;

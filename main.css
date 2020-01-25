@@ -369,6 +369,13 @@ body
     transition: 0.3s ease background-color;
 }
 
+.pageListItemManage.published
+{
+    font-weight: bold;
+    background-image: linear-gradient(90deg, rgba(0, 255, 0, 0.3), 
+            rgba(0, 255, 0, 0.1), rgba(0, 0, 0, 0.0));
+}
+
 .pageListItemManage.selected::after
 {
     content: "*";
@@ -446,16 +453,18 @@ body
     position: absolute;
     
     bottom: 0;
-    right: 0;
+    left: calc(100% + 8px);
+    background-color: white;
     opacity: 0;
     
-    content: "...";
+    content: "Note: This page seems to be unpublished. It should be safe to update.";
     
     font: bold italic 13pt Serif;
     
     border-radius: 10px;
     
     max-width: 150px;
+    display: inline-block;
 }
 
 .pageEditor .actionsContainer.publishedPageNotice::before
@@ -463,12 +472,13 @@ body
     content: "Danger! This page is published! Consider making a copy and submitting it for review rather than updating this page.";
     
     padding: 12px;
-    margin: 8px;
     
     box-shadow: 0px 0px 16px rgba(255, 0, 0, 0.5);
     
     transform: scale(1, 1);
     opacity: 1;
+    
+    animation: 3s ease fadeIn;
 }
 
 .pageEditor .pageEditTabOptions
