@@ -136,6 +136,47 @@ SerializationHelper.inflateObject = function(serializationData)
     return result;
 };
 
+// Chrome doesn't support toSource on strings,
+//so we need another function. This function
+//escapes text such that all (old) backslashes and
+//single/double are preceeded with a (new) backslash.
+//The returned text is surrounded with double-quotes.
+SerializationHelper.stringToSource = function(text)
+{
+    let currentChar, result = "\"";
+    
+    for (let i = 0; i < text.length; i++)
+    {
+        currentChar = text.charAt(i);
+        
+        // Does it need escaping.
+        if (currentChar == '"' || currentChar == "\'" || currentChar == "\\")
+        {
+            result += "\\";
+        }
+        
+        // Other characters that need escaping.
+        if (currentChar == "\t")
+        {
+            result += "\\t";
+        }
+        else if (currentChar == "\n")
+        {
+            result += "\\n";
+        }
+        else if (currentChar == "\r")
+        {
+            result += "\\r";
+        }
+        else
+        {
+            result += currentChar;
+        }
+    }
+    
+    return result + "\"";
+};
+
 // Like JSON.stringify, but also converts functions to source.
 SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
 {
@@ -158,7 +199,11 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     {
         currentPart = key + ": ";
     
-        if (typeof (part[key]) != "object" && part[key] && part[key].toString)
+        if (typeof (part[key]) == "string")
+        {
+            currentPart += SerializationHelper.stringToSource(part[key]);
+        }
+        else if (typeof (part[key]) != "object" && part[key] && part[key].toString)
         {
             currentPart += part[key].toString();
         }
@@ -179,4 +224,15 @@ SerializationHelper.stringifyFull = function(part, maxDepth, currentDepth)
     return result;
 };
 
+SerializationHelper.evalParseFromString = (data) =>
+{
+    return SerializationHelper.inflateObject(eval("(" + data + ")"));
+};
 
+// Serialize data such that reading it with parseFromString
+//returns a close copy of the original. Danger! This method
+//is imperfect.
+SerializationHelper.stringSerialize = (data) =>
+{
+    return SerializationHelper.stringifyFull(SerializationHelper.serializeObject(data));
+};

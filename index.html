@@ -27,6 +27,7 @@
     <script src = "Libs/JSHelper.js"></script>
     <script src = "Libs/ProgressEstimator.js"></script>
     <script src = "Libs/SerializationHelper.js"></script>
+    <script src = "Libs/StorageHelper.js"></script>
     <script src = "Libs/ThreadHelper.js"></script>
     <script src = "Libs/Point.js"></script>
     <script src = "Libs/Vector3.js"></script>
@@ -36,7 +37,7 @@
     <script src = "Libs/Modeler3D.js"></script>
 
     <script src = "Libs/Keyboard.js" encoding = "utf-8"></script> <!-- The utf-8 is
-                                                                  necessary -- 
+                                                                  necessary -\-
                                                                   the keyboard
                                                                   uses unicode
                                                                   picture-like
@@ -54,6 +55,20 @@
     <script src = "Libs/IntroScreen.js"></script>
     <script src = "Libs/Worlds.js"></script>
     
+    <script src = "Libs/CloudHelper.js"></script>
+    <script src = "Libs/AuthHelper.js"></script>
+    <script src = "Content/PageEditor.js"></script>
+    <script src = "CMS.js" encoding = "utf-8"></script>
+
+    <!-- External Libraries -->
+    <!--   Cloud Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-storage.js"></script>
+    
+
+
     <!-- Include page-specific files. -->
     <script src = "pages.js"></script>
     <script src = "main.js"></script>
@@ -61,22 +76,25 @@
     <link rel = "stylesheet" type = "text/css" href = "main.css"/>
 </head>
 <body>
+    <a style = "height: 0px; opacity: 0; width: 0px; position: fixed;" 
+        href = "javascript: document.querySelector('#mainData').focus();"
+        tabindex = "0">Skip to main content.</a>
     <div class = "navabar navigationButtons">
         <canvas class="logo"></canvas>
-        <div id = "title">Mobile Development Club</div>
+        <div id = "title" title = "Page Title: The University of Washington's Mobile Development Club.">Mobile Development Club</div>
         <div class = "spacer"></div>
         
         <!-- Additional content filled with JS. -->
     </div>
     
     <!-- A side pane called a (I think) blade. -->
-    <div id = "mainBlade" class = "blade bladeClosed navigationButtons">
+    <div id = "mainBlade" class = "blade bladeClosed cms">
         <!-- Filled by JS. -->
     </div>
     
     <!-- The page's main content. -->
     <div class = "content">
-        <div id = "mainData"> <!-- This is where loaded content will go. -->
+        <div id = "mainData" tabIndex = "3"> <!-- This is where loaded content will go. -->
             <div id = "loader" alt = "Loading content! If you're having trouble, please contact us through our RSO page!">Loading...</div>
             
             <noscript>
@@ -84,7 +102,8 @@
             </noscript>
         </div>
         <div class = "lowerLinks">
-            <a href = "https://huskylink.washington.edu/organization/appdev/">Mobile Development Club</a> is a Registered Student Organization at the University of Washington. <a href = "http://eepurl.com/gLd1Fz" class = "emphasizedLink" style="display: block;">Get on our mailing list!</a>
+            <a href = "https://huskylink.washington.edu/organization/appdev/" title = "View our Registered Student Organization Page!">Mobile Development Club</a> is a Registered Student Organization at the University of Washington. <a href = "http://eepurl.com/gLd1Fz" class = "emphasizedLink" style="display: block;">Get on our mailing list!</a>
+            <a href = "https://www.translatetheweb.com/?from=en&to=es&dl=en&ref=trb&a=https%3A%2F%2Fuwappdev.github.io%2F">Traducir Está Página a Español</a>
         </div>
     </div>
     

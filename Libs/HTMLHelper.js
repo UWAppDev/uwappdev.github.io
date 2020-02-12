@@ -9,6 +9,7 @@ HTMLHelper.inputTypeToElementNSDictionary =
     "checkbox": "input",
     "textarea": "textarea",
     "number": "input",
+    "select": "select",
     "richtext": "div"
 };
 
@@ -52,15 +53,33 @@ HTMLHelper.setInputContent = function(inputElement, inputType, setTo)
         case "richtext":
             inputElement.innerHTML = setTo;
             break;
+        case "select":
+            
+            if (typeof setTo === "object")
+            {
+                inputElement.innerHTML = "";
+                
+                for (var i in setTo)
+                {
+                    let newOption = HTMLHelper.addTextElement(setTo[i], 
+                                        inputElement, "option");
+                    
+                    // If an array, the value is the content, otherwise, the 
+                    //key.
+                    newOption.value = typeof setTo.length === "number" ? setTo[i] : i;
+                    
+                    inputElement.appendChild(newOption);
+                }
+            }
+            else
+            {
+                inputElement.value = setTo;
+            }
+            break;
         default:
             inputElement.value = setTo;
             break;
     }
-};
-
-HTMLHelper.getSuitableInputType = function(inputs)
-{
-    
 };
 
 // Adds an element containing HTML text to parent, with NS of elementName.
@@ -103,6 +122,16 @@ HTMLHelper.addHR = function(parent)
     return HTMLHelper.addTextElement("", parent, "hr");
 };
 
+// Adds a div with class spacer.
+HTMLHelper.addSpacer = function(parent)
+{
+    const result = HTMLHelper.addTextElement("", parent, "div");
+    
+    result.classList.add("spacer");
+    
+    return result;
+};
+
 // Adds an element (by default, a span) to parent and gives
 //it a class of label.
 HTMLHelper.addLabel = function(labelText, parent, element)
@@ -123,10 +152,47 @@ HTMLHelper.addButton = function(content, parent, onSubmit)
     
     parent.appendChild(element);
     
-    element.addEventListener("click", function()
+    if (onSubmit)
     {
-        onSubmit.apply(this, arguments);
-    });
+        element.addEventListener("click", function()
+        {
+            onSubmit.apply(element, arguments);
+        });
+    }
+    
+    return element;
+};
+
+// Convert a map of key-function pairs to buttons.
+HTMLHelper.addButtons = function(nameToOnClickMap, parent)
+{
+    let container = document.createElement("div");
+    
+    for (let label in nameToOnClickMap)
+    {
+        HTMLHelper.addButton(label, container, nameToOnClickMap[label]);
+    }
+    
+    parent.appendChild(container);
+    
+    return container;
+};
+
+// Adds an image with src to parent and gives it
+//className (className is optional).
+HTMLHelper.addImage = function(src, parent, className)
+{
+    let element = document.createElement("img");
+    element.src = src;
+    
+    element.style.flexGrow = 1;
+    
+    parent.appendChild(element);
+    
+    if (className)
+    {
+        element.classList.add(className);
+    }
     
     return element;
 };
@@ -136,7 +202,7 @@ HTMLHelper.addButton = function(content, parent, onSubmit)
 //the content of the input. This DOES support checkboxes,
 //but at the time of this writing, not radio-boxes or spinners
 //(selects).
-HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, onInput)
+HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, onInput, onEnterKey)
 {
     var inputElementType = "input";
     
@@ -166,7 +232,188 @@ HTMLHelper.addInput = function(placeHolder, initialContent, inputType, parent, o
         return true;
     }, true);
     
+    // Handle enter key presses.
+    if (onEnterKey)
+    {
+        input.addEventListener("keyup", function(event)
+        {
+            // If the user hit enter,
+            if (event.keyCode === 13)
+            {
+                var inputContent = HTMLHelper.getInputContent(input, inputType);
+                
+                onEnterKey.call(this, inputContent, arguments);
+                
+                return true;
+            }
+        });
+    }
+    
     return input;
+};
+
+// Add an input with an attached label! The label
+//argument doubles as the placeholder.
+HTMLHelper.addLabeledInput = function(label, initialContent, inputType, parent, 
+            onInput, onEnterKey)
+{
+    const inputGroup = document.createElement("div");
+
+    // Allow the input box to grow, as needed.
+    inputGroup.style.display = "flex";
+
+    const labelElem = HTMLHelper.addLabel(label, inputGroup, "span");
+    labelElem.style.paddingRight = "4px";
+    
+    const inputElement = HTMLHelper.addInput.call(this, label, initialContent, inputType, inputGroup, onInput, onEnterKey);
+    
+    // Expand with parent.
+    inputElement.style.flexGrow = "1";
+    
+    parent.appendChild(inputGroup);
+    
+    return inputElement;
+};
+
+// Adds an element that helps the user create a password.
+//An object is returned that includes a method, isValid, which
+//returns true if the password matches that specified by the arguments.
+HTMLHelper.addPasswordConcocter = (parent, options) =>
+{
+    let status = document.createElement("div"), initialInput, confirmInput, progressBar;
+    const specialChars = options.specialChars || "@!$&^*()_+.,?";
+    const NUMBER_SYMBOLS = "0123456789";
+
+    // Default options.
+    options.minLength        = options.minLength === undefined        ? 7 : options.minLength;
+    options.specialCharCount = options.specialCharCount === undefined ? 2 : options.specialCharCount;
+    options.numberCharCount  = options.numberCharCount === undefined  ? 2 : options.numberCharCount;
+
+    // Helper methods.
+    let onValid = () => {}, onInvalid = () => {};
+    
+    const passwordChecks =
+    [
+        (noteFail, password, confirmedPassword) =>
+        {
+            if (password !== confirmedPassword)
+            {
+                noteFail("Passwords do not match. ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            if (password.length < options.minLength)
+            {
+                noteFail("Password cannot be less than " + options.minLength + " characters. ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            let specialCharCount = JSHelper.getCharCount(password, specialChars);
+            
+            if (specialCharCount < options.specialCharCount)
+            {
+                noteFail("Password contains only " + specialCharCount
+                    + "/" + options.specialCharCount + " special characters ("
+                    + specialChars + "). ");
+            }
+        },
+        (noteFail, password) =>
+        {
+            let numberCount = JSHelper.getCharCount(password, NUMBER_SYMBOLS);
+            
+            if (numberCount < options.numberCharCount)
+            {
+                noteFail("Password contains only " + numberCount
+                    + "/" + options.numberCharCount + " of the required number symbols (" + NUMBER_SYMBOLS + ").");
+            }
+        }
+    ];
+    
+    const setFailReason = (reason) =>
+    {
+        status.innerText = reason;
+    };
+    
+    const checkPasswords = (password, confirmedPassword) =>
+    {
+        let failReasons = "";
+        let maxProgress = passwordChecks.length;
+        let progress    = maxProgress;
+        
+        let noteFail = (reason) =>
+        {
+            failReasons += reason + " ";
+            progress--;
+        };
+        
+        for (var i = 0; i < passwordChecks.length; i++)
+        {
+            passwordChecks[i](noteFail, password, confirmedPassword);
+        }
+        
+        setFailReason(failReasons);
+        progressBar.setProgress(progress / maxProgress);
+        
+        return progress === maxProgress;
+    };
+    
+    let lastCheckValid = false;
+    const checkInputs = () =>
+    {
+        let currentlyValid = checkPasswords(initialInput.value, confirmInput.value);
+        
+        if (lastCheckValid !== currentlyValid)
+        {
+            if (currentlyValid)
+            {
+                onValid();
+            }
+            else
+            {
+                onInvalid();
+            }
+        }
+        
+        lastCheckValid = currentlyValid;
+        
+        return currentlyValid;
+    };
+    
+    // Create the container.
+    const container = document.createElement("div");
+    
+    // Add elements.
+    container.appendChild(status);
+    initialInput = HTMLHelper.addInput("Password", "", "password", container, checkInputs);
+    confirmInput = HTMLHelper.addInput("Confirm Password", "", "password", container, checkInputs);
+    progressBar = HTMLHelper.addProgressBar(0, container);
+    
+    // Styling.
+    progressBar.container.style.height = "10px";
+    
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.classList.add("passwordConcocter");
+    
+    status.style.fontWeight = "bold";
+    
+    // Add it to the parent.
+    parent.appendChild(container);
+    
+    // Create and return the result.
+    let result = 
+    {
+        isValid: () => checkInputs(),
+        container: container,
+        input: initialInput,
+        get: () => initialInput.value,
+        onValid: (fn) => onValid = fn,
+        onInvalid: (fn) => onInvalid = fn
+    };
+    
+    return result;
 };
 
 // Adds a sequence of inputs to the container that permits the editing
@@ -192,7 +439,7 @@ HTMLHelper.addVectorEditor = function(vector, numComponents, parent)
 };
 
 // Create a progress bar! Returns an element with
-//properties container, track, and a method setProgress.
+//properties container, track, and a method setProgress(number 0 to 1).
 HTMLHelper.addProgressBar = function(initialProgress, parent)
 {
     const container = document.createElement("div");
@@ -247,11 +494,12 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
     let tabActiveFunctions = {};
     let tabLabels = {}; // The selectable labels.
     let selectedTab = null;
+    let onTabChange = null;
     
     // Create containers.
-    let groupContainer = document.createElement("div"); // Contains everything in this display.
-    let tabLabelContainer = document.createElement("div"); // Contains just the parent element of the tabs.
-    let contentContainer = document.createElement("div"); // Contains the content to be displayed.
+    let groupContainer = document.createElement("span"); // Contains everything in this display.
+    let tabLabelContainer = document.createElement("span"); // Contains just the parent element of the tabs.
+    let contentContainer = document.createElement("span"); // Contains the content to be displayed.
     
     // Set container styles.
     groupContainer.setAttribute("class", "tabGroupContainer"); // TODO groupContainer should have display flex, etc.
@@ -302,11 +550,13 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         tabLabel.setAttribute("class", "tabLabel tabLabelUnselected"); // Styling.
         tabLabel.textContent = tabName;
         
+        tabLabel.setAttribute("tabIndex", 2);
+        
         // Click.
-        tabLabel.onclick = (event) =>
+        tabLabel.addEventListener("click", (event) =>
         {
             selectTab(tabName);
-        };
+        });
         
         tabLabels[tabName] = tabLabel; // Stored for deletion purposes.
         
@@ -361,6 +611,8 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
     
     let selectTab = (tabName) =>
     {
+        let previouslySelectedTab = null;
+        
         // If a tab is already selected,
         //deselect it.
         if (selectedTab !== null && selectedTab in tabContents && selectedTab in tabLabels)
@@ -372,6 +624,9 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
             tabContents[selectedTab].classList.remove("tabContentShown");
                                                                         
             tabLabels[selectedTab].setAttribute("class", "tabLabel tabLabelUnselected");
+            
+            // Note the previously selected tab.
+            previouslySelectedTab = selectedTab;
         }
         
         // Note the newly-selected tab.
@@ -390,6 +645,12 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         {
             tabActiveFunctions[selectedTab].call(this, tabContents[selectedTab]);
         }
+        
+        // Notify.
+        if (onTabChange)
+        {
+            onTabChange.call(this, tabContents, selectedTab, previouslySelectedTab);
+        }
     };
     
     for (var i in tabDescriptors)
@@ -402,13 +663,15 @@ HTMLHelper.addTabGroup = function(tabDescriptors, parent, defaultTab, reRunTabAc
         selectTab(defaultTab);
     }
     
-    let result = 
+    const result = 
     {
         selectTab: selectTab,
         showTab: showTab,
         hideTab: hideTab,
         addTab: addTab,
-        removeTab: removeTab
+        removeTab: removeTab,
+        setOnTabChange: (newOnTabChange) => { onTabChange = newOnTabChange; },
+        rootElement: groupContainer
     };
     
     return result;

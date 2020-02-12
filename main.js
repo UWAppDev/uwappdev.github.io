@@ -2,7 +2,6 @@
 
 const ANIM_SHRINK_GROW_DURATION = 500,
       ANIM_FADE_IN_OUT_DURATION = 500,
-      URL_PAGE_SPECIFIER_START = "?=",
       BACKGROUND_CHANGE_EVENT  = "EVENT_BACKGROUND_CHANGE";
 
 /**
@@ -168,7 +167,7 @@ function LogoWorld()
         firstBulb.transformMat.save();
         secondBulb.transformMat.save();
         
-        let rotationAmount = Math.pow(2 * Math.tan(time / 120000) * Math.max(0.05, Math.min(0.6, Math.sin(time / 500000))), 3) + Math.sin(time / 60000) / 4;
+        let rotationAmount = Math.sin(time / 60000) / 4;
         
         // Also, check: Are we to rotate?
         if (me.destinationCtx 
@@ -532,28 +531,6 @@ function loadLogos(worldManager)
     });
 }
 
-/**
- *  Connects the main menu's UI to actions, among other things, connecting its
- * logo element to a menu.
- */
-function initializeMainMenu()
-{
-    let logoDisplay = document.querySelector(".navabar .logo");
-    let menuBlade = document.querySelector("#mainBlade"); // Lets call them "blades" --
-                                                          //I think that's what they're called.
-    const showHideBlade = () =>
-    {
-        menuBlade.classList.toggle("bladeClosed");
-        menuBlade.classList.toggle("bladeOpen");
-        
-        logoDisplay.classList.toggle("requestRotate");
-    };
-    
-    // Click listeners for showing/hiding.
-    logoDisplay.addEventListener("click", showHideBlade);
-    menuBlade.addEventListener  ("click", showHideBlade);
-}
-
 function startBackgroundAnimation(worldManager, scrolledElement, initialBackground)
 {
     let backgroundAnimationCanvas = document.querySelector("#backgroundAnimation");
@@ -655,80 +632,38 @@ function startBackgroundAnimation(worldManager, scrolledElement, initialBackgrou
     backgroundAnimationCanvas.style.backgroundColor = "#000000";
 }
 
-/**
- * Display a single page.
- */
-async function displayPage(name)
+function initLibraries()
 {
-    // Get elements.
-    let contentZone = document.querySelector("#mainData");
-    
-    // Animate it!
-    contentZone.parentElement.classList.add("shrinkGrow");
-    
-    await PageDataHelper.awaitLoad(); // Make sure we've loaded the page.
-    
-    // Default values
-    name = name || PageDataHelper.defaultPage;
-    
-    // Set content.
-    contentZone.innerHTML = PageDataHelper.pages[name];
-    
-    // Did the page request a background?
-    JSHelper.Notifier.notify(BACKGROUND_CHANGE_EVENT, PageDataHelper.pageBackgrounds[name]);
-    
-    // Cleanup animation
-    setTimeout(() =>
+    // Initialize the database.
+    CloudHelper.initDB(window.firebase, 
     {
-        contentZone.parentElement.classList.remove("shrinkGrow");
-    }, ANIM_SHRINK_GROW_DURATION); // We assume it's safe after a ANIM_SHRINK_GROW_DURATION.
-}
-
-/**
- * Create buttons and connect them to actions.
- */
-function initializePages()
-{
-    const createPage = (pageName, buttonZones) =>
-    {
-        for (let i = 0; i < buttonZones.length; i++)
+        apiData:
         {
-            HTMLHelper.addButton(pageName, buttonZones[i], () =>
-            {
-                displayPage(pageName);
-            });
-        }
-    };
-
-    // Load buttons.
-    PageDataHelper.awaitLoad().then((data) =>
-    {
-        let buttonAreas = document.querySelectorAll(".navigationButtons");
-        
-        // Create a button for every page.
-        for (let pageName in data)
-        {
-            createPage(pageName, buttonAreas);
-        }
+            apiKey: "AIzaSyCFiXolx5nvkMUBYfCZxqHy_-bZjL2s5tM",
+            authDomain: "proj-ect.firebaseapp.com",
+            databaseURL: "https://proj-ect.firebaseio.com",
+            projectId: "proj-ect",
+            storageBucket: "proj-ect.appspot.com", // See https://firebase.google.com/docs/storage/web/download-files
+            messagingSenderId: "1050739360656",    // for info on how to configure CORS.
+            appId: "1:1050739360656:web:23e4a9ab109a5119836915"
+        },
+        resources:
+        [
+            CloudHelper.Service.FIRESTORE,
+            CloudHelper.Service.FIREBASE_STORAGE
+        ]
     });
     
-    const specifierIndex = location.href.indexOf(URL_PAGE_SPECIFIER_START);
-    
-    // Check the URL -- has a specific page been linked to?
-    if (location.href && specifierIndex > location.href.lastIndexOf("/"))
+    // If firebase isn't defined,
+    //warn the user.
+    if (!window.firebase)
     {
-        // Get the page's name.
-        let requestedPage = location.href.substring
-        (
-            specifierIndex + URL_PAGE_SPECIFIER_START.length
-        );
-        
-        // And display it.
-        displayPage(requestedPage);
-    }
-    else
-    {
-        displayPage(); // Show the default page.
+        SubWindowHelper.alert("Service Error", `This page uses Google's <i>Firebase</i> service to load 
+                                                much of its content. An error occurred while connecting
+                                                to this service. Please check your internet connection
+                                                and refresh the page.`,
+                                                undefined, // No onclose listener.
+                                                true); // Use HTML text.
     }
 }
 
@@ -744,18 +679,21 @@ function main()
         initialBackground = backgroundName;
     });
     
-    // Create and enable buttons.
-    initializePages();
+    // Initialize 3rd-party libraries.
+    initLibraries();
     
-    // Connect the logo in the navabar to a
-    //sliding menu.
-    initializeMainMenu();
+    // Initialize content.
+    ContentManager.init();
     
     // Load all logos (the animations).
     loadLogos(worldManager).then(() =>
     {
         // Load the background animation.
         startBackgroundAnimation(worldManager, document.documentElement, initialBackground);
+    }).then(() =>
+    {
+        // On complete, note that the page has been set up.
+        JSHelper.Notifier.notify(JSHelper.PAGE_SETUP_COMPLETE, {});
     });
     
     // Run!
@@ -764,3 +702,4 @@ function main()
 
 // Call main in the next frame.
 requestAnimationFrame(main);
+

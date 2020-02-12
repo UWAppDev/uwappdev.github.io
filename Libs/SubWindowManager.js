@@ -77,12 +77,12 @@ function SubWindowGlobals(parent, windowsList)
         }
     };
     
-    // Listen for shift + tab to switch between windows.
+    // Listen for shift + F3 to switch between windows.
     me.parent.addEventListener("keydown", function(event)
     {
         if (event.shiftKey && me.windowsList.length > 0)
         {
-            if (event.key === "Tab")
+            if (event.key === "F3")
             {
                 // Don't perform default action.
                 event.preventDefault();
@@ -128,6 +128,7 @@ function SubWindowTab(label, options)
     this.mainElementCommand = document.createElement("span");
     this.mainElementCommand.setAttribute("class", stylePrefix + "TabLabel");
     this.mainElementCommand.textContent = label;
+    this.label = label;
     this.mainElement.appendChild(this.mainElementCommand);
     
     if (!options.command)
@@ -162,6 +163,7 @@ function SubWindowTab(label, options)
     this.setLabel = function(newLabel)
     {
         me.mainElementCommand.textContent = newLabel;
+        me.label = newLabel;
     };
     
     this.addCommand = function(label, action)
@@ -190,6 +192,7 @@ function SubWindowTab(label, options)
         me.mainElement.style.visibility = "visible";
         me.mainElement.style.width = "auto";
         me.mainElement.style.height = "auto";
+        me.mainElement.setAttribute("title", "Visible item. " + me.label);
     };
     
     this.hide = function()
@@ -197,6 +200,7 @@ function SubWindowTab(label, options)
         me.mainElement.style.visibility = "hidden";
         me.mainElement.style.height = "0px";
         me.mainElement.style.width = "0px";
+        me.mainElement.setAttribute("title", "Hidden item. " + me.label);
     };
     
     this.destroy = function()
@@ -227,35 +231,72 @@ function SubWindowTab(label, options)
         delete me.mainElement;
     };
     
+    this.mainElementCommand.setAttribute("tabIndex", 2);
     this.mainElementCommand.addEventListener("click", me.onClick);
 }
 
 function SubWindow(globals, options)
 {
+    // Several significant options:
+    //  minWidth    Minimum width (px)                              int
+    //  minHeight   Minimum height (px)                             int
+    //  maxWidth    Maximum width (px)                              int
+    //  maxHeight   Maximum height (px)                             int
+    //  title       Title content                                   str
+    //  className   Additional style sheets for the window, all     str
+    //              prepended with className.
+    //fixWindowSize Whether to set the window's dimensions to a     bool
+    //              size in pixels after load or to allow its size
+    //              to be determined by its contents until resize.
+    //  noResize    Disable window resizing.                        bool
+    // unsnappable  Prohibits a "snapping" behavior from occurring  bool
+    //              when a window is brought near an edge of the screen.
+    // fixed        Whether the user can drag the window.           bool
+    //noCloseButton Whether to include the "X" button.              bool
+    //titleHTML     HTML-based content for the title. If used,      str
+    //              please also specify title, for accessibility.
+    //contentHTML   HTML-based content for the window.              str
+    //title         Text-based title content.                       str
+    //content       Text-based window content.                      str
+
     options = options || {};
     var parent = globals.parent;
     
     var me = this;
-    var styleClassName = options.className || "windowContainer";
+    var styleClassName = options.className || "windowContainerDefault";
+    
+    // Get a string representing a component's style classes
+    //for a given suffix.
+    var getStyleClass = (suffix) =>
+    {
+        let result;
+        
+        result = styleClassName + suffix + " " + "windowContainer" + suffix;
+        
+        return result;
+    };
     
     this.zIndex = globals.minZIndex;
     
     this.container = document.createElement("div");
-    this.container.setAttribute("class", styleClassName);
+    this.container.setAttribute("class", getStyleClass(""));
     
     this.container.style.display = "flex";
     this.container.style.flexDirection = "column";
     this.container.style.position = "fixed";
     
     this.titleBar = document.createElement("div");
-    this.titleBar.setAttribute("class", styleClassName + "TitleBar");
+    this.titleBar.setAttribute("class", getStyleClass("TitleBar"));
+    this.titleBar.setAttribute("tabIndex", 2);
     
     this.titleBar.style.display = "flex";
     this.titleBar.style.flexDirection = "row";
+    this.titleBar.setAttribute("title", "In-page window. Title bar.");
     
     this.titleContent = document.createElement("div");
-    this.titleContent.setAttribute("class", styleClassName + "TitleContent");
+    this.titleContent.setAttribute("class", getStyleClass("TitleContent"));
     this.titleContent.style.flexGrow = "1";
+    this.titleContent.setAttribute("tabIndex", 2);
 
     this.alwaysOnTop = options.alwaysOnTop || false;
     this.unsnappable = options.unsnappable === undefined ? (options.noResize || false) : options.unsnappable;
@@ -274,7 +315,7 @@ function SubWindow(globals, options)
     }
     
     this.tabZone = document.createElement("div");
-    this.tabZone.setAttribute("class", styleClassName + "TabZone");
+    this.tabZone.setAttribute("class", getStyleClass("TabZone"));
     this.tabZone.style.display = "none";
     var hasTabs = false;
     var tabs = [];
@@ -297,7 +338,7 @@ function SubWindow(globals, options)
     var onCloseListener = undefined;
     
     this.content = document.createElement("div");
-    this.content.setAttribute("class", styleClassName + "Content");
+    this.content.setAttribute("class", getStyleClass("Content"));
     this.content.style.flexGrow = "1";
     
     if (options.contentHTML)
@@ -450,9 +491,14 @@ function SubWindow(globals, options)
         me.content.removeChild(child);
     };
     
-    this.enableFlex = function()
+    this.enableFlex = function(direction)
     {
         me.content.style.display = "flex";
+        
+        if (direction)
+        {
+            me.content.style.flexDirection = direction;
+        }
     };
 
     var widthPreSnap = undefined, heightPreSnap = undefined;
@@ -585,22 +631,29 @@ function SubWindow(globals, options)
         me.closeButton = document.createElement("div");
         me.closeButton.innerHTML = "X";
         
-        me.closeButton.setAttribute("class", styleClassName + "CloseButton");
+        me.closeButton.setAttribute("title", "Push button: Close");
+        me.closeButton.setAttribute("tabIndex", 2);
+        
+        me.closeButton.setAttribute("class", getStyleClass("CloseButton"));
         
         me.titleBar.appendChild(me.closeButton);
         
-        me.closeButton.onclick = function(event)
+        me.closeButton.addEventListener("click", function(event)
         {
             event.preventDefault();
             
             me.destroy();
-        };
+        });
     };
     
     this.createMinimizeMaximizeButton = function()
     {
         me.minMaxButton = document.createElement("div");
-        me.minMaxButton.setAttribute("class", styleClassName + "MaximizeButton");
+        me.minMaxButton.setAttribute("class", getStyleClass("MaximizeButton"));
+        
+        me.minMaxButton.setAttribute("title", "Push button: Minimize or maximize.");
+        me.minMaxButton.setAttribute("tabIndex", 2);
+        
         me.titleBar.appendChild(me.minMaxButton);
         
         // Original state
@@ -632,7 +685,7 @@ function SubWindow(globals, options)
             }
         };
         
-        me.minMaxButton.onclick = function(event)
+        me.minMaxButton.addEventListener("click", function(event)
         {
             event.preventDefault();
             
@@ -643,7 +696,7 @@ function SubWindow(globals, options)
             if (me.minMaxButton.getAttribute("class").indexOf("MinimizeB") === -1)
             {
                 // Change the button's looks!
-                me.minMaxButton.setAttribute("class", styleClassName + "MinimizeButton");
+                me.minMaxButton.setAttribute("class", getStyleClass("MinimizeButton"));
                 
                 // Allow a return to the state of the window before maximization.
                 storeOriginalState();
@@ -676,7 +729,7 @@ function SubWindow(globals, options)
                 me.locationTransition.start(originalX, originalY).then(() => 
                 {
                     // Only change state related to minimization/maximization at the end.
-                    me.minMaxButton.setAttribute("class", styleClassName + "MaximizeButton");
+                    me.minMaxButton.setAttribute("class", getStyleClass("MaximizeButton"));
                     me.setDraggable(originalMovable);
                 });
                 
@@ -688,7 +741,7 @@ function SubWindow(globals, options)
                     me.resizeZone.style.display = originalResizeCircleDisplay;
                 }
             }
-        };
+        });
     };
     
     this.updateResizeCircleLocation = function(measureSize)
@@ -701,9 +754,17 @@ function SubWindow(globals, options)
         var bbox = me.container.getBoundingClientRect();
     
         me.resizeZone = document.createElement("div");
-        me.resizeZone.setAttribute("class", styleClassName + "ResizeZone");
+        me.resizeZone.setAttribute("class", getStyleClass("ResizeZone"));
         me.resizeZone.style.position = "absolute"; // Note: "fixed" has issues in WebKit.
         me.container.appendChild(me.resizeZone);
+        
+        // If specified, set the width and height of the window
+        //to concrete values.
+        if (options.fixWindowSize)
+        {
+            me.container.style.width = me.container.clientWidth + "px";
+            me.container.style.height = me.container.clientHeight + "px";
+        }
         
         var left = me.container.clientWidth - 5;
         var top = me.container.clientHeight - 5;
@@ -898,6 +959,9 @@ function SubWindow(globals, options)
             me.makeMovable();
         }
         
+        // Select the container's title.
+        me.titleContent.focus();
+        
         // Allow the window to scale, then
         //change its dimensions, if necessary.
         requestAnimationFrame(function()
@@ -932,12 +996,99 @@ SubWindowHelper.create = function(options)
     return newWindow;
 };
 
-SubWindowHelper.alert = function(title, message, onClose)
+SubWindowHelper.confirm = function(title, message, okLabel, cancelLabel, htmlText, windowOptions)
 {
-    var alertDialog = SubWindowHelper.create({ title: title, content: "", noCloseButton: true, noResize: true, maxWidth: 400, minWidth: 400, x: (window.innerWidth / 2 - 200), minHeight: 100 });
+    var dialog = SubWindowHelper.create(windowOptions 
+    || { title: title, 
+         content: "", 
+         noCloseButton: true, 
+         noResize: true, 
+         maxWidth: 400, 
+         minWidth: 400, 
+         x: (window.innerWidth / 2 - 200), 
+         minHeight: 120 });
     
     var contentDiv = document.createElement("div");
-    contentDiv.innerText = message;
+    
+    if (!htmlText)
+    {
+        contentDiv.innerText = message;
+    }
+    else
+    {
+        contentDiv.innerHTML = message;
+    }
+    
+    dialog.enableFlex("column");
+    contentDiv.style.flexGrow = 2;
+    contentDiv.style.overflowY = "auto";
+    
+    // Add additional padding.
+    contentDiv.style.paddingLeft = "4px";
+    
+    var submitButtonOk = document.createElement("button");
+    var submitButtonCancel = document.createElement("button");
+    
+    submitButtonOk.innerHTML = okLabel || "Ok";
+    submitButtonCancel.innerHTML = cancelLabel || "Cancel";
+    
+    submitButtonOk.setAttribute("class", "dialogSubmitButton");
+    submitButtonCancel.setAttribute("class", "dialogSubmitButton");
+    
+    dialog.content.appendChild(contentDiv);
+    dialog.content.appendChild(submitButtonOk);
+    dialog.content.appendChild(submitButtonCancel);
+    
+    return new Promise((resolve, reject) =>
+    {
+        const submit = (result) =>
+        {
+            dialog.close();
+            
+            resolve(result);
+        };
+    
+        submitButtonOk.addEventListener("click", function()
+        {
+            submit(true);
+        });
+        
+        submitButtonCancel.addEventListener("click", function()
+        {
+            submit(false);
+        });
+    });
+};
+
+SubWindowHelper.alert = function(title, message, onClose, htmlText, windowOptions)
+{
+    var alertDialog = SubWindowHelper.create(windowOptions 
+    || { title: title, 
+         content: "", 
+         noCloseButton: true, 
+         noResize: true, 
+         maxWidth: 400, 
+         minWidth: 400, 
+         x: (window.innerWidth / 2 - 200), 
+         minHeight: 120 });
+    
+    var contentDiv = document.createElement("div");
+    
+    if (!htmlText)
+    {
+        contentDiv.innerText = message;
+    }
+    else
+    {
+        contentDiv.innerHTML = message;
+    }
+    
+    alertDialog.enableFlex("column");
+    contentDiv.style.flexGrow = 2;
+    contentDiv.style.overflowY = "auto";
+    
+    // Add additional padding.
+    contentDiv.style.paddingLeft = "4px";
     
     var submitButton = document.createElement("button");
     submitButton.innerHTML = "Ok";
@@ -948,7 +1099,7 @@ SubWindowHelper.alert = function(title, message, onClose)
     
     return new Promise((resolve, reject) =>
     {
-        submitButton.onclick = function()
+        submitButton.addEventListener("click", function()
         {
             alertDialog.close();
             
@@ -958,17 +1109,32 @@ SubWindowHelper.alert = function(title, message, onClose)
             }
             
             resolve(this);
-        };
+        });
     });
 };
 
 // Prompt a user for input.
-//This method bo
+//This method takes a map of input placeholders/
+//labels to input types as "inputs". It returns a promise.
+//windowOptions is passed directly to SubWindowHelper.
+//promptOptions is a map with further options related to
+//the prompt. For example, promptOptions.initialContent
+//should map from labels to initial content.
 SubWindowHelper.prompt = function(title, message, inputs, 
-        onClose)
+        windowOptions, promptOptions)
 {
     var promptDialog = SubWindowHelper.create
-            ({ title: title });
+            (windowOptions
+             || { title: title, 
+                  content: "",  
+                  minWidth: 400, 
+                  x: (window.innerWidth / 2 - 200), 
+                  minHeight: 120 });
+                  
+    promptDialog.enableFlex("column");
+    
+    promptOptions = promptOptions || {};
+    promptOptions.initialContent = promptOptions.initialContent || {};
             
     var contentArea = document.createElement("div");
     var messageZone = document.createElement("div");
@@ -977,19 +1143,80 @@ SubWindowHelper.prompt = function(title, message, inputs,
     contentArea.appendChild(messageZone);
     contentArea.appendChild(inputZone);
     
+    promptDialog.appendChild(contentArea);
+    
     messageZone.innerText = message;
     
-    var inputElements = {};
+    var addedInputs = [];
+    var inputMap = {};
+    var submit = () => {};
     
     var handleInput = (label) =>
     {
-        let newInputContainer = document.createElement("span");
+        const inputIndex = addedInputs.length;
         
-        let inputType = HTMLHelper.getSuitableInputType(inputs[label]);
+        let newInputContainer = document.createElement("div");
         
+        newInputContainer.style.display = "flex";
+        newInputContainer.style.flexDirection = "row";
         
-        let newInput = HTMLHelper.addInput(label, inputs[label], inputType, newInputContainer);
+        let labelElement = HTMLHelper.addLabel(label, newInputContainer);
+        
+        labelElement.style.paddingRight = "6px";
+        
+        let newInput = HTMLHelper.addInput(label, 
+                promptOptions.initialContent[label] || "",
+                inputs[label], newInputContainer, (value) => // On input.
+        {
+            inputMap[label] = value;
+        }, (value) => // On Enter key.
+        {
+            inputMap[label] = value;
+            
+            if (inputIndex + 1 < addedInputs.length 
+                    && inputs[label] !== "textarea")
+            {
+                addedInputs[inputIndex + 1].focus();
+            }
+            else
+            {
+                submit();
+            }
+        });
+        
+        newInput.style.flexGrow = 1;
+        
+        inputZone.appendChild(newInputContainer);
+        
+        return newInput;
     };
+    
+    // For every given input...
+    for (var label in inputs)
+    {
+        let input = handleInput(label);
+        
+        inputMap[label] = HTMLHelper.getInputContent(input, inputs[label]);
+        addedInputs.push(input);
+    }
+    
+    // Add a submit button.
+    const submitButton = HTMLHelper.addButton("Submit", promptDialog, () =>
+    {
+        submit();
+    });
+    
+    submitButton.style.flexGrow = 1;
+    
+    return new Promise((resolve, reject) =>
+    {
+        submit = () =>
+        {
+            promptDialog.close();
+            
+            resolve(inputMap);
+        };
+    });
 };
 
 // Creates a dialog... Returns an object with

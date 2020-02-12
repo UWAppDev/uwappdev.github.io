@@ -8,31 +8,140 @@
 
 const PageDataHelper =
 {
-    loaded: true,
-    awaitLoad: () =>
-    new Promise((resolve, reject) =>
+    loaded: false,
+    awaitLoad: 
+    (async () =>
     {
-        // We don't have a backend/CMS yet,
-        //so for now, just resolve with the data.
-        resolve(PageDataHelper.pages);
+        if (!PageDataHelper.loaded)
+        {
+            for (let page in PageDataHelper.pagesLocal)
+            {
+                PageDataHelper.pages[page] = PageDataHelper.pagesLocal[page];
+            }
+            
+            PageDataHelper.loaded = true;
+            
+            // We will be using the Firebase CMS.
+            let db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+            
+            const pageTitleQuery   = await db.collection("pageTitles").get();
+            const linkedPagesDoc = await db.collection("config").doc("buttonLinks").get();
+            const publishedDocs = {};
+            const nowTime = (new Date()).getTime();
+            
+            pageTitleQuery.forEach((doc) =>
+            {
+                publishedDocs[doc.id] = true;
+            });
+            
+            // For every page...
+            const handleDoc = (docData) =>
+            {   
+                PageDataHelper.setPublished(docData.title, publishedDocs[docData.title] ? true : false);
+                
+                if (!PageDataHelper.hasCached(docData.title, docData.timestamp || nowTime)) // getTime is already in UTC.
+                {
+                    PageDataHelper.pages[docData.title] = 
+                    async () =>
+                    {
+                        let pageContent = docData.content;
+                        
+                        if (!docData.content)
+                        {
+                            const pageDoc = await db.collection("pages").doc(docData.title).get();
+                            pageContent = pageDoc.data().content;
+                        }
+                        
+                        // Store the content in the pages database.
+                        PageDataHelper.pages[docData.title] = pageContent;
+                        
+                        // Cache it.
+                        PageDataHelper.cachePage(docData.title, pageContent, docData.timestamp);
+                        
+                        return pageContent;
+                    };
+                }
+                else if (docData.content)
+                {
+                    PageDataHelper.pages[docData.title] = docData.content;
+                }
+                else
+                {
+                    PageDataHelper.recallCachedPage(docData.title);
+                }
+                
+                // If this page backs another,
+                //note that.
+                if (docData.backsPage)
+                {
+                    if (!PageDataHelper.pageBackers[docData.backsPage])
+                    {
+                        PageDataHelper.pageBackers[docData.backsPage] = [];
+                    }
+                    
+                    PageDataHelper.pageBackers[docData.backsPage].push(docData.title);
+                }
+            };
+            
+            // Let clients note document updates.
+            PageDataHelper.noteDocUpdate = handleDoc;
+            
+            // If not an admin, search the published pages.
+            if (!(await AuthHelper.isAdmin()))
+            {
+                pageTitleQuery.forEach((doc) =>
+                {
+                    handleDoc(doc.data());
+                });
+            }
+            else // Otherwise, search ALL pages.
+            {
+                let allPages = await db.collection("pages").get();
+                
+                allPages.forEach((doc) =>
+                {
+                    handleDoc(doc.data());
+                });
+            }
+            
+            // Set pages linked to with large buttons.
+            if (linkedPagesDoc.exists)
+            {
+                let pageLinks = linkedPagesDoc.data();
+                
+                for (let i in pageLinks)
+                {
+                    PageDataHelper.linkedPages[i] = pageLinks[i];
+                }
+            }
+        }
+        
+        // Now, allow the user to load the page.
+        return PageDataHelper.pages;
     }),
     
+    noteDocUpdate: null, // Not loaded yet.
     pageBackgrounds: {"About": "empty", "Events": "logoAndWalls", "Join": "logo"},
-    pages:
+    linkedPages: {},
+    pageBackers: {}, // A list of copies of pages, each with a new, proposed version.
+    publishedPages: {},
+    pages: {},
+    pagesLocal:
     {
-        "About":
+        "Mission":
         `
-            <h1>About</h1>
             <h2>Our Mission</h2>
             <center><i>To provide an inclusive environment where the beginner and the experienced alike can learn and participate in the design, development, marketing, launching, and operating processes of real-world, market-suitable mobile apps.</i></center>
+            <h2>Join</h2>
+            <p>Come to Sieg 329 this Tuesday! Show up at 5:30 PM and start learning!</p>
         `,
         
         "Events":
         `
         <h1>Local Hack Day: Build @ UW</h1>
         <p>On December 7<sup>th</sup> from 8:00 AM to 9:00 PM, 
-           Mobile Development Club will be hosting a hackathon! Come to get <strong>swag and laptop stickers</strong>, study for finals together, or learn something new through our workshops, 
-           build something awesome, and win prizes like the <strong>Amazon Echo Dot</strong>, and more!</p>
+           Mobile Development Club will be hosting a hackathon! Come to get <strong>swag and laptop stickers</strong>, study for finals together, or learn something new through our workshops.
+           Come build something awesome! Win prizes like the <strong>Amazon Echo Dot</strong>!</p>
         <button class = "hugeButton" onclick = "window.open('http://organize.mlh.io/participants/events/2874-local-hack-day-uw/register');">Register for FREE</button>
 
         <div id="schedule">
@@ -124,15 +233,253 @@ const PageDataHelper =
                 </li>
             </ul>
         </div>
-        `,
-        
-        "Join":
-        `
-            <h1>Join</h1>
-            <p>Visit our Registered Student Organization Page (on the Husky Union Building's Website) to join!</p>
-            
         `
     },
     
-    defaultPage: "Events"
+    defaultPage: "About"
+};
+
+// Helper methods.
+
+PageDataHelper.PAGES_RELOAD = "PAGE_DATA_RELOAD_EVENT";
+PageDataHelper.PAGE_BUTTONS_CHANGED = "PAGE_BUTTONS_CHANGED_EVENT";
+PageDataHelper.PAGE_PUBLISHED = "PAGE_PUBLISHED_EVENT";
+PageDataHelper.PAGE_UNPUBLISHED = "PAGE_UNPUBLISHED_EVENT";
+
+// Reload pages.
+PageDataHelper.reloadPages      = 
+async function()
+{
+    PageDataHelper.pages = {};
+    PageDataHelper.loaded = false;
+    
+    JSHelper.Notifier.notify(PageDataHelper.PAGES_RELOAD);
+};
+
+// Get the names of all pages (if any)
+//that claims to back (act as a proposed
+//version of) the given page.
+PageDataHelper.getBackers       =
+function(pageName)
+{
+    return PageDataHelper.pageBackers[pageName] || [];
+};
+
+// Get whether a page with the given name exists/has been published.
+PageDataHelper.isPublished      = 
+function(pageName)
+{
+    return PageDataHelper.publishedPages[pageName] === true; // Turns undefined into false.
+};
+
+// Get whether a page is linked to.
+PageDataHelper.hasButtonLink    =
+function(pageName)
+{
+    return PageDataHelper.linkedPages[pageName] !== undefined;
+};
+
+// Create a button link to a page.
+PageDataHelper.registerButtonLink=
+async function(pageName, buttonPrecedence, deregister)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const buttonsDoc = db.collection("config").doc("buttonLinks");
+    const buttons = await buttonsDoc.get();
+    
+    let existing = buttons.data() || {};
+    
+    // Add it!
+    if (!deregister)
+    {
+        existing[pageName] = buttonPrecedence;
+        
+        PageDataHelper.linkedPages[pageName] = pageName;
+    }
+    else
+    {
+        delete existing[pageName];
+        delete PageDataHelper.linkedPages[pageName];
+    }
+    
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_BUTTONS_CHANGED);
+    
+    await buttonsDoc.set(existing);
+    
+    return true;
+};
+
+// Note that a page has been published/unpublished
+//locally (does not contact the server).
+PageDataHelper.setPublished     =
+function(pageName, newPublished)
+{
+    PageDataHelper.publishedPages[pageName] = newPublished === undefined ? true : newPublished;
+};
+
+// Actively unpublish a page. Note: This will fail
+//unless the user has admin privileges (or something
+//is very wrong).
+PageDataHelper.unpublish        =
+async function(pageName)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const publicPages = await db.collection("pageTitles").doc(pageName);
+    
+    // Delete the title, thereby unpublishing the page.
+    await publicPages.delete();
+    
+    // We don't want local records to note that the page is
+    //published.
+    PageDataHelper.setPublished(pageName, false);
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_UNPUBLISHED + pageName);
+    
+    return true;
+};
+
+// Publishes a page. Requires admin privileges.
+//Also use this on update of a page to ensure even distribution --
+//if not called, the publication timestamp will be incorrect, potentially
+//leading to old cache data.
+PageDataHelper.publish          =
+async function(pageName)
+{
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const publicPages = await db.collection("pageTitles").doc(pageName);
+    
+    // Publish the page.
+    await publicPages.set
+    ({
+        title: pageName,
+        timestamp: (new Date()).getTime()
+     });
+    
+    // Note that the page was published.
+    PageDataHelper.setPublished(pageName, true);
+    JSHelper.Notifier.notify(PageDataHelper.PAGE_PUBLISHED + pageName);
+    
+    return true;
+};
+
+// Submit a page for a review by other admins.
+// Danger: reviewData is modified by this method.
+PageDataHelper.requestPageReview = 
+async function(pageName, reviewData)
+{
+    // Get the database.
+    const db = await CloudHelper.awaitComponent(CloudHelper.Service.FIRESTORE);
+    const reviewRequest = db.collection("reviewRequests").doc(pageName);
+
+    reviewData.pageTitle = pageName;
+
+    // Set the content.
+    await reviewRequest.set
+    (
+        reviewData
+    );
+};
+
+// Get a page.
+PageDataHelper.getPageContent   = 
+async function(pageName)
+{
+    let content = PageDataHelper.pages[pageName];
+    
+    if (typeof content == "function")
+    {
+        PageDataHelper.pages[pageName] = await content();
+    }
+    
+    return PageDataHelper.pages[pageName];
+};
+
+// Cache a page.
+PageDataHelper.cachePage = function(pageName, pageContent)
+{
+    console.log("Caching " + pageName);
+    StorageHelper.put(pageName, pageContent);
+};
+
+// Read a page from the cache and store it.
+PageDataHelper.recallCachedPage = function(pageName)
+{
+    const pageData = StorageHelper.get(pageName);
+    
+    if (pageData)
+    {
+        PageDataHelper.pages[pageName] = pageData;
+    }
+    else
+    {
+        console.error("Page data: " + pageData + " inaccessable.");
+    }
+};
+
+// Get whether a page has been cached and whether that cache has
+//not expired.
+PageDataHelper.hasCached = (pageTitle, pageTimestamp) =>
+{
+    if (!StorageHelper.has(pageTitle))
+    {
+        return false;
+    }
+
+    const pageData = StorageHelper.getItemDetails(pageTitle);
+    
+    return !pageData.malformed && pageData.created >= pageTimestamp;
+};
+
+// Search for a specific page. The search query is
+//case-insensitive. A sorted list of [page name, applicability]
+//is returned, where applicability is an arbitrary positive number
+//representing the applicability of a result to the search. Greater
+//positive numbers are considered more applicable. Results with
+//greater applicability should come first in the resultant array.
+PageDataHelper.query = async function(query)
+{
+    let results = [];
+    let matchesTitle, matchesInContent;
+    
+    await PageDataHelper.awaitLoad();
+    
+    let queryWords = query.toLowerCase().split(" ");
+    
+    const checkAgainstQuery = (text) =>
+    {
+        if (typeof text == 'function')
+        {
+            return 1; // Return 1 -- we haven't gotten the page from
+                      //the server yet.
+        }
+        
+        let resultsCount = 0;
+        let lowerCaseText = text.toLowerCase();
+        
+        for (let i = 0; i < queryWords.length; i++)
+        {
+            resultsCount += lowerCaseText.split(queryWords[i]).length - 1;
+        }
+        
+        return resultsCount;
+    };
+    
+    for (let page in PageDataHelper.pages)
+    {
+        matchesTitle     = checkAgainstQuery(page);
+        matchesInContent = checkAgainstQuery(PageDataHelper.pages[page]); // Content for unloaded
+                                                                                //pages might be null.
+        
+        if (matchesTitle + matchesInContent > 0)
+        {
+            results.push([page, matchesTitle * 10 + matchesInContent]);
+        }
+    }
+    
+    // Sort the results.
+    results.sort((a, b) =>
+    {
+        return b[1] - a[1];
+    });
+    
+    return results;
 };

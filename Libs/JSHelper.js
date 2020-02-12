@@ -54,8 +54,6 @@ JSHelper.getArrayOfRandomColors = (count, round, numComponents, ...componentRang
 {
     let result = [], currentColor, colorComponentIndex;
 
-    console.log(componentRanges);
-
     numComponents = numComponents || 4;
 
     for (let index = 0; index < count; index++)
@@ -327,56 +325,145 @@ JSHelper.Events.registerPointerEvent = function(eventName, target, onEvent, allo
     }
 };
 
+// A set of global events to be deployed through
+//the notifier. JSHelper does not fire these events.
+//The main application code should handle this.
+JSHelper.GlobalEvents = 
+{
+    PAGE_SETUP_COMPLETE: "global_e_page_setup_complete"
+};
+
 // An implementation of the observer pattern.
 JSHelper.Notifier = new
 (function()
 {
     let listeners = {};
     let listenerIdCounter = 0; // The id for the next listener.
+    let dispatchedEvents = {}; // Data concerning previously dispatched events.
     
     // Wait for eventName to be distributed by notify.
     //A message is included with the distributed event.
-    this.waitFor = (eventName) =>
+    //If fireForFirst is true, if the event has ever been
+    //triggered, the listener is fired. Listens for ANY
+    //of the given events to occur (an array, or, for a
+    //single event, a string). If multiple listeners
+    //are given, the result is an object with data and
+    //event fields. Data is the value pushed by the event
+    //and event is the event's string ID.
+    this.waitFor = (eventNames, fireForFirst) =>
     {
-        if (listeners[eventName] === undefined)
+        // If not an array...
+        if (typeof eventNames !== "object" || eventNames.length == 0)
         {
-            listeners[eventName] = {};
+            // Make it one!
+            eventNames = [eventNames];
         }
         
-        let registered = false, registeredContent;
-        let listenerId = "l" + (listenerIdCounter++); // Each listener has an ID. This is ours.
-        
-        // Put a default method in place, in case a notification comes before the next browser
-        //frame.
-        listeners[eventName][listenerId] = (content) =>
-        {
-            registered = true;
-            registeredContent = content;
-                
-            // Remove our listener.
-            delete listeners[eventName][listenerId];
+        let resolved = false,
+            resolver = undefined;
+        let eventData = undefined;
+        let resolve = (data, eventName) => 
+        { 
+            resolved = true; 
+            eventData = data;
+            resolver = eventName; // Note who resolved it.
         };
         
-        let result = new Promise((resolve, reject) =>
+        // Create the result.
+        let result = new Promise((doResolve, doReject) =>
         {
-            // Have we already put the listener?
-            if (!registered)
+            // Full data to be given to 
+            //the result when the event is ambiguous.
+            let resolveFullData = 
             {
-                listeners[eventName][listenerId] = (content) =>
+                data: eventData,
+                event: resolver
+            };
+        
+            // Only give the full data when there is more
+            //than one listener specified.
+            if (resolved && eventNames.length == 1)
+            {
+                doResolve(eventData);
+            }
+            else if (resolved)
+            {
+                doResolve(resolveFullData);
+            }
+            else if (eventNames.length == 1)
+            {
+                resolve = (...args) =>
                 {
-                    resolve.call(this, content);
-                
-                    // Remove our listener.
-                    delete listeners[eventName][listenerId];
+                    resolved = true;
+                    
+                    doResolve.apply(this, args);
                 };
             }
-            else // We already received the event!
-            {    // Notify now.
-                resolve(registeredContent);
+            else
+            {
+                resolve = (data, resolver) =>
+                {
+                    resolved = true;
+                    
+                    resolveFullData.data = data;
+                    resolveFullData.event = resolver;
+                    
+                    doResolve(resolveFullData);
+                };
             }
         });
+    
+        // Registers a single requested event.
+        const registerEvent = (eventName) =>
+        {
+            // Has the event already fired?
+            if (fireForFirst && dispatchedEvents[eventName] && dispatchedEvents[eventName].count > 0)
+            {
+                if (!resolved)
+                {
+                    resolve.call(this, dispatchedEvents[eventName].data, eventName);
+                }
+                
+                return;
+            }
+            
+            // Create a set of listeners for the event.
+            if (listeners[eventName] === undefined)
+            {
+                listeners[eventName] = {};
+            }
+            
+            let registered = false, registeredContent;
+            let listenerId = "l" + (listenerIdCounter++); // Each listener has an ID. This is ours.
+            
+            // Listen!
+            listeners[eventName][listenerId] = (content) =>
+            {
+                if (!resolved)
+                {
+                    resolve.call(this, content, eventName);
+                }
+                
+                // Remove our listener.
+                delete listeners[eventName][listenerId];
+            };
+            
+        };
         
+        // Register all events.
+        for (let i = 0; i < eventNames.length; i++)
+        {
+            registerEvent(eventNames[i]);
+        }
+        
+        // Return a promise!
         return result;
+    };
+    
+    // Wait for any of the given events to occur.
+    this.waitForAny = (...events) =>
+    {
+        return this.waitFor.call(this, events);
     };
     
     // Notify all listeners on eventName.
@@ -393,5 +480,120 @@ JSHelper.Notifier = new
                 }
             }
         }
+        
+        if (!dispatchedEvents[eventName])
+        {
+            dispatchedEvents[eventName] = { count: 0, data: undefined };
+        }
+        
+        dispatchedEvents[eventName].count++;
+        dispatchedEvents[eventName].data = content;
     };
 })();
+
+// A method that throws.
+JSHelper.NotImplemented = (signature, message) => 
+{
+    signature = signature || "";
+    message = message || "";
+
+    return () => 
+    {
+        throw "Not implemented: " + signature + " " + message;
+    };
+};
+
+// Count the number of characters in charset in the given text.
+JSHelper.getCharCount = (text, charset) =>
+{
+    let charCount = 0;
+    
+    for (let i = 0; i < text.length; i++)
+    {
+        if (charset.indexOf(text.charAt(i)) !== -1)
+        {
+            charCount++;
+        }
+    }
+    
+    return charCount;
+};
+
+// Unite two maps. Key/value pairs in
+// the first map take precedence.
+JSHelper.mapUnite = (map1, map2) =>
+{
+    let result = {};
+
+    for (let key in map2)
+    {
+        result[key] = map2[key];
+    }
+
+    for (let key in map1)
+    {
+        result[key] = map1[key];
+    }
+
+    return result;
+};
+
+// Get the next animation frame in a promise.
+JSHelper.nextAnimationFrame = () =>
+{
+    // A promise should push to the next frame,
+    //but in case the browser doesn't render between
+    //promises as it does for animation frames, pass it to an
+    //animation frame.
+    let result = new Promise((resolve, reject) =>
+    {
+        requestAnimationFrame(() => { resolve(true); });
+    });
+    
+    return result;
+};
+
+// Wait for waitTime milliseconds. Returns a promise.
+JSHelper.waitFor = (waitTime) =>
+{
+    let result = new Promise((resolve, reject) =>
+    {
+        setTimeout(() => { resolve(true); }, waitTime);
+    });
+    
+    return result;
+};
+
+// Override some default behaviour! Much of this is for
+//accessibility! Note: JSHelper_replacedMethods contains
+//refrences to browser-based functions. SerializationHelper
+//can't serialize these, so put them in a different object.
+const JSHelper_replacedMethods = {};
+JSHelper_replacedMethods.addEventListener = HTMLElement.prototype.addEventListener;
+
+// Define a new event, push, that awaits both clicks and
+//the press of the enter key.
+HTMLElement.prototype.addEventListener = 
+function (eventType, onEnact, ...allOthers)
+{
+    if (eventType === "click")
+    {
+        eventType = "keyup";
+        JSHelper_replacedMethods.addEventListener.apply(this, [eventType, 
+        function(event)
+        {
+            if (event.keyCode === 13) // Enter key.
+            {
+                // Make it look somewhat like a mouse event.
+                event.button = 0;
+                
+                onEnact.apply(this, arguments);
+            }
+        }].concat(allOthers));
+        
+        // Now, on click!
+        eventType = "click";
+    }
+    
+    return JSHelper_replacedMethods.addEventListener.apply(this, arguments);
+};

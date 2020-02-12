@@ -61,10 +61,23 @@
     transition: 0.5s ease all;
 }
 
-.navabar .logo:hover
+.navabar .logo:hover, .logo:focus
 {
-    transform: rotate(-5deg);
+    transform: rotate(-5deg) scale(1.1, 1.1);
     cursor: pointer;
+}
+
+.logo:focus
+{
+    background-color: rgba(0, 255, 0, 1.0);
+}
+
+.logo
+{
+    box-shadow: 1px 2px 4px rgba(100, 100, 100, 0.6);
+    border-radius: 100%;
+    background-color: rgba(100, 100, 100, 1.0);
+    background-image: radial-gradient(rgba(155, 0, 100, 0.6), rgba(155, 0, 100, 0.6), black);
 }
 
 .navabar button
@@ -132,12 +145,20 @@ body
     background-size: 5px 5px;
 }
 
-.logo
+.profilePhoto
 {
-    box-shadow: 1px 2px 4px rgba(100, 100, 100, 0.6);
     border-radius: 100%;
-    background-color: white;
-    background-image: radial-gradient(purple, purple, black);
+    box-shadow: 0px 0px 3px rgba(0, 0, 255, 0.6);
+    
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: content;
+    
+    max-width: 100%;
+    max-height: 100%;
+    
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .blade
@@ -181,6 +202,12 @@ body
     cursor: pointer;
 }
 
+.blade .authCommands
+{
+    display: flex;
+    flex-direction: column;
+}
+
 .bladeClosed
 {
     margin-left: -300px; /* The blade's maximum width. */
@@ -191,6 +218,321 @@ body
 {
     margin-left: 0px;
     filter: opacity(100%);
+}
+
+.searchContainer
+{
+    display: flex;
+    flex-shrink: 1;
+}
+
+.searchContainer input
+{
+    flex-grow: 3;
+    flex-shrink: 2;
+    
+    background-color: white;
+    background-image: none;
+    color: rgba(60, 60, 60, 0.8);
+    
+    border-radius: 2em;
+    border: 0px solid white;
+    padding: 8px;
+    
+    margin-right: 3px;
+    
+    font-size: 11pt;
+}
+
+.searchContainer button
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: white;
+    
+    font-weight: bold;
+    font-size: 16pt;
+}
+
+.searchResults
+{
+    padding: 8px;
+    
+    font: 12pt Serif;
+    
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    display: flex;
+    flex-direction: column;
+    
+    color: white;
+}
+
+.searchResults button
+{
+    color: white;
+}
+
+.accountWindow
+{
+    box-shadow: 0px 0px 64px rgba(0, 0, 255, 0.7);
+    background-image: linear-gradient(25deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8));
+    background-color: rgba(150, 0, 100, 0.9);
+}
+
+.accountWindowTitleBar, .accountWindowSecuredSettingsTitleBar
+{
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0.0);
+    color: black;
+    
+    box-shadow: none;
+    
+    border-top-right-radius: 2px;
+}
+
+.accountWindowSecuredSettings
+{
+    box-shadow: 0px 0px 64px rgba(0, 0, 255, 0.7);
+    background-image: linear-gradient(25deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3));
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.accountWindowSecuredSettingsTitleBar
+{
+    color: white;
+}
+
+.pageManagementWindow
+{
+    background-image: none;
+    box-shadow: 0px 0px 64px rgba(0, 0, 0, 0.4);
+    background-color: white;
+}
+
+.pageManagementWindowTitleBar
+{
+    background-color: white;
+    background-image: none;
+    border-top-left-radius: 8px;
+    box-shadow: none;
+    color: black;
+}
+
+.pageListManage
+{
+    border-right: 1px solid black;
+    padding: 6px;
+    flex-grow: 1;
+    flex-shrink: 2;
+    
+    max-width: 250px;
+    
+    display: flex;
+    flex-direction: column;
+    
+    margin-left: 0px;
+    opacity: 1;
+    
+    transition: 0.4s ease all;
+}
+
+.pageListManage.hidden
+{
+    margin-left: -256px;
+    opacity: 0.5;
+}
+
+.pageEditManage
+{
+    padding-left: 3px;
+    flex-grow: 2;
+    flex-shrink: 1;
+    display:flex;
+    flex-direction: column-reverse;
+    overflow: hidden;
+}
+
+.pageListItemManage
+{
+    border-bottom: 1px solid black;
+    padding: 6px;
+    
+    cursor: pointer;
+    
+    font: 14pt Sans;
+    
+    background-color: rgba(255, 255, 255, 0.8);
+    
+    transition: 0.3s ease background-color;
+}
+
+.pageListItemManage.published
+{
+    font-weight: bold;
+    background-image: linear-gradient(90deg, rgba(0, 255, 0, 0.3), 
+            rgba(0, 255, 0, 0.1), rgba(0, 0, 0, 0.0));
+}
+
+.pageListItemManage.selected::after
+{
+    content: "*";
+    color: #999999;
+    
+    float: right;
+}
+
+.pageListItemManage.selected
+{
+    background-color: rgba(200, 200, 200, 0.8);
+}
+
+/* Button to hide/show the page manager. */
+.showPane
+{
+    opacity: 1;
+    height: 1.6em;
+    font: 1em Sans;
+    color: white;
+    
+    transition: 1s ease all;
+}
+
+.showPane.hidden
+{
+    opacity: 0;
+    height: 0em;
+}
+
+.pageEditor
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+    height: 95%;
+    padding-top: 8%;
+}
+
+.pageEditor .codeEditorContainer
+{
+    background-color: black;
+    padding-top: 2px;
+    height: calc(90% - 15px);
+}
+
+.pageEditor .textEditorContainer
+{
+    width: 100%;
+    height: 100%;
+}
+
+.pageEditor .textEditorContainer textarea
+{
+    width: calc(100% - 1px);
+    height: calc(94% - 1px);
+}
+
+.pageEditor .previewContainer
+{
+    height: 100%;
+    width: 100%;
+}
+
+.pageEditor .previewContainer iframe
+{
+    height: 75% !important;
+    width: calc(100% - 6px);
+    border: 1px solid gray;
+}
+
+.pageEditor .actionsContainer::before
+{
+    transition: 0.5s ease all;
+    
+    position: absolute;
+    
+    bottom: 0;
+    left: calc(100% + 8px);
+    background-color: white;
+    opacity: 0;
+    
+    content: "Note: This page seems to be unpublished. It should be safe to update.";
+    
+    font: bold italic 13pt Serif;
+    
+    border-radius: 10px;
+    
+    max-width: 150px;
+    display: inline-block;
+}
+
+.pageEditor .actionsContainer.publishedPageNotice::before
+{
+    content: "Danger! This page is published! Consider making a copy and submitting it for review rather than updating this page.";
+    
+    padding: 12px;
+    
+    box-shadow: 0px 0px 16px rgba(255, 0, 0, 0.5);
+    
+    transform: scale(1, 1);
+    opacity: 1;
+    
+    animation: 3s ease fadeIn;
+}
+
+.pageEditor .pageEditTabOptions
+{
+    opacity: 1;
+    transition: 1s ease opacity;
+}
+
+.pageEditor .pageEditTabOptions.inactive:before
+{
+    color: black;
+    font: 8pt Serif;
+    content: "Waiting for page selection...";
+    
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+
+    position: absolute;
+    z-index: 2;
+    bottom: 0px;
+
+    padding: 8px;
+}
+
+.pageEditor .pageEditTabOptions.inactive
+{
+    opacity: 0.6;
+}
+
+.pageEditor input.pageNameInput
+{
+    background-color: white;
+    background-image: linear-gradient(10deg, white, rgba(255, 240, 255, 0.6), white);
+    height: 1.6em;
+    
+    position: absolute;
+    top: 0em;
+    opacity: 0.95;
+    z-index: 5;
+    
+    font: 1em Sans;
+    color: black;
+    transform: scale(1, 1.1);
+    
+    transition: 0.4s ease all;
+}
+
+.pageEditor input.pageNameInput:focus, .pageEditor input.pageNameInput:active,
+        .pageEditor input.pageNameInput:hover
+{
+    top: 0em;
+    opacity: 1;
+    transform: scale(1, 1);
 }
 
 .content
@@ -365,7 +707,8 @@ a:hover
     }
 }
 
-.lhdStudyGroup::before {
+.lhdStudyGroup::before 
+{
     content: "Study Group";
     background-color: skyblue;
     border-radius: 10px;
@@ -373,7 +716,8 @@ a:hover
     margin-right: 10px;
 }
 
-.lhdWorkshop::before {
+.lhdWorkshop::before 
+{
     content: "Workshop";
     background-color: greenyellow;
     border-radius: 10px;
@@ -381,30 +725,36 @@ a:hover
     margin-right: 10px;
 }
 
-.lhdSchedule {
+.lhdSchedule 
+{
     font: 11pt mono, monospace, courier, sans;
     list-style: none;
     padding-left: 0;
 }
 
-.lhdSchedule > li {
+.lhdSchedule > li 
+{
     margin: 5px 0;
 }
 
-.qaSection {
+.qaSection, .mainDetails
+{
     list-style: none;
     column-count: 2;
     padding: 0 10px;
     margin: 0 0 16px 0;
 }
 
-@media screen and (max-width: 750px) {
-    .qaSection {
+@media screen and (max-width: 750px) 
+{
+    .qaSection, .mainDetails 
+    {
         column-count: 1;
     }
 }
 
-details {
+details 
+{
     -webkit-column-break-inside: avoid;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -418,26 +768,31 @@ details {
     transition: all 400ms ease-in-out;
 }
 
-details:hover {
+details:hover 
+{
     box-shadow: 0 0 6px palevioletred;
 }
 
-summary {
+summary 
+{
     font-size: large;
     font-weight: bold;
     margin: -.5em -.5em 0;
     padding: .5em;
 }
 
-summary:hover {
+summary:hover 
+{
     cursor: pointer;
 }
 
-details[open] {
+details[open] 
+{
     padding: .5em;
 }
 
-details[open] summary {
+details[open] summary 
+{
     border-bottom: 1px solid #aaa;
     margin-bottom: .5em;
 }
