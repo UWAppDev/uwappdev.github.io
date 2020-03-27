@@ -296,6 +296,55 @@ body
     }
 }
 
+/* Smaller, styled widgets. */
+.dropdown > .content
+{
+    max-height: 0px; /* If not expanded, hide the content. */
+    overflow: auto; /* The content will have a finite max-height. Scroll if it reaches this. */
+
+    transform-origin: top center;
+    transform: scale(1, 0);
+    transition: 0.5s ease all;
+}
+
+.dropdown.expanded > .content
+{
+    max-height: 500px;
+    transform: scale(1, 1);
+}
+
+.dropdown > .title
+{
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+}
+
+/* The arrow */
+.dropdown > .title > .arrow
+{
+    height: 10px;
+
+    /* Center vertically. */
+    margin-top: auto;
+    margin-bottom: auto;
+
+    /* Don't expand. */
+    flex-grow: 0;
+
+    /* Spacing */
+    margin-right: 15px;
+
+    /* Rotation and animation. */
+    transform: rotate(0deg);
+    transition: 0.5s ease all;
+}
+
+.dropdown.expanded > .title > .arrow
+{
+    transform: rotate(90deg);
+}
+
 /* Global, element-based styling. */
 a
 {

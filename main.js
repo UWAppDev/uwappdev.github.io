@@ -72,12 +72,14 @@ async function makeDropdownsAnimatable()
         ctx.lineTo(ctx.canvas.width, ctx.canvas.height / 2);
         ctx.lineTo(0, ctx.canvas.height);
         ctx.lineTo(0, 0);
+
+        ctx.fill();
     };
 
     // Configure a single dropdown element.
     // requires that each dropdown's first child is its title.
     // Content MUST be wrapped in a div after the title.
-    const configureDropdown = (elem) =>
+    const configureDropdown = async (elem) =>
     {
         if (!elem || !elem.children 
             || elem.children.length !== 2) // Only animate if exactly two children.
@@ -118,10 +120,28 @@ async function makeDropdownsAnimatable()
         dropdownContainer.classList.add('dropdown');
 
         // Resize the arrow (should be resized also by CSS).
-        arrow.width = 100;
-        arrow.height = 100;
+        arrow.width = 200;
+        arrow.height = 200;
+        renderArrow(arrow);
 
         // Events.
+        const toggleState = () =>
+        {
+            if (dropdownContainer.classList.contains('expanded'))
+            {
+                dropdownContainer.classList.remove('expanded');
+            }
+            else
+            {
+                dropdownContainer.classList.add('expanded');
+            }
+        };
+
+        titleContainer.addEventListener('click', () => { toggleState(); });
+        titleContainer.addEventListener('keydown', (e) => { if (e.keyCode == 13) { toggleState(); }}); // On enter-key press.
+
+        // Usability.
+        titleContainer.setAttribute('tabIndex', 1);
 
         // Build element hierarchy
         dropdownContainer.appendChild(titleContainer);
@@ -135,7 +155,7 @@ async function makeDropdownsAnimatable()
 
     for (const elem of dropdowns)
     {
-        configureDropdown(elem);
+        await configureDropdown(elem);
     }
 }
 
