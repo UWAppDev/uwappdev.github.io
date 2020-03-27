@@ -20,7 +20,7 @@
         <p>
             We have taught Flutter, SwiftUI, and even introductory Android
             development! Want to learn or teach a different platform?
-            <a href = "mailto:appdev@uw.edu">Let us know.</a>
+            <a href = "https://discord.gg/ZyDM5Br">Let us know.</a>
         </p>
     </div>
     `,
@@ -96,6 +96,15 @@ async function makeDropdownsAnimatable()
         const dropdownContainer = parentElem.insertBefore(
                 document.createElement('div'), // New node
                 elem); // referenceNode (what newNode is inserted before).
+
+        // Add any additional class labels to the dropdown container.
+        for (const newClass of elem.classList)
+        {
+            if (newClass)
+            {
+                dropdownContainer.classList.add(newClass);
+            }
+        }
 
         // Remove the element.
         parentElem.removeChild(elem);

@@ -314,6 +314,9 @@ body
 
     /* Give the content a border, to better associate it with the dropdown. */
     border-left: 1px solid gray;
+
+    /* General content styling */
+    font-size: 12pt;
 }
 
 .dropdown.expanded > .content
@@ -365,6 +368,8 @@ body
     background-repeat: no-repeat;
     background-size: 0% 100%;
     background-position-x: left;
+
+    font-size: 110%; /* Slight font-size increas */
 
     transition: 0.5s ease all;
 }
