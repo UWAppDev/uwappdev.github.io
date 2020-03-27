@@ -302,14 +302,25 @@ body
     max-height: 0px; /* If not expanded, hide the content. */
     overflow: auto; /* The content will have a finite max-height. Scroll if it reaches this. */
 
+
+    /* Transformation gives a smoother animation, but we need height-based animation, too. */
     transform-origin: top center;
     transform: scale(1, 0);
+
+    padding: 0 0 0 0; /* Changing the padding provides a neat animation! */
+    margin: 0 0 0 0;
+
     transition: 0.5s ease all;
+
+    /* Give the content a border, to better associate it with the dropdown. */
+    border-left: 1px solid gray;
 }
 
 .dropdown.expanded > .content
 {
     max-height: 500px;
+    padding: 10px 20px 10px 20px;
+    margin: 0 0 10px 0;
     transform: scale(1, 1);
 }
 
@@ -343,6 +354,25 @@ body
 .dropdown.expanded > .title > .arrow
 {
     transform: rotate(90deg);
+}
+
+/* The title content */
+.dropdown > .title > .content
+{
+    /* Render a changing-size underline to provide visual feedback for selection/hovering. */
+    background-image: linear-gradient(rgba(255, 255, 255, 0.8) 95%, rgba(0, 0, 0, 0.8) 5%);
+
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    background-position-x: left;
+
+    transition: 0.5s ease all;
+}
+
+.dropdown > .title:hover > .content,
+.dropdown > .title:focus > .content
+{
+    background-size: 100% 100%;
 }
 
 /* Global, element-based styling. */

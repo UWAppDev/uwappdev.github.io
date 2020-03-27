@@ -58,7 +58,7 @@ async function replaceSelectors()
  */
 async function makeDropdownsAnimatable()
 {
-    const dropdowns = document.getElementsByTagName("details");
+    const dropdowns = document.querySelectorAll("details");
 
     // Render an arrow onto a canvas. The arrow points
     //right and can be rotated using CSS.
@@ -113,10 +113,10 @@ async function makeDropdownsAnimatable()
         contentContainer.innerHTML = contentHTML;
 
         // Styling
-        title.classList.add('titleContent');
+        title.classList.add('content'); // title and contentContainer have different parent elements, so both can have class content...
         arrow.classList.add('arrow');
         titleContainer.classList.add('title');
-        contentContainer.classList.add('content');
+        contentContainer.classList.add('content'); // ...we can still distinguish them.
         dropdownContainer.classList.add('dropdown');
 
         // Resize the arrow (should be resized also by CSS).
