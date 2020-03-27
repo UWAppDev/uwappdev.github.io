@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * This script defines and fills the content of 
  * standard elements; e.g. the footer.
@@ -33,9 +35,11 @@
 
 /**
  *  replaceSelectors replaces all selectors provided in CONTENT_REPLACEMENTS
- * with their content, as defined in CONTENT_REPLACEMENTS.
+ * with their content, as defined in CONTENT_REPLACEMENTS. replaceSelectors
+ * is async, allowing calling code to push itself to the next animation frame
+ * for further DOM manipulations.
  */
-function relpaceSelectors()
+async function replaceSelectors()
 {
     for (const selector in CONTENT_REPLACEMENTS)
     {
@@ -48,7 +52,11 @@ function relpaceSelectors()
     }
 }
 
-function makeDropdownsAnimatable()
+/**
+ * Find all <details> ... </details> elements
+ * and make their resize animatable.
+ */
+async function makeDropdownsAnimatable()
 {
     const dropdowns = document.getElementsByTagName("details");
 
@@ -98,12 +106,31 @@ function makeDropdownsAnimatable()
         const arrow = document.createElement("canvas");
         const title = document.createElement("div");
 
+        // Fill content.
+        title.innerHTML = titleHTML;
+        contentContainer.innerHTML = contentHTML;
+
         // Styling
         title.classList.add('titleContent');
         arrow.classList.add('arrow');
         titleContainer.classList.add('title');
         contentContainer.classList.add('content');
         dropdownContainer.classList.add('dropdown');
+
+        // Resize the arrow (should be resized also by CSS).
+        arrow.width = 100;
+        arrow.height = 100;
+
+        // Events.
+
+        // Build element hierarchy
+        dropdownContainer.appendChild(titleContainer);
+        dropdownContainer.appendChild(contentContainer);
+        
+        titleContainer.appendChild(arrow);
+        titleContainer.appendChild(title);
+        
+        return true;
     };
 
     for (const elem of dropdowns)
@@ -113,5 +140,10 @@ function makeDropdownsAnimatable()
 }
 
 // On page load...
-replaceSelectors();
-makeDropdownsAnimatable();
+async function main()
+{
+    await replaceSelectors();
+    await makeDropdownsAnimatable();
+}
+
+main();
