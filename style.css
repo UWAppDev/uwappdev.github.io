@@ -23,19 +23,19 @@ body
     top: 0;
     left: 0;
 
-    perspective: 1px; /* 
+    perspective: 1px; /*
                         Causes parallax. Note: Changing this value requires a change
                         in the scale of background entities.
                        */
-    
+
     /* Scroll the parallax region. */
     width: 100vw;
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
 
-    /* 
-        There might be additional space at the end of the page. 
+    /*
+        There might be additional space at the end of the page.
         Give the page a background image that can fill that space!
     */
     /* background-image varies from page to page, so is set in the HTML. */
@@ -81,7 +81,7 @@ body
     height: 100vh;
     overflow-y: hidden;
 
-    transform: translateZ(-1px) scale(2); /* 
+    transform: translateZ(-1px) scale(2); /*
                                             Scale the background image to
                                             adjust its size for perspective.
                                            */
@@ -135,7 +135,7 @@ body
     overflow-x: hidden;
     overflow-y: auto;
 
-    padding-top: 40px;
+    padding-top: 54px;
     padding-bottom: 0;
 
     display: flex;
@@ -147,7 +147,7 @@ body
 {
     /* Center and background. */
     max-width: 1234px;
-    
+
     margin-left: auto; /* Center it! */
     margin-right: auto;/*            */
 
@@ -199,39 +199,38 @@ body
     padding-right: 20px;
 }
 
-.paneContent .footer
+.paneContent footer
 {
     margin-top: 50px;
     margin-bottom: 0;
 }
 
-.header
+header
 {
     display: flex;
     flex-direction: row;
+    justify-content: space-evenly;
+    text-align: center;
 
     z-index: 4;
 
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
+
+    padding: 10px 0;
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
-.header > *
-{
-    flex-grow: 1;
-    text-align: center;
-}
-
-.header > a
+header > a
 {
     color: white;
     text-decoration: none;
     font: italic 16pt Sans;
 }
 
-.footer
+footer
 {
     background-color: #334433;
     color: white;
@@ -250,7 +249,7 @@ body
     width: 100vw;
 }
 
-.footer > .img
+footer > .img
 {
     flex-shrink: 1;
     flex-grow: 1;
@@ -262,7 +261,7 @@ body
     background-repeat: no-repeat;
 }
 
-.footer > .content
+footer > .content
 {
     flex-grow: 1;
 
@@ -275,14 +274,14 @@ body
     margin-right: auto;
 }
 
-.footer a
+footer a
 {
     color: orange;
 }
 
 @media screen and (max-width: 1234px)
 {
-    .footer
+    footer
     {
         font-size: 12pt;
     }
@@ -290,7 +289,7 @@ body
 
 @media screen and (max-width: 700px)
 {
-    .footer > .img
+    footer > .img
     {
         display: none;
     }
