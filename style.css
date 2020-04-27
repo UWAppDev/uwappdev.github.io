@@ -135,7 +135,7 @@ body
     overflow-x: hidden;
     overflow-y: auto;
 
-    padding-top: 40px;
+    padding-top: 54px;
     padding-bottom: 0;
 
     display: flex;
@@ -209,19 +209,18 @@ header
 {
     display: flex;
     flex-direction: row;
+    justify-content: space-evenly;
+    text-align: center;
 
     z-index: 4;
 
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
-}
 
-header > *
-{
-    flex-grow: 1;
-    text-align: center;
+    padding: 10px 0;
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 header > a
