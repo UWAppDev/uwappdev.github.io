@@ -7,7 +7,7 @@
 
  const CONTENT_REPLACEMENTS =
  {
-    '.footer':
+    'footer':
     `
     <div class = "img" style = "background-image: Url(/images/joinUs.png);"></div>
     <div class = "content">

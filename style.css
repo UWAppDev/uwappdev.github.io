@@ -199,7 +199,7 @@ body
     padding-right: 20px;
 }
 
-.paneContent .footer
+.paneContent footer
 {
     margin-top: 50px;
     margin-bottom: 0;
@@ -231,7 +231,7 @@ header > a
     font: italic 16pt Sans;
 }
 
-.footer
+footer
 {
     background-color: #334433;
     color: white;
@@ -250,7 +250,7 @@ header > a
     width: 100vw;
 }
 
-.footer > .img
+footer > .img
 {
     flex-shrink: 1;
     flex-grow: 1;
@@ -262,7 +262,7 @@ header > a
     background-repeat: no-repeat;
 }
 
-.footer > .content
+footer > .content
 {
     flex-grow: 1;
 
@@ -275,14 +275,14 @@ header > a
     margin-right: auto;
 }
 
-.footer a
+footer a
 {
     color: orange;
 }
 
 @media screen and (max-width: 1234px)
 {
-    .footer
+    footer
     {
         font-size: 12pt;
     }
@@ -290,7 +290,7 @@ header > a
 
 @media screen and (max-width: 700px)
 {
-    .footer > .img
+    footer > .img
     {
         display: none;
     }
