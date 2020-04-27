@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * This script defines and fills the content of 
+ * This script defines and fills the content of
  * standard elements; e.g. the footer.
  */
 
@@ -12,9 +12,9 @@
     <div class = "img" style = "background-image: Url(/images/joinUs.png);"></div>
     <div class = "content">
         <p><a href = "/pages/join.html"><i>Join Us!</i></a>
-            Do you have a project you want to share? 
-            A framework you want to learn? A team you want to create? 
-            Something else? Join us! All University of Washington 
+            Do you have a project you want to share?
+            A framework you want to learn? A team you want to create?
+            Something else? Join us! All University of Washington
             students are welcome!
         </p>
         <p>
@@ -25,7 +25,7 @@
     </div>
     `,
 
-    '.header': 
+    'header':
     `
         <a href = "/pages/about.html">About</a>
         <a href = "/pages/support.html">Support Us</a>
@@ -81,7 +81,7 @@ async function makeDropdownsAnimatable()
     // Content MUST be wrapped in a div after the title.
     const configureDropdown = async (elem) =>
     {
-        if (!elem || !elem.children 
+        if (!elem || !elem.children
             || elem.children.length !== 2) // Only animate if exactly two children.
         {
             return;
@@ -155,10 +155,10 @@ async function makeDropdownsAnimatable()
         // Build element hierarchy
         dropdownContainer.appendChild(titleContainer);
         dropdownContainer.appendChild(contentContainer);
-        
+
         titleContainer.appendChild(arrow);
         titleContainer.appendChild(title);
-        
+
         return true;
     };
 

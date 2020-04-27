@@ -23,19 +23,19 @@ body
     top: 0;
     left: 0;
 
-    perspective: 1px; /* 
+    perspective: 1px; /*
                         Causes parallax. Note: Changing this value requires a change
                         in the scale of background entities.
                        */
-    
+
     /* Scroll the parallax region. */
     width: 100vw;
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
 
-    /* 
-        There might be additional space at the end of the page. 
+    /*
+        There might be additional space at the end of the page.
         Give the page a background image that can fill that space!
     */
     /* background-image varies from page to page, so is set in the HTML. */
@@ -81,7 +81,7 @@ body
     height: 100vh;
     overflow-y: hidden;
 
-    transform: translateZ(-1px) scale(2); /* 
+    transform: translateZ(-1px) scale(2); /*
                                             Scale the background image to
                                             adjust its size for perspective.
                                            */
@@ -147,7 +147,7 @@ body
 {
     /* Center and background. */
     max-width: 1234px;
-    
+
     margin-left: auto; /* Center it! */
     margin-right: auto;/*            */
 
@@ -205,7 +205,7 @@ body
     margin-bottom: 0;
 }
 
-.header
+header
 {
     display: flex;
     flex-direction: row;
@@ -218,13 +218,13 @@ body
     right: 0;
 }
 
-.header > *
+header > *
 {
     flex-grow: 1;
     text-align: center;
 }
 
-.header > a
+header > a
 {
     color: white;
     text-decoration: none;
