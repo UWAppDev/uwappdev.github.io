@@ -123,6 +123,12 @@ body
     padding-top: 150vh;
 }
 
+/*  */
+.parallax :nth-child(2)
+{
+    box-shadow: 0px -200px 1px black;   
+}
+
 /* Another method for displaying content. */
 .paneContent
 {
