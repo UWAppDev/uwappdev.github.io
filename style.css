@@ -125,7 +125,7 @@ body
 
 /* Make the shift between the first parallax pane
    and the background less noticable. */
-.parallax :nth-child(2)
+.parallax > :nth-child(2)
 {
     box-shadow: 0px -200px 1px black;   
 }
