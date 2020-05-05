@@ -135,7 +135,6 @@ body
     overflow-x: hidden;
     overflow-y: auto;
 
-    padding-top: 54px;
     padding-bottom: 0;
 
     display: flex;
@@ -214,7 +213,7 @@ header
 
     z-index: 4;
 
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
