@@ -27,10 +27,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.5"
-     inkscape:cx="1094.1616"
-     inkscape:cy="195.13421"
+     inkscape:cx="875.22555"
+     inkscape:cy="185.44343"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer2"
      inkscape:document-rotation="0"
      showgrid="true"
      units="px"
@@ -56,130 +56,138 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:groupmode="layer"
      id="layer2"
-     inkscape:label="Background" />
-  <g
-     inkscape:label="Logo"
-     inkscape:groupmode="layer"
-     id="layer1">
-    <g
-       inkscape:groupmode="layer"
-       id="layer3"
-       inkscape:label="Background"
-       style="opacity:1">
-      <path
-         style="fill:#ff9955;fill-opacity:1;stroke:none;stroke-width:0.593962px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="M 67.733329,19.314581 95.05561,34.757609 V 65.643663 L 67.733329,82.274615 41.005012,66.237625 V 34.757607 C 50.171678,29.514306 58.637166,24.678982 67.733329,19.314581 Z"
-         id="path915"
-         sodipodi:nodetypes="ccccccc" />
-      <path
-         style="opacity:1;fill:none;stroke:#000000;stroke-width:4.4898;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         d="m 68.327293,8.6232538 c -6.533589,0 -16.630952,-1.1879254 -28.510204,9.5034012 -6.930631,7.408354 -11.879253,17.224916 -12.473215,29.69813 0,11.879253 2.37585,20.194728 11.285289,30.292093 -0.26458,-0.0648 14.81667,15.545622 14.81667,15.545622 l -0.56157,26.62573 23.164543,-1e-5 h 9.503401 l -0.09179,-26.890303 c 7.127551,-9.701389 15.534823,-15.875001 21.474453,-30.130103 1.78189,-5.939625 1.94703,-11.510784 0,-24.352467 C 105.08863,29.998778 101.86458,23.8125 93.927083,17.197917 83.34375,9.2604167 76.729167,8.73125 68.327293,8.6232538 Z"
-         id="path35"
-         sodipodi:nodetypes="ccccccccccccc" />
-      <rect
-         style="stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect860"
-         width="29.104168"
-         height="4.7517037"
-         x="54.666149"
-         y="107.22105" />
-      <rect
-         style="stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect860-3"
-         width="29.104168"
-         height="4.7517037"
-         x="54.666149"
-         y="112.56671" />
-      <rect
-         style="stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect877"
-         width="4.1577349"
-         height="12.473211"
-         x="61.199741"
-         y="94.15387" />
-      <rect
-         style="stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect877-6"
-         width="4.1577349"
-         height="12.473211"
-         x="73.079002"
-         y="94.15387" />
-      <rect
-         style="stroke-width:4.49889;stroke-miterlimit:4;stroke-dasharray:none"
-         id="rect897"
-         width="17.224915"
-         height="4.2542143"
-         x="60.605778"
-         y="127.41577" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-         x="101.9412"
-         y="95.733269"
-         id="text28"><tspan
-           sodipodi:role="line"
-           id="tspan26"
-           x="101.9412"
-           y="95.733269"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:22.5778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583">Mobile Development Club</tspan></text>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.264583"
+     inkscape:label="Label">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.264583;"
+       x="372.64444"
+       y="110.40854"
+       id="text32"><tspan
+         sodipodi:role="line"
+         id="tspan30"
          x="372.64444"
          y="110.40854"
-         id="text32"><tspan
-           sodipodi:role="line"
-           id="tspan30"
-           x="372.64444"
-           y="110.40854"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;stroke-width:0.264583">@ UW</tspan></text>
-    </g>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;stroke-width:0.264583;fill-opacity:1;">@ UW</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#223c5f;fill-opacity:1;stroke:none;stroke-width:0.264583;"
+       x="101.9412"
+       y="95.733269"
+       id="text28"><tspan
+         sodipodi:role="line"
+         id="tspan26"
+         x="101.9412"
+         y="95.733269"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:22.5778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#223c5f;stroke-width:0.264583;fill-opacity:1;">Mobile Development Club</tspan></text>
     <g
-       inkscape:groupmode="layer"
-       id="layer4"
-       inkscape:label="Foreground">
-      <path
-         style="fill:#000000;stroke:#000000;stroke-width:0.258767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 80.329797,60.854164 -3.036956,-3.175 6.580072,-6.614583 -6.833151,-6.879167 3.036956,-3.175 9.617029,10.054166 z"
-         id="path921"
-         sodipodi:nodetypes="ccccccc" />
-      <rect
-         style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
-         id="rect19"
-         width="5.2916656"
-         height="4.2333331"
-         x="65.616669"
-         y="39.952084" />
-      <path
-         style="fill:#000000;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 56.091663,60.854164 3.175,-3.175 -6.879167,-6.614583 7.14375,-6.879167 -3.175,-3.175 -10.054167,10.054166 z"
-         id="path919"
-         sodipodi:nodetypes="ccccccc" />
-      <rect
-         style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
-         id="rect19-3"
-         width="5.2916656"
-         height="4.2333331"
-         x="65.616669"
-         y="48.683334"
-         inkscape:transform-center-x="0.62270103"
-         inkscape:transform-center-y="-9.4564009" />
-      <rect
-         style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
-         id="rect871"
-         width="5.2916656"
-         height="4.2333331"
-         x="65.616669"
-         y="57.679169"
-         inkscape:transform-center-x="0.62270103"
-         inkscape:transform-center-y="-9.4564009" />
+       id="g102"
+       transform="translate(8.4666672)">
+      <g
+         id="layer2-8"
+         inkscape:label="Background" />
+      <g
+         inkscape:label="Logo"
+         id="layer1"
+         transform="translate(-11.676175,0.52916933)">
+        <g
+           inkscape:groupmode="layer"
+           id="layer3"
+           inkscape:label="Background"
+           style="opacity:1">
+          <path
+             style="fill:#fd8c3e;fill-opacity:1;stroke:none;stroke-width:0.593962px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="M 67.733329,19.314581 95.05561,34.757609 V 65.643663 L 67.733329,82.274615 41.005012,66.237625 V 34.757607 C 50.171678,29.514306 58.637166,24.678982 67.733329,19.314581 Z"
+             id="path915"
+             sodipodi:nodetypes="ccccccc" />
+          <path
+             style="opacity:1;fill:none;stroke:#223c5f;stroke-width:4.4898;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             d="m 68.327293,8.6232538 c -6.533589,0 -16.630952,-1.1879254 -28.510204,9.5034012 -6.930631,7.408354 -11.879253,17.224916 -12.473215,29.69813 0,11.879253 2.37585,20.194728 11.285289,30.292093 -0.26458,-0.0648 14.81667,15.545622 14.81667,15.545622 l -0.56157,26.62573 23.164543,-1e-5 h 9.503401 l -0.09179,-26.890303 c 7.127551,-9.701389 15.534823,-15.875001 21.474453,-30.130103 1.78189,-5.939625 1.94703,-11.510784 0,-24.352467 C 105.08863,29.998778 101.86458,23.8125 93.927083,17.197917 83.34375,9.2604167 76.729167,8.73125 68.327293,8.6232538 Z"
+             id="path35"
+             sodipodi:nodetypes="ccccccccccccc" />
+          <rect
+             style="fill:#223c5f;fill-opacity:1;stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
+             id="rect860"
+             width="29.104168"
+             height="4.7517037"
+             x="54.666149"
+             y="107.22105" />
+          <rect
+             style="fill:#223c5f;fill-opacity:1;stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
+             id="rect860-3"
+             width="29.104168"
+             height="4.7517037"
+             x="54.666149"
+             y="112.56671" />
+          <rect
+             style="fill:#223c5f;fill-opacity:1;stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
+             id="rect877"
+             width="4.1577349"
+             height="12.473211"
+             x="61.199741"
+             y="94.15387" />
+          <rect
+             style="fill:#223c5f;fill-opacity:1;stroke-width:4.4898;stroke-miterlimit:4;stroke-dasharray:none"
+             id="rect877-6"
+             width="4.1577349"
+             height="12.473211"
+             x="73.079002"
+             y="94.15387" />
+          <rect
+             style="fill:#223c5f;fill-opacity:1;stroke-width:4.49889;stroke-miterlimit:4;stroke-dasharray:none"
+             id="rect897"
+             width="17.224915"
+             height="4.2542143"
+             x="60.605778"
+             y="127.41577" />
+        </g>
+        <g
+           inkscape:groupmode="layer"
+           id="layer4"
+           inkscape:label="Foreground">
+          <path
+             style="fill:#223c5f;fill-opacity:1;stroke:#223c5f;stroke-width:0.258767px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="m 80.329797,60.854164 -3.036956,-3.175 6.580072,-6.614583 -6.833151,-6.879167 3.036956,-3.175 9.617029,10.054166 z"
+             id="path921"
+             sodipodi:nodetypes="ccccccc" />
+          <rect
+             style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
+             id="rect19"
+             width="5.2916656"
+             height="4.2333331"
+             x="65.616669"
+             y="39.952084" />
+          <path
+             style="fill:#223c5f;fill-opacity:1;stroke:#223c5f;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             d="m 56.091663,60.854164 3.175,-3.175 -6.879167,-6.614583 7.14375,-6.879167 -3.175,-3.175 -10.054167,10.054166 z"
+             id="path919"
+             sodipodi:nodetypes="ccccccc" />
+          <rect
+             style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
+             id="rect19-3"
+             width="5.2916656"
+             height="4.2333331"
+             x="65.616669"
+             y="48.683334"
+             inkscape:transform-center-x="0.62270103"
+             inkscape:transform-center-y="-9.4564009" />
+          <rect
+             style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.271457"
+             id="rect871"
+             width="5.2916656"
+             height="4.2333331"
+             x="65.616669"
+             y="57.679169"
+             inkscape:transform-center-x="0.62270103"
+             inkscape:transform-center-y="-9.4564009" />
+        </g>
+      </g>
     </g>
   </g>
 </svg>
