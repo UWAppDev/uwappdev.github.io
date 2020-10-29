@@ -62,6 +62,7 @@ async function replaceSelectors()
 async function makeDropdownsAnimatable()
 {
     const dropdowns = document.querySelectorAll("details");
+    let nextDropdownIdNumber = 0;
 
     // Render an arrow onto a canvas. The arrow points
     //right and can be rotated using CSS.
@@ -131,6 +132,13 @@ async function makeDropdownsAnimatable()
         contentContainer.classList.add('content'); // ...we can still distinguish them.
         dropdownContainer.classList.add('dropdown');
 
+        // Completely decorative.
+        // Ref: https://a11yportal.com/advanced/design/images-svg-and-canvas.html
+        arrow.setAttribute("role", "presentation");
+
+        const contentContainerId = 'dropdown' + (nextDropdownIdNumber++);
+        contentContainer.setAttribute('id', contentContainerId);
+
         // Resize the arrow (should be resized also by CSS).
         arrow.width = 200;
         arrow.height = 200;
@@ -147,13 +155,18 @@ async function makeDropdownsAnimatable()
             {
                 dropdownContainer.classList.add('expanded');
             }
+
+            titleContainer.setAttribute('aria-expanded', dropdownContainer.classList.contains('expanded'));
         };
 
         titleContainer.addEventListener('click', () => { toggleState(); });
         titleContainer.addEventListener('keydown', (e) => { if (e.keyCode == 13) { toggleState(); }}); // On enter-key press.
 
         // Usability.
-        titleContainer.setAttribute('tabIndex', 1);
+        titleContainer.setAttribute('tabIndex', 0);
+        titleContainer.setAttribute('role', 'button');
+        titleContainer.setAttribute('aria-controls', contentContainerId);
+        titleContainer.setAttribute('aria-expanded', dropdownContainer.classList.contains('expanded'));
 
         // Build element hierarchy
         dropdownContainer.appendChild(titleContainer);
