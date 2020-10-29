@@ -5,13 +5,16 @@
  * standard elements; e.g. the footer.
  */
 
+ const PAGES_DIRECTORY = "/pages";
+ const IMAGES_DIRECTORY = "/images";
+
  const CONTENT_REPLACEMENTS =
  {
     'footer':
     `
-    <div class = "img" style = "background-image: Url(/images/joinUs.png);"></div>
+    <div class = "img" style = "background-image: Url(${IMAGES_DIRECTORY}/joinUs.png);"></div>
     <div class = "content">
-        <p><a href = "/pages/join.html"><i>Join Us!</i></a>
+        <p><a href = "${PAGES_DIRECTORY}/join.html"><i>Join Us!</i></a>
             Do you have a project you want to share?
             A framework you want to learn? A team you want to create?
             Something else? Join us! All University of Washington
@@ -27,9 +30,9 @@
 
     'header':
     `
-        <a href = "/pages/about.html">About</a>
-        <a href = "/pages/support.html">Support Us</a>
-        <a href = "/pages/join.html">Join Us</a>
+        <a href = "${PAGES_DIRECTORY}/about.html">About</a>
+        <a href = "${PAGES_DIRECTORY}/support.html">Support Us</a>
+        <a href = "${PAGES_DIRECTORY}/join.html">Join Us</a>
     `,
 };
 
