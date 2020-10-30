@@ -61,6 +61,8 @@ async function replaceSelectors()
  */
 async function makeDropdownsAnimatable()
 {
+    const DROPDOWN_ANIMATION_TIME_MS = 500;
+
     const dropdowns = document.querySelectorAll("details");
     let nextDropdownIdNumber = 0;
 
@@ -144,19 +146,43 @@ async function makeDropdownsAnimatable()
         arrow.height = 200;
         renderArrow(arrow);
 
+        const updateAccessibilityState = () =>
+        {
+            const isVisible = dropdownContainer.classList.contains('expanded');
+
+            titleContainer.setAttribute('aria-expanded', isVisible);
+            contentContainer.setAttribute('aria-hidden', !isVisible);
+        };
+
+        const updateContentDisplay = () =>
+        {
+            const visible = dropdownContainer.classList.contains('expanded');
+
+            if (visible)
+            {
+                contentContainer.style.display = "block";
+            }
+            else
+            {
+                contentContainer.style.display = "none";
+            }
+        };
+
         // Events.
         const toggleState = () =>
         {
             if (dropdownContainer.classList.contains('expanded'))
             {
                 dropdownContainer.classList.remove('expanded');
+                setTimeout(updateContentDisplay, DROPDOWN_ANIMATION_TIME_MS);
             }
             else
             {
                 dropdownContainer.classList.add('expanded');
+                updateContentDisplay();
             }
 
-            titleContainer.setAttribute('aria-expanded', dropdownContainer.classList.contains('expanded'));
+            updateAccessibilityState();
         };
 
         titleContainer.addEventListener('click', () => { toggleState(); });
@@ -166,7 +192,9 @@ async function makeDropdownsAnimatable()
         titleContainer.setAttribute('tabIndex', 0);
         titleContainer.setAttribute('role', 'button');
         titleContainer.setAttribute('aria-controls', contentContainerId);
-        titleContainer.setAttribute('aria-expanded', dropdownContainer.classList.contains('expanded'));
+
+        updateAccessibilityState();
+        updateContentDisplay();
 
         // Build element hierarchy
         dropdownContainer.appendChild(titleContainer);

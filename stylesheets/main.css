@@ -304,6 +304,12 @@ footer a
     }
 }
 
+@keyframes dropdownGrowInY
+{
+    0% { transform: scale(1, 0); max-height: 0px; }
+    100% { transform: scale(1, 1); max-height: 500px; }
+}
+
 /* Smaller, styled widgets. */
 .dropdown > .content
 {
@@ -318,7 +324,7 @@ footer a
     padding: 0 0 0 0; /* Changing the padding provides a neat animation! */
     margin: 0 0 0 0;
 
-    transition: 0.5s ease all;
+    transition: transform ease 0.5s, max-height ease 0.5s;
 
     /* Give the content a border, to better associate it with the dropdown. */
     border-left: 1px solid gray;
@@ -333,6 +339,8 @@ footer a
     padding: 10px 20px 10px 20px;
     margin: 0 0 10px 0;
     transform: scale(1, 1);
+
+    animation: dropdownGrowInY 0.5s ease;
 }
 
 .dropdown > .title
