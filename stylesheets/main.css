@@ -324,7 +324,7 @@ footer a
     padding: 0 0 0 0; /* Changing the padding provides a neat animation! */
     margin: 0 0 0 0;
 
-    transition: transform ease 0.5s, max-height ease 0.5s;
+    transition: transform ease 0.5s, max-height ease 0.5s, padding ease 0.5s, margin ease 0.5s;
 
     /* Give the content a border, to better associate it with the dropdown. */
     border-left: 1px solid gray;
