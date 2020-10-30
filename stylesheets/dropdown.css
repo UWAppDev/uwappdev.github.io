@@ -1,0 +1,91 @@
+@keyframes dropdownGrowInY
+{
+    0% { transform: scale(1, 0); max-height: 0px; }
+    100% { transform: scale(1, 1); max-height: 500px; }
+}
+
+/* Smaller, styled widgets. */
+.dropdown > .content
+{
+    max-height: 0px; /* If not expanded, hide the content. */
+    overflow: auto; /* The content will have a finite max-height. Scroll if it reaches this. */
+
+
+    /* Transformation gives a smoother animation, but we need height-based animation, too. */
+    transform-origin: top center;
+    transform: scale(1, 0);
+
+    padding: 0 0 0 0; /* Changing the padding provides a neat animation! */
+    margin: 0 0 0 0;
+
+    transition: transform ease 0.5s, max-height ease 0.5s, padding ease 0.5s, margin ease 0.5s;
+
+    /* Give the content a border, to better associate it with the dropdown. */
+    border-left: 1px solid gray;
+
+    /* General content styling */
+    font-size: 12pt;
+}
+
+.dropdown.expanded > .content
+{
+    max-height: 500px;
+    padding: 10px 20px 10px 20px;
+    margin: 0 0 10px 0;
+    transform: scale(1, 1);
+
+    animation: dropdownGrowInY 0.5s ease;
+}
+
+.dropdown > .title
+{
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+}
+
+/* The arrow */
+.dropdown > .title > .arrow
+{
+    height: 10px;
+
+    /* Center vertically. */
+    margin-top: auto;
+    margin-bottom: auto;
+
+    /* Don't expand. */
+    flex-grow: 0;
+
+    /* Spacing */
+    margin-right: 15px;
+
+    /* Rotation and animation. */
+    transform: rotate(0deg);
+    transition: 0.5s ease all;
+}
+
+.dropdown.expanded > .title > .arrow
+{
+    transform: rotate(90deg);
+}
+
+/* The title content */
+.dropdown > .title > .content
+{
+    /* Render a changing-size underline to provide visual feedback for selection/hovering. */
+    background-image: linear-gradient(rgba(255, 255, 255, 0.8) 95%, rgba(0, 0, 0, 0.8) 5%);
+
+    background-repeat: no-repeat;
+    background-size: 0% 100%;
+    background-position-x: left;
+
+    font-size: 110%; /* Slight font-size increas */
+
+    transition: 0.5s ease all;
+}
+
+.dropdown > .title:hover > .content,
+.dropdown > .title:focus > .content
+{
+    background-size: 100% 100%;
+}
