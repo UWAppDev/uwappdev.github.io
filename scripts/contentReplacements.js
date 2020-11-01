@@ -20,13 +20,6 @@
         </p>
     </div>
     `,
-
-    'header':
-    `
-        <a href = "${PAGES_DIRECTORY}/about.html">About</a>
-        <a href = "${PAGES_DIRECTORY}/support.html">Support Us</a>
-        <a href = "${PAGES_DIRECTORY}/join.html">Join Us</a>
-    `,
 };
 
 /**
@@ -48,4 +41,22 @@ async function replaceSelectors()
     }
 }
 
-export { replaceSelectors };
+/**
+ * Fill the document's header with content, for example, 
+ * the page's logo.
+ */
+async function replaceHeader()
+{
+    const header = document.querySelector("header");
+
+    const headerImage = document.createElement("img");
+    headerImage.src = IMAGES_DIRECTORY + "/labeledLogo.svg";
+
+    const spacer = document.createElement("div");
+    spacer.classList.add("spacer");
+
+    header.appendChild(headerImage);
+    header.appendChild(spacer);
+}
+
+export { replaceSelectors, replaceHeader };

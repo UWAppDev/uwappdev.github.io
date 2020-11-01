@@ -6,13 +6,14 @@
  */
 
 import { makeDropdownsAnimatable } from "./dropdowns.js";
-import { replaceSelectors } from "./contentReplacements.js";
+import { replaceHeader, replaceSelectors } from "./contentReplacements.js";
  
 
 // On page load...
 async function main()
 {
     await replaceSelectors();
+    await replaceHeader();
     await makeDropdownsAnimatable();
 }
 

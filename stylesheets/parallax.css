@@ -1,0 +1,118 @@
+/*
+  A parallax group allows the background of the group
+  to scroll at a different rate from the foreground.
+  Perspective Ref: https://developer.mozilla.org/en-US/docs/web/css/perspective
+  Parallax Ref: https://keithclark.co.uk/articles/pure-css-parallax-websites/
+*/
+.parallax
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    perspective: 1px; /*
+                        Causes parallax. Note: Changing this value requires a change
+                        in the scale of background entities.
+                       */
+
+    /* Scroll the parallax region. */
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    /*
+        There might be additional space at the end of the page.
+        Give the page a background image that can fill that space!
+    */
+    /* background-image varies from page to page, so is set in the HTML. */
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.parallax > .parallaxMotionGroup
+{
+    transform-style: preserve-3d;
+    height: 200vh;
+}
+
+.parallaxMotionGroup > .content
+{
+    position: absolute;
+    top: 25%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+.parallaxMotionGroup > .content,
+.parallaxFixedGroup > .content
+{
+    max-width: 500px;
+    text-align: center;
+    color: wheat;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+
+    margin-left: auto;
+    margin-right: auto;
+
+    font-size: 200%;
+}
+
+.parallaxMotionGroup > .background
+{
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    overflow-y: hidden;
+
+    transform: translateZ(-1px) scale(2); /*
+                                            Scale the background image to
+                                            adjust its size for perspective.
+                                           */
+}
+
+.parallaxMotionGroup > .background > .img
+{
+    width: 100vw;
+    height: 100vh;
+
+    background-position: center;
+    background-repeat: no;
+    background-size: cover;
+}
+
+/*
+    An alternative approach to parallax: a fixed background.
+    See https://www.w3schools.com/howto/howto_css_parallax.asp.
+ */
+.parallaxFixedGroup
+{
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    padding-left: 10vw;
+    padding-right: 10vw;
+
+    text-align: center;
+
+    height: 100vh;
+}
+
+.parallax > .parallaxFixedGroup
+{
+    margin-top: -100vh;
+    height: 150vh;
+    padding-top: 150vh;
+}
+
+/* Make the shift between the first parallax pane
+   and the background less noticable. */
+.parallax > :nth-child(2)
+{
+    box-shadow: 0px -200px 1px black;   
+}

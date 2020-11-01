@@ -11,39 +11,17 @@
 </head>
 
 <body>
-    <div class="parallax" style="background-image: url(images/hackDayRoom.jpg);">
-        <header>
-            <!-- Filled by JS -->
-        </header>
-        <div class="parallaxMotionGroup">
-            <div class="content">
-                <h1>Empowering</h1>
-            </div>
-            <div class="background">
-                <div class="img" style="background-image: Url(images/iosHackaday.png);"></div>
-            </div>
-        </div>
-        <div class="parallaxFixedGroup" style="background-image: Url(images/cseReviewBoard.jpg);">
-            <div class="content">
-                <h1>Supporting</h1>
-            </div>
-        </div>
-        <div class="parallaxMotionGroup">
-            <div class="content">
-                <h1>Building</h1>
-            </div>
-            <div class="background">
-                <div class="img" style="background-image: Url(images/studentUsingComputer.jpg);"></div>
-            </div>
-        </div>
-        <footer>
-            <!-- Filled by JS -->
-            <noscript>Please enable JavaScript.</noscript>
-        </footer>
-    </div>
+    <header></header>
+    <footer></footer>
 </body>
 
-<!-- Fill elements after page load. -->
-<script type = "module" src="../scripts/replacements.js"></script>
+<!-- 
+    Fill elements after page load. 
+
+    This is a module script, so might not work if this page
+    is opened using a file:// url. Try serving it using
+    something like `python3 -m http.server`.
+-->
+<script type = "module" src="scripts/replacements.js"></script>
 
 </html>
