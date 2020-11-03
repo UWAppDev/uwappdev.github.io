@@ -1,7 +1,7 @@
 
 header
 {
-    --header-height: 50px;
+    --header-height: 70px;
 
     height: var(--header-height);
 
@@ -11,7 +11,7 @@ header
     transition: height 0.5s ease;
 
 
-    box-shadow: 0px 3px 2px var(--shadow-color);
+    box-shadow: 0px 3px 4px var(--shadow-color);
 }
 
 header img
@@ -24,6 +24,6 @@ header img
 {
     header
     {
-        --header-height: 100px;
+        --header-height: 120px;
     }
 }

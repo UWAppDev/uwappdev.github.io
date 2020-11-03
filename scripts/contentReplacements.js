@@ -1,3 +1,5 @@
+import { createNavigationDropdowns } from "./navigationDropdowns.js";
+
  const PAGES_DIRECTORY = "/pages";
  const IMAGES_DIRECTORY = "/images";
 
@@ -55,8 +57,11 @@ async function replaceHeader()
     const spacer = document.createElement("div");
     spacer.classList.add("spacer");
 
+    const navigationZone = createNavigationDropdowns();
+
     header.appendChild(headerImage);
     header.appendChild(spacer);
+    header.appendChild(navigationZone);
 }
 
 export { replaceSelectors, replaceHeader };

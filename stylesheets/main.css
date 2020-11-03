@@ -9,14 +9,14 @@
 {
     --primary-color: hsl(0deg, 0%, 50%);
     --secondary-color: hsl(0deg, 0%, 100%);
-    --shadow-color: hsla(12deg, 20%, 20%, 80%);
+    --shadow-color: hsla(12deg, 20%, 20%, 40%);
     --image-invert-amount: 0%;
 }
 
 :root.darkmode
 {
     --secondary-color: hsl(0deg, 0%, 0%);
-    --shadow-color: hsla(120deg, 00%, 50%, 80%);
+    --shadow-color: hsla(120deg, 00%, 50%, 40%);
     --image-invert-amount: 100%;
 }
 

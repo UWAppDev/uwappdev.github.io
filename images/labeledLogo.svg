@@ -7,9 +7,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="1700"
+   width="2500"
    height="512"
-   viewBox="0 0 449.79168 135.46667"
+   viewBox="0 0 661.45835 135.46667"
    version="1.1"
    id="svg8"
    sodipodi:docname="labeledLogo.svg"
@@ -26,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="875.22555"
-     inkscape:cy="185.44343"
+     inkscape:zoom="0.26337421"
+     inkscape:cx="1463.6797"
+     inkscape:cy="-600.27716"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      inkscape:document-rotation="0"
@@ -38,7 +38,7 @@
      inkscape:pagecheckerboard="true"
      inkscape:window-width="1920"
      inkscape:window-height="1016"
-     inkscape:window-x="1280"
+     inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:snap-object-midpoints="false">
@@ -66,29 +66,30 @@
      inkscape:label="Label">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.264583;"
-       x="372.64444"
-       y="110.40854"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24.4004px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.457507;"
+       x="560.849"
+       y="116.1983"
        id="text32"><tspan
          sodipodi:role="line"
          id="tspan30"
-         x="372.64444"
-         y="110.40854"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;stroke-width:0.264583;fill-opacity:1;">@ UW</tspan></text>
+         x="560.849"
+         y="116.1983"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#808080;fill-opacity:1;stroke-width:0.457507">@ UW</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#223c5f;fill-opacity:1;stroke:none;stroke-width:0.264583;"
-       x="101.9412"
-       y="95.733269"
-       id="text28"><tspan
+       style="font-style:normal;font-weight:normal;font-size:19.7171px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;fill:#223c5f;fill-opacity:1;stroke:none;stroke-width:0.492927"
+       x="124.3496"
+       y="75.144943"
+       id="text28"
+       transform="scale(0.78952646,1.266582)"><tspan
          sodipodi:role="line"
          id="tspan26"
-         x="101.9412"
-         y="95.733269"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:22.5778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#223c5f;stroke-width:0.264583;fill-opacity:1;">Mobile Development Club</tspan></text>
+         x="124.3496"
+         y="75.144943"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:48.53px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#223c5f;fill-opacity:1;stroke-width:0.492927">Mobile Development Club</tspan></text>
     <g
        id="g102"
-       transform="translate(8.4666672)">
+       transform="translate(-11.60716,-5.2916714)">
       <g
          id="layer2-8"
          inkscape:label="Background" />
