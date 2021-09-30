@@ -6,12 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Join Mobile Development Club at University of Washington</title>
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <style>
+        html {
+            --mdc-theme-primary: rgb(238, 145, 80) !important;
+            --mdc-theme-secondary: rgb(39, 60, 92) !important;
+        }
+    </style>
 </head>
 
 <body>
-    Please join our Discord server at <a href="https://discord.gg/2crbAsG">https://discord.gg/2crbAsG</a>
-    <br>
-    <a href="./signin">Join the raffle!</a>
+    <!-- https://material-components.github.io/material-components-web-catalog/#/ -->
+    <h1>Dawg Daze</h1>
+    <p>
+        Thank you for your interest in Mobile/App Development Club at UW!
+    </p>
+
+    <button class="mdc-button mdc-button--raised" onclick="location.href='https://discord.gg/2crbAsG'" type="button">
+        <span class="mdc-button__ripple"></span>
+        Join Discord
+    </button>
+
+    <button class="mdc-button mdc-button--outlined" onclick="location.href='./signin'" type="button">
+        <i class="material-icons mdc-button__icon">card_giftcard</i>
+        <span class="mdc-button__ripple"></span> Enter Raffle
+    </button>
 </body>
 
 </html>
