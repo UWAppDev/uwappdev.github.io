@@ -1,6 +1,6 @@
 # flutter_prototype
 
-A new Flutter project.
+A concept prototype for implementing the AppDev@UW website in Flutter.
 
 ## Getting Started
 

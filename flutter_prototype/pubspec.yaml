@@ -29,6 +29,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  routemaster: ^0.9.5
 
 dev_dependencies:
   flutter_test:
