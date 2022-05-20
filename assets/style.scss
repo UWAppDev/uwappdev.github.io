@@ -1,0 +1,23 @@
+---
+title: false
+styles: true
+---
+
+// Apply styles from Jekyll theme
+@import "hematite";
+
+// In dark mode, invert the brightness of images
+@include auto-invert-images;
+
+.sidebar > footer > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    > :not(:nth-child(1)) {
+        margin-left: 5px;
+        padding-left: 5px;
+        border-left: 1px solid var(--line-color-normal);
+    }
+}
+
