@@ -29,8 +29,4 @@ Welcome to the App Development Club Website, where you can learn about how every
 - [How to: reserve space (for free)]({{ 'pages/RSO-Room-Reservation' | relative_url }})
 - [How to: task management]({{ 'pages/Board-Task-Management' | relative_url }})
 
-## Doomsday Plan
 
-If one day the RSO no longer exists at the University of Washington, interested students may look at this Wiki, see what went wrong, and revive it. You should get access to appdev@uw.edu through Student Activities Office, then check Google Drive for additional records and accounts we had.
-
-However, let's work together to make sure the RSO can thrive to serve its purpose for many years to come.
