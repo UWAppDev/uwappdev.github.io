@@ -18,16 +18,17 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: AppDev
+title: UWAppDev
 email: appdev@uw.edu
+# For search engines
 description: >- # this means to ignore newlines
-  The website for the application development club at the University of
+  The website for the app development club at the University of
   Washington, Seattle.
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
 # Build settings
-theme: hematite
+# theme: hematite
 remote_theme: personalizedrefrigerator/jekyll-hematite-theme
 plugins:
   - jekyll-feed
@@ -42,7 +43,33 @@ hematite:
         <a href="https://uwapp.dev/discord">Discord</a>
         <a href="https://github.com/UWAppDev">GitHub</a>
         <a href="https://uwdev.app">Made by Us</a>
+    show_settings_btn: true
 
+  # Invert images in dark mode
+  auto_invert_imgs: true
+
+  # Set to true to minimize the header by default
+  minimize_header: false
+
+  # Date options are as specified here:
+  # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
+  date_format:
+    # Short weekday (e.g. Thu for Thursday)
+    # weekday: short
+    # Long weekday (e.g. Monday)
+    weekday: long
+
+    # Use two digits for the month and day
+    month: 2-digit
+    day: 2-digit
+
+    # The full year
+    year: numeric
+
+    parsing:
+      # True if the date should be parsed MM/DD/YYYY instead of
+      # DD/MM/YYYY
+      month_first: true
 
 # Exclude from processing.
 # The following items will not be processed, by default.
