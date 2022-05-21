@@ -28,6 +28,7 @@ description: >- # this means to ignore newlines
 
 # Build settings
 theme: hematite
+remote_theme: personalizedrefrigerator/jekyll-hematite-theme
 plugins:
   - jekyll-feed
   - jemoji
