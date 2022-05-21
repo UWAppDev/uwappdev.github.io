@@ -5,3 +5,7 @@ _site
 .*.swo
 .*.swp
 vendor
+
+#Intellij
+.idea/
+.DS_Store
